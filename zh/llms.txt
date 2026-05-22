@@ -1,0 +1,60 @@
+# OpenSand Docs (zh)
+
+> Human-curated Markdown index for OpenSand documentation.
+
+## Pages
+- [快速开始](https://opensand.ai/zh/docs): /
+- [API 文档](https://opensand.ai/zh/docs/api): /api
+- [Claude Messages](https://opensand.ai/zh/docs/api/ai-model/chat/createmessage): /api/ai-model/chat/createmessage
+- [Gemini 文本对话](https://opensand.ai/zh/docs/api/ai-model/chat/gemini/geminirelayv1beta): /api/ai-model/chat/gemini/geminirelayv1beta
+- [Gemini 多模态对话](https://opensand.ai/zh/docs/api/ai-model/chat/gemini/geminirelayv1beta-391536411): /api/ai-model/chat/gemini/geminirelayv1beta-391536411
+- [Chat Completions](https://opensand.ai/zh/docs/api/ai-model/chat/openai/createchatcompletion): /api/ai-model/chat/openai/createchatcompletion
+- [Responses](https://opensand.ai/zh/docs/api/ai-model/chat/openai/createresponse): /api/ai-model/chat/openai/createresponse
+- [Text Completions](https://opensand.ai/zh/docs/api/ai-model/completions/createcompletion): /api/ai-model/completions/createcompletion
+- [Embeddings](https://opensand.ai/zh/docs/api/ai-model/embeddings/openai/createembedding): /api/ai-model/embeddings/openai/createembedding
+- [Gemini 图片生成](https://opensand.ai/zh/docs/api/ai-model/images/gemini/geminirelayv1beta-383837589): /api/ai-model/images/gemini/geminirelayv1beta-383837589
+- [Gemini 图片编辑](https://opensand.ai/zh/docs/api/ai-model/images/gemini/geminirelayv1beta-389846313): /api/ai-model/images/gemini/geminirelayv1beta-389846313
+- [图片编辑](https://opensand.ai/zh/docs/api/ai-model/images/openai/post-v1-images-edits): /api/ai-model/images/openai/post-v1-images-edits
+- [图片生成](https://opensand.ai/zh/docs/api/ai-model/images/openai/post-v1-images-generations): /api/ai-model/images/openai/post-v1-images-generations
+- [模型列表](https://opensand.ai/zh/docs/api/ai-model/models/list/listmodels): /api/ai-model/models/list/listmodels
+- [Gemini 模型列表](https://opensand.ai/zh/docs/api/ai-model/models/list/listmodelsgemini): /api/ai-model/models/list/listmodelsgemini
+- [HappyHorse 视频生成](https://opensand.ai/zh/docs/api/ai-model/videos/happyhorse): /api/ai-model/videos/happyhorse
+- [PixVerse 视频生成](https://opensand.ai/zh/docs/api/ai-model/videos/pixverse): /api/ai-model/videos/pixverse
+- [Seedance 视频生成](https://opensand.ai/zh/docs/api/ai-model/videos/seedance): /api/ai-model/videos/seedance
+- [Veo 3.1 视频生成](https://opensand.ai/zh/docs/api/ai-model/videos/veo31): /api/ai-model/videos/veo31
+- [Wanx 2.7 视频生成](https://opensand.ai/zh/docs/api/ai-model/videos/wanx27): /api/ai-model/videos/wanx27
+- [应用接入](https://opensand.ai/zh/docs/apps): /apps
+- [AionUi](https://opensand.ai/zh/docs/apps/aionui): /apps/aionui
+- [AstrBot](https://opensand.ai/zh/docs/apps/astrbot): /apps/astrbot
+- [CC Switch](https://opensand.ai/zh/docs/apps/cc-switch): /apps/cc-switch
+- [Cherry Studio](https://opensand.ai/zh/docs/apps/cherry-studio): /apps/cherry-studio
+- [Claude Code](https://opensand.ai/zh/docs/apps/claude-code): /apps/claude-code
+- [CodeBuddy](https://opensand.ai/zh/docs/apps/codebuddy): /apps/codebuddy
+- [Codex CLI](https://opensand.ai/zh/docs/apps/codex-cli): /apps/codex-cli
+- [Copilot CLI](https://opensand.ai/zh/docs/apps/copilot-cli): /apps/copilot-cli
+- [Crush](https://opensand.ai/zh/docs/apps/crush): /apps/crush
+- [Factory Droid CLI](https://opensand.ai/zh/docs/apps/factory-droid-cli): /apps/factory-droid-cli
+- [FluentRead](https://opensand.ai/zh/docs/apps/fluent-read): /apps/fluent-read
+- [Hermes Agent](https://opensand.ai/zh/docs/apps/hermes-agent): /apps/hermes-agent
+- [LangBot](https://opensand.ai/zh/docs/apps/langbot): /apps/langbot
+- [LunaTranslator](https://opensand.ai/zh/docs/apps/luna-translator): /apps/luna-translator
+- [Memoh](https://opensand.ai/zh/docs/apps/memoh): /apps/memoh
+- [nanobot](https://opensand.ai/zh/docs/apps/nanobot): /apps/nanobot
+- [Oh My Pi](https://opensand.ai/zh/docs/apps/oh-my-pi): /apps/oh-my-pi
+- [OpenClaw](https://opensand.ai/zh/docs/apps/openclaw): /apps/openclaw
+- [OpenCode](https://opensand.ai/zh/docs/apps/opencode): /apps/opencode
+- [Pi](https://opensand.ai/zh/docs/apps/pi-mono): /apps/pi-mono
+- [API 令牌](https://opensand.ai/zh/docs/guide/console/api-token): /guide/console/api-token
+- [在线聊天](https://opensand.ai/zh/docs/guide/console/chat): /guide/console/chat
+- [控制台概览](https://opensand.ai/zh/docs/guide/console/dashboard): /guide/console/dashboard
+- [Playground](https://opensand.ai/zh/docs/guide/console/playground): /guide/console/playground
+- [个人资料](https://opensand.ai/zh/docs/guide/console/profile): /guide/console/profile
+- [用量日志](https://opensand.ai/zh/docs/guide/console/usage-log): /guide/console/usage-log
+- [价格与用量](https://opensand.ai/zh/docs/guide/pricing): /guide/pricing
+- [快速入门](https://opensand.ai/zh/docs/guide/quick-start): /guide/quick-start
+- [项目介绍](https://opensand.ai/zh/docs/guide/wiki/basic-concepts/project-introduction): /guide/wiki/basic-concepts/project-introduction
+- [技术架构](https://opensand.ai/zh/docs/guide/wiki/basic-concepts/technical-architecture): /guide/wiki/basic-concepts/technical-architecture
+- [更新日志](https://opensand.ai/zh/docs/guide/wiki/changelog): /guide/wiki/changelog
+- [项目记录](https://opensand.ai/zh/docs/guide/wiki/project-records/changelog): /guide/wiki/project-records/changelog
+- [特别鸣谢](https://opensand.ai/zh/docs/guide/wiki/project-records/special-thanks): /guide/wiki/project-records/special-thanks
+- [特别鸣谢](https://opensand.ai/zh/docs/guide/wiki/special-thanks): /guide/wiki/special-thanks

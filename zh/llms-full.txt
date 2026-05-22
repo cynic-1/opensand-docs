@@ -1,0 +1,4988 @@
+# 快速开始
+
+Source: https://opensand.ai/zh/docs
+
+---
+title: "快速开始"
+source: "https://opensand.ai/zh/docs"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.069Z"
+---
+# OpenSand 文档
+
+OpenSand 是一个统一的 AI 模型接入网关。你可以用一个 API Key 和一个 Base URL 接入聊天、Embedding、图片、视频以及常见开发工具。
+
+## 从这里开始
+
+1. [快速入门](/zh/docs/guide/quick-start)：创建 API Key，并完成第一次 API 调用。
+2. [价格与用量](/zh/docs/guide/pricing)：理解余额、用量和模型费用。
+3. [API 文档](/zh/docs/api)：查看 OpenAI 兼容接口和模型接口。
+4. [应用接入](/zh/docs/apps)：配置 Claude Code、Codex CLI、Cherry Studio、OpenClaw 等工具。
+
+## 最常用配置
+
+| 配置项 | 值 |
+|---|---|
+| API Base URL | `https://opensand.ai/v1` |
+| API Key | 在 OpenSand 控制台创建 |
+| 模型名称 | 从控制台或 `/v1/models` 查询 |
+
+## 用户最常见的问题
+
+- 不知道填哪个地址：大多数 OpenAI 兼容工具填写 `https://opensand.ai/v1`。
+- 不知道模型名：先调用 `GET /v1/models`。
+- 调不通：先检查 API Key，再检查模型名和账户额度。
+
+---
+
+# API 文档
+
+Source: https://opensand.ai/zh/docs/api
+
+---
+title: "API 文档"
+source: "https://opensand.ai/zh/docs/api"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.077Z"
+---
+# API 文档
+
+OpenSand 对外提供 OpenAI 兼容接口，并保留部分模型原生协议。大多数应用只需要 OpenAI 兼容 API。
+
+## 基础信息
+
+| 项目 | 值 |
+|---|---|
+| Base URL | `https://opensand.ai/v1` |
+| 认证 | `Authorization: Bearer sk-你的APIKey` |
+| 请求格式 | JSON，除图片编辑等上传接口外 |
+
+## 最小请求长什么样
+
+每个 OpenAI 兼容请求通常由三部分组成：
+
+1. 请求地址：例如 `https://opensand.ai/v1/chat/completions`。
+2. 请求头：包含 API Key 和内容类型。
+3. 请求体：包含模型名称和输入内容。
+
+```bash
+curl https://opensand.ai/v1/chat/completions \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","messages":[{"role":"user","content":"你好"}]}'
+```
+
+如果你用 SDK，不需要自己拼 HTTP 请求，只要把 SDK 的 `base_url` 设置成 `https://opensand.ai/v1`。
+
+## 推荐阅读顺序
+
+1. [模型列表](/zh/docs/api/ai-model/models/list/listmodels)
+2. [Chat Completions](/zh/docs/api/ai-model/chat/openai/createchatcompletion)
+3. [Responses](/zh/docs/api/ai-model/chat/openai/createresponse)
+4. [Claude Messages](/zh/docs/api/ai-model/chat/createmessage)
+5. [Embeddings](/zh/docs/api/ai-model/embeddings/openai/createembedding)
+6. [图片生成](/zh/docs/api/ai-model/images/openai/post-v1-images-generations)
+
+## 选择哪个接口
+
+| 需求 | 接口 |
+|---|---|
+| 普通聊天、Agent、OpenAI SDK | `/chat/completions` |
+| 新版 OpenAI Responses 客户端 | `/responses` |
+| Claude 原生协议工具 | `/messages` |
+| 语义搜索、知识库 | `/embeddings` |
+| 生成图片 | `/images/generations` |
+| 生成视频 | `/video/generations` |
+
+## 调试建议
+
+- 第一步永远先调用 `/models`，确认 Key 可用并复制正确模型 ID。
+- 第二步用 `/chat/completions` 发送最小请求。
+- 第三步再接入 SDK、客户端或复杂参数。
+- 不要一开始就同时调试流式输出、工具调用、长上下文和高级模型。
+
+---
+
+# Claude Messages
+
+Source: https://opensand.ai/zh/docs/api/ai-model/chat/createmessage
+
+---
+title: "Claude Messages"
+source: "https://opensand.ai/zh/docs/api/ai-model/chat/createmessage"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.082Z"
+---
+# Claude Messages
+
+使用 Anthropic Claude Messages API 格式调用 Claude 类模型。Claude Code、部分 Anthropic SDK 和原生 Claude 工具会使用这种格式。
+
+## 新手先看
+
+如果你第一次接触 API，可以把一次请求理解成“向 OpenSand 发一封格式固定的消息”：
+
+- **请求地址**决定你要使用哪类能力，例如聊天、向量、图片或视频。
+- **API Key**证明这是你的账号在调用，必须放在 `Authorization` 请求头里。
+- **model** 决定真正使用哪个模型，必须和控制台或 `/models` 返回的模型 ID 完全一致。
+- **请求体**是你交给模型的任务，例如用户问题、提示词、图片参数或视频参数。
+
+## 请求地址
+
+```text
+POST /messages
+```
+
+完整请求地址：
+
+```text
+https://opensand.ai/v1/messages
+```
+
+如果某个客户端只让你填写 Base URL，请填写：
+
+```text
+https://opensand.ai/v1
+```
+
+## 认证
+
+所有请求都使用 OpenSand API Key：
+
+```http
+Authorization: Bearer sk-你的APIKey
+Content-Type: application/json
+```
+
+## 适合什么时候用
+
+用于明确要求 Anthropic 协议的工具。普通聊天应用如果支持 OpenAI 协议，通常用 `/chat/completions` 更简单。
+
+## 常用请求体
+
+- `model`：Claude 协议模型 ID。
+- `messages`：消息数组。
+- `max_tokens`：必填，限制输出长度。
+- `system`：系统提示词。
+- `stream`：是否流式返回。
+
+## 请求体怎么填
+
+最小可用请求一般只需要必填字段。先跑通最小请求，再逐步增加 `temperature`、`stream`、工具调用、图片尺寸等高级参数。
+
+填写参数时注意：
+
+- 字段名大小写必须完全一致，例如 `max_tokens` 不能写成 `maxTokens`。
+- JSON 字符串必须使用英文双引号。
+- 如果你从网页复制 API Key，确认前后没有空格或换行。
+
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/messages \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{"model":"claude-sonnet-4-6","max_tokens":512,"messages":[{"role":"user","content":"总结这个项目"}]}'
+```
+
+## 如何判断调用成功
+
+- HTTP 状态码是 200，通常说明请求成功。
+- 如果返回中包含 `id`、`choices`、`data` 或任务状态字段，说明 OpenSand 已经收到并处理请求。
+- 如果是流式接口，客户端会持续收到多段数据，直到结束标记。
+
+## 常见错误
+
+| 错误 | 含义 | 处理方式 |
+|---|---|---|
+| 401 Unauthorized | API Key 无效或没有传入 | 检查 `Authorization: Bearer sk-...` 格式 |
+| 403 Forbidden | 账号、分组或模型权限不足 | 检查账户状态、模型权限和额度 |
+| 404 Not Found | 路径或模型不存在 | 确认 Base URL、接口路径和模型 ID |
+| 429 Too Many Requests | 请求过快或额度限制 | 降低并发，稍后重试，或检查额度 |
+| 500/502/503 | 上游或平台临时错误 | 稍后重试，并查看请求日志 |
+
+## 注意事项
+
+- 请求头需要包含 `anthropic-version`。
+- 也可使用 `x-api-key`，但文档统一推荐 Bearer Token。
+- Claude Code 一键脚本会自动设置所需环境变量。
+
+---
+
+# Gemini 文本对话
+
+Source: https://opensand.ai/zh/docs/api/ai-model/chat/gemini/geminirelayv1beta
+
+---
+title: "Gemini 文本对话"
+source: "https://opensand.ai/zh/docs/api/ai-model/chat/gemini/geminirelayv1beta"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# Gemini 文本对话
+
+OpenSand 可为需要 Gemini 协议的客户端提供兼容入口。只有当你的工具明确要求 Gemini API 格式时，才需要使用本页。
+
+## 常见用途
+
+- 使用 Gemini 系列模型进行文本或多模态对话。
+- 接入只支持 Gemini API 路径的第三方工具。
+
+## 配置要点
+
+- API Key：使用 OpenSand 控制台创建的 Key。
+- 模型名称：以 OpenSand 控制台或模型列表返回为准。
+- Base URL：根据工具要求填写 OpenSand 站点地址；如果工具要求 OpenAI 兼容接口，优先使用 `https://opensand.ai/v1`。
+
+## 新手建议
+
+Gemini 协议在不同客户端里的字段名称差异较大。如果你只是想聊天、写代码或接入普通 Agent，优先选择 OpenAI 兼容模式；只有工具明确写着“Gemini API Key / Gemini Endpoint”时，再使用 Gemini 兼容配置。
+
+排查时先确认三件事：
+
+1. 这个工具到底要求 Gemini 协议还是 OpenAI 协议。
+2. 模型 ID 是否来自 OpenSand 控制台。
+3. Base URL 是否符合工具要求。
+
+## 建议
+
+如果工具支持 OpenAI 兼容协议，优先使用 [Chat Completions](/zh/docs/api/ai-model/chat/openai/createchatcompletion)，配置更简单，也更容易排查问题。
+
+---
+
+# Gemini 多模态对话
+
+Source: https://opensand.ai/zh/docs/api/ai-model/chat/gemini/geminirelayv1beta-391536411
+
+---
+title: "Gemini 多模态对话"
+source: "https://opensand.ai/zh/docs/api/ai-model/chat/gemini/geminirelayv1beta-391536411"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# Gemini 多模态对话
+
+OpenSand 可为需要 Gemini 协议的客户端提供兼容入口。只有当你的工具明确要求 Gemini API 格式时，才需要使用本页。
+
+## 常见用途
+
+- 使用 Gemini 系列模型进行文本或多模态对话。
+- 接入只支持 Gemini API 路径的第三方工具。
+
+## 配置要点
+
+- API Key：使用 OpenSand 控制台创建的 Key。
+- 模型名称：以 OpenSand 控制台或模型列表返回为准。
+- Base URL：根据工具要求填写 OpenSand 站点地址；如果工具要求 OpenAI 兼容接口，优先使用 `https://opensand.ai/v1`。
+
+## 新手建议
+
+Gemini 协议在不同客户端里的字段名称差异较大。如果你只是想聊天、写代码或接入普通 Agent，优先选择 OpenAI 兼容模式；只有工具明确写着“Gemini API Key / Gemini Endpoint”时，再使用 Gemini 兼容配置。
+
+排查时先确认三件事：
+
+1. 这个工具到底要求 Gemini 协议还是 OpenAI 协议。
+2. 模型 ID 是否来自 OpenSand 控制台。
+3. Base URL 是否符合工具要求。
+
+## 建议
+
+如果工具支持 OpenAI 兼容协议，优先使用 [Chat Completions](/zh/docs/api/ai-model/chat/openai/createchatcompletion)，配置更简单，也更容易排查问题。
+
+---
+
+# Chat Completions
+
+Source: https://opensand.ai/zh/docs/api/ai-model/chat/openai/createchatcompletion
+
+---
+title: "Chat Completions"
+source: "https://opensand.ai/zh/docs/api/ai-model/chat/openai/createchatcompletion"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.081Z"
+---
+# Chat Completions
+
+使用 OpenAI Chat Completions 格式创建对话回复。这是大多数聊天、Agent 和兼容 OpenAI SDK 的工具最常用的接口。
+
+## 新手先看
+
+如果你第一次接触 API，可以把一次请求理解成“向 OpenSand 发一封格式固定的消息”：
+
+- **请求地址**决定你要使用哪类能力，例如聊天、向量、图片或视频。
+- **API Key**证明这是你的账号在调用，必须放在 `Authorization` 请求头里。
+- **model** 决定真正使用哪个模型，必须和控制台或 `/models` 返回的模型 ID 完全一致。
+- **请求体**是你交给模型的任务，例如用户问题、提示词、图片参数或视频参数。
+
+## 请求地址
+
+```text
+POST /chat/completions
+```
+
+完整请求地址：
+
+```text
+https://opensand.ai/v1/chat/completions
+```
+
+如果某个客户端只让你填写 Base URL，请填写：
+
+```text
+https://opensand.ai/v1
+```
+
+## 认证
+
+所有请求都使用 OpenSand API Key：
+
+```http
+Authorization: Bearer sk-你的APIKey
+Content-Type: application/json
+```
+
+## 适合什么时候用
+
+用于多轮对话、流式输出、函数/工具调用、结构化输出和多数 OpenAI 兼容客户端。
+
+## 常用请求体
+
+- `model`：模型 ID，可从 `/models` 查询。
+- `messages`：对话消息数组，常见角色为 `system`、`user`、`assistant`。
+- `stream`：设为 `true` 时返回 SSE 流式结果。
+- `temperature`、`top_p`：控制生成随机性。
+- `max_tokens` 或 `max_completion_tokens`：限制输出长度。
+
+## 请求体怎么填
+
+最小可用请求一般只需要必填字段。先跑通最小请求，再逐步增加 `temperature`、`stream`、工具调用、图片尺寸等高级参数。
+
+填写参数时注意：
+
+- 字段名大小写必须完全一致，例如 `max_tokens` 不能写成 `maxTokens`。
+- JSON 字符串必须使用英文双引号。
+- 如果你从网页复制 API Key，确认前后没有空格或换行。
+
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/chat/completions \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","messages":[{"role":"user","content":"用一句话介绍 OpenSand"}]}'
+```
+
+## 如何判断调用成功
+
+- HTTP 状态码是 200，通常说明请求成功。
+- 如果返回中包含 `id`、`choices`、`data` 或任务状态字段，说明 OpenSand 已经收到并处理请求。
+- 如果是流式接口，客户端会持续收到多段数据，直到结束标记。
+
+## 常见错误
+
+| 错误 | 含义 | 处理方式 |
+|---|---|---|
+| 401 Unauthorized | API Key 无效或没有传入 | 检查 `Authorization: Bearer sk-...` 格式 |
+| 403 Forbidden | 账号、分组或模型权限不足 | 检查账户状态、模型权限和额度 |
+| 404 Not Found | 路径或模型不存在 | 确认 Base URL、接口路径和模型 ID |
+| 429 Too Many Requests | 请求过快或额度限制 | 降低并发，稍后重试，或检查额度 |
+| 500/502/503 | 上游或平台临时错误 | 稍后重试，并查看请求日志 |
+
+## 注意事项
+
+- 如果客户端要求填写 Base URL，请填写 `https://opensand.ai/v1`。
+- 模型名称必须和控制台或 `/models` 返回的 `id` 完全一致。
+- 出现 401 时优先检查 API Key；出现 404 或模型不可用时检查模型 ID。
+
+---
+
+# Responses
+
+Source: https://opensand.ai/zh/docs/api/ai-model/chat/openai/createresponse
+
+---
+title: "Responses"
+source: "https://opensand.ai/zh/docs/api/ai-model/chat/openai/createresponse"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.082Z"
+---
+# Responses
+
+使用 OpenAI Responses API 格式创建回复。它适合需要更统一输入结构、推理参数或新式 OpenAI SDK 能力的场景。
+
+## 新手先看
+
+如果你第一次接触 API，可以把一次请求理解成“向 OpenSand 发一封格式固定的消息”：
+
+- **请求地址**决定你要使用哪类能力，例如聊天、向量、图片或视频。
+- **API Key**证明这是你的账号在调用，必须放在 `Authorization` 请求头里。
+- **model** 决定真正使用哪个模型，必须和控制台或 `/models` 返回的模型 ID 完全一致。
+- **请求体**是你交给模型的任务，例如用户问题、提示词、图片参数或视频参数。
+
+## 请求地址
+
+```text
+POST /responses
+```
+
+完整请求地址：
+
+```text
+https://opensand.ai/v1/responses
+```
+
+如果某个客户端只让你填写 Base URL，请填写：
+
+```text
+https://opensand.ai/v1
+```
+
+## 认证
+
+所有请求都使用 OpenSand API Key：
+
+```http
+Authorization: Bearer sk-你的APIKey
+Content-Type: application/json
+```
+
+## 适合什么时候用
+
+用于新版 OpenAI SDK、需要 `input` 字段的应用，以及希望后续更平滑迁移到 Responses API 的项目。
+
+## 常用请求体
+
+- `model`：模型 ID。
+- `input`：字符串或结构化输入。
+- `stream`：是否流式返回。
+- `reasoning`：支持推理模型时可设置推理强度。
+- `tools`：工具定义，具体可用性取决于模型。
+
+## 请求体怎么填
+
+最小可用请求一般只需要必填字段。先跑通最小请求，再逐步增加 `temperature`、`stream`、工具调用、图片尺寸等高级参数。
+
+填写参数时注意：
+
+- 字段名大小写必须完全一致，例如 `max_tokens` 不能写成 `maxTokens`。
+- JSON 字符串必须使用英文双引号。
+- 如果你从网页复制 API Key，确认前后没有空格或换行。
+
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/responses \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","input":"写一个三点式产品摘要"}'
+```
+
+## 如何判断调用成功
+
+- HTTP 状态码是 200，通常说明请求成功。
+- 如果返回中包含 `id`、`choices`、`data` 或任务状态字段，说明 OpenSand 已经收到并处理请求。
+- 如果是流式接口，客户端会持续收到多段数据，直到结束标记。
+
+## 常见错误
+
+| 错误 | 含义 | 处理方式 |
+|---|---|---|
+| 401 Unauthorized | API Key 无效或没有传入 | 检查 `Authorization: Bearer sk-...` 格式 |
+| 403 Forbidden | 账号、分组或模型权限不足 | 检查账户状态、模型权限和额度 |
+| 404 Not Found | 路径或模型不存在 | 确认 Base URL、接口路径和模型 ID |
+| 429 Too Many Requests | 请求过快或额度限制 | 降低并发，稍后重试，或检查额度 |
+| 500/502/503 | 上游或平台临时错误 | 稍后重试，并查看请求日志 |
+
+## 注意事项
+
+- 如果你的工具只支持 Chat Completions，优先使用 `/chat/completions`。
+- Responses 返回结构与 Chat Completions 不同，解析代码不要混用。
+
+---
+
+# Text Completions
+
+Source: https://opensand.ai/zh/docs/api/ai-model/completions/createcompletion
+
+---
+title: "Text Completions"
+source: "https://opensand.ai/zh/docs/api/ai-model/completions/createcompletion"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.082Z"
+---
+# Text Completions
+
+使用传统 OpenAI Completions 格式生成文本。它主要用于旧版 SDK、旧项目或只接受 `prompt` 的工具。
+
+## 新手先看
+
+如果你第一次接触 API，可以把一次请求理解成“向 OpenSand 发一封格式固定的消息”：
+
+- **请求地址**决定你要使用哪类能力，例如聊天、向量、图片或视频。
+- **API Key**证明这是你的账号在调用，必须放在 `Authorization` 请求头里。
+- **model** 决定真正使用哪个模型，必须和控制台或 `/models` 返回的模型 ID 完全一致。
+- **请求体**是你交给模型的任务，例如用户问题、提示词、图片参数或视频参数。
+
+## 请求地址
+
+```text
+POST /completions
+```
+
+完整请求地址：
+
+```text
+https://opensand.ai/v1/completions
+```
+
+如果某个客户端只让你填写 Base URL，请填写：
+
+```text
+https://opensand.ai/v1
+```
+
+## 认证
+
+所有请求都使用 OpenSand API Key：
+
+```http
+Authorization: Bearer sk-你的APIKey
+Content-Type: application/json
+```
+
+## 适合什么时候用
+
+新项目优先使用 `/chat/completions`。只有在客户端明确要求 Completions 协议时再使用本接口。
+
+## 常用请求体
+
+- `model`：模型 ID。
+- `prompt`：输入文本。
+- `max_tokens`：输出长度。
+- `temperature`：随机性。
+- `stream`：是否流式输出。
+
+## 请求体怎么填
+
+最小可用请求一般只需要必填字段。先跑通最小请求，再逐步增加 `temperature`、`stream`、工具调用、图片尺寸等高级参数。
+
+填写参数时注意：
+
+- 字段名大小写必须完全一致，例如 `max_tokens` 不能写成 `maxTokens`。
+- JSON 字符串必须使用英文双引号。
+- 如果你从网页复制 API Key，确认前后没有空格或换行。
+
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/completions \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","prompt":"OpenSand 是","max_tokens":80}'
+```
+
+## 如何判断调用成功
+
+- HTTP 状态码是 200，通常说明请求成功。
+- 如果返回中包含 `id`、`choices`、`data` 或任务状态字段，说明 OpenSand 已经收到并处理请求。
+- 如果是流式接口，客户端会持续收到多段数据，直到结束标记。
+
+## 常见错误
+
+| 错误 | 含义 | 处理方式 |
+|---|---|---|
+| 401 Unauthorized | API Key 无效或没有传入 | 检查 `Authorization: Bearer sk-...` 格式 |
+| 403 Forbidden | 账号、分组或模型权限不足 | 检查账户状态、模型权限和额度 |
+| 404 Not Found | 路径或模型不存在 | 确认 Base URL、接口路径和模型 ID |
+| 429 Too Many Requests | 请求过快或额度限制 | 降低并发，稍后重试，或检查额度 |
+| 500/502/503 | 上游或平台临时错误 | 稍后重试，并查看请求日志 |
+
+## 注意事项
+
+- 不是所有模型都支持旧 Completions 协议。
+- 如果返回模型不支持，请换用 Chat Completions。
+
+---
+
+# Embeddings
+
+Source: https://opensand.ai/zh/docs/api/ai-model/embeddings/openai/createembedding
+
+---
+title: "Embeddings"
+source: "https://opensand.ai/zh/docs/api/ai-model/embeddings/openai/createembedding"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.082Z"
+---
+# Embeddings
+
+把文本转换为向量，常用于语义搜索、知识库召回、去重、聚类和推荐。
+
+## 新手先看
+
+如果你第一次接触 API，可以把一次请求理解成“向 OpenSand 发一封格式固定的消息”：
+
+- **请求地址**决定你要使用哪类能力，例如聊天、向量、图片或视频。
+- **API Key**证明这是你的账号在调用，必须放在 `Authorization` 请求头里。
+- **model** 决定真正使用哪个模型，必须和控制台或 `/models` 返回的模型 ID 完全一致。
+- **请求体**是你交给模型的任务，例如用户问题、提示词、图片参数或视频参数。
+
+## 请求地址
+
+```text
+POST /embeddings
+```
+
+完整请求地址：
+
+```text
+https://opensand.ai/v1/embeddings
+```
+
+如果某个客户端只让你填写 Base URL，请填写：
+
+```text
+https://opensand.ai/v1
+```
+
+## 认证
+
+所有请求都使用 OpenSand API Key：
+
+```http
+Authorization: Bearer sk-你的APIKey
+Content-Type: application/json
+```
+
+## 适合什么时候用
+
+用于 RAG 知识库、相似度检索和文本特征提取。聊天模型不能直接替代 Embedding 模型。
+
+## 常用请求体
+
+- `model`：Embedding 模型 ID。
+- `input`：字符串或字符串数组。
+- `encoding_format`：可选，通常使用默认值即可。
+
+## 请求体怎么填
+
+最小可用请求一般只需要必填字段。先跑通最小请求，再逐步增加 `temperature`、`stream`、工具调用、图片尺寸等高级参数。
+
+填写参数时注意：
+
+- 字段名大小写必须完全一致，例如 `max_tokens` 不能写成 `maxTokens`。
+- JSON 字符串必须使用英文双引号。
+- 如果你从网页复制 API Key，确认前后没有空格或换行。
+
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/embeddings \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"text-embedding-3-small","input":"OpenSand API 文档"}'
+```
+
+## 如何判断调用成功
+
+- HTTP 状态码是 200，通常说明请求成功。
+- 如果返回中包含 `id`、`choices`、`data` 或任务状态字段，说明 OpenSand 已经收到并处理请求。
+- 如果是流式接口，客户端会持续收到多段数据，直到结束标记。
+
+## 常见错误
+
+| 错误 | 含义 | 处理方式 |
+|---|---|---|
+| 401 Unauthorized | API Key 无效或没有传入 | 检查 `Authorization: Bearer sk-...` 格式 |
+| 403 Forbidden | 账号、分组或模型权限不足 | 检查账户状态、模型权限和额度 |
+| 404 Not Found | 路径或模型不存在 | 确认 Base URL、接口路径和模型 ID |
+| 429 Too Many Requests | 请求过快或额度限制 | 降低并发，稍后重试，或检查额度 |
+| 500/502/503 | 上游或平台临时错误 | 稍后重试，并查看请求日志 |
+
+## 注意事项
+
+- 向量维度由模型决定，入库前请确认数据库字段维度。
+- 批量传入数组可以减少请求次数。
+
+---
+
+# Gemini 图片生成
+
+Source: https://opensand.ai/zh/docs/api/ai-model/images/gemini/geminirelayv1beta-383837589
+
+---
+title: "Gemini 图片生成"
+source: "https://opensand.ai/zh/docs/api/ai-model/images/gemini/geminirelayv1beta-383837589"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# Gemini 图片生成
+
+OpenSand 可为需要 Gemini 协议的客户端提供兼容入口。只有当你的工具明确要求 Gemini API 格式时，才需要使用本页。
+
+## 常见用途
+
+- 使用 Gemini 系列模型进行图片理解、图片生成或多模态处理。
+- 接入只支持 Gemini API 路径的第三方工具。
+
+## 配置要点
+
+- API Key：使用 OpenSand 控制台创建的 Key。
+- 模型名称：以 OpenSand 控制台或模型列表返回为准。
+- Base URL：根据工具要求填写 OpenSand 站点地址；如果工具要求 OpenAI 兼容接口，优先使用 `https://opensand.ai/v1`。
+
+## 新手建议
+
+Gemini 协议在不同客户端里的字段名称差异较大。如果你只是想聊天、写代码或接入普通 Agent，优先选择 OpenAI 兼容模式；只有工具明确写着“Gemini API Key / Gemini Endpoint”时，再使用 Gemini 兼容配置。
+
+排查时先确认三件事：
+
+1. 这个工具到底要求 Gemini 协议还是 OpenAI 协议。
+2. 模型 ID 是否来自 OpenSand 控制台。
+3. Base URL 是否符合工具要求。
+
+## 建议
+
+如果工具支持 OpenAI 兼容协议，优先使用 [Chat Completions](/zh/docs/api/ai-model/chat/openai/createchatcompletion)，配置更简单，也更容易排查问题。
+
+---
+
+# Gemini 图片编辑
+
+Source: https://opensand.ai/zh/docs/api/ai-model/images/gemini/geminirelayv1beta-389846313
+
+---
+title: "Gemini 图片编辑"
+source: "https://opensand.ai/zh/docs/api/ai-model/images/gemini/geminirelayv1beta-389846313"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# Gemini 图片编辑
+
+OpenSand 可为需要 Gemini 协议的客户端提供兼容入口。只有当你的工具明确要求 Gemini API 格式时，才需要使用本页。
+
+## 常见用途
+
+- 使用 Gemini 系列模型进行图片理解、图片生成或多模态处理。
+- 接入只支持 Gemini API 路径的第三方工具。
+
+## 配置要点
+
+- API Key：使用 OpenSand 控制台创建的 Key。
+- 模型名称：以 OpenSand 控制台或模型列表返回为准。
+- Base URL：根据工具要求填写 OpenSand 站点地址；如果工具要求 OpenAI 兼容接口，优先使用 `https://opensand.ai/v1`。
+
+## 新手建议
+
+Gemini 协议在不同客户端里的字段名称差异较大。如果你只是想聊天、写代码或接入普通 Agent，优先选择 OpenAI 兼容模式；只有工具明确写着“Gemini API Key / Gemini Endpoint”时，再使用 Gemini 兼容配置。
+
+排查时先确认三件事：
+
+1. 这个工具到底要求 Gemini 协议还是 OpenAI 协议。
+2. 模型 ID 是否来自 OpenSand 控制台。
+3. Base URL 是否符合工具要求。
+
+## 建议
+
+如果工具支持 OpenAI 兼容协议，优先使用 [Chat Completions](/zh/docs/api/ai-model/chat/openai/createchatcompletion)，配置更简单，也更容易排查问题。
+
+---
+
+# 图片编辑
+
+Source: https://opensand.ai/zh/docs/api/ai-model/images/openai/post-v1-images-edits
+
+---
+title: "图片编辑"
+source: "https://opensand.ai/zh/docs/api/ai-model/images/openai/post-v1-images-edits"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.086Z"
+---
+# 图片编辑
+
+使用 OpenSand 调用 OpenAI 兼容的图像编辑接口。
+
+## 请求地址
+
+```text
+POST /images/edits
+```
+
+## 适合什么时候用
+
+- 基于已有图片进行局部修改、风格调整或重绘。
+- 需要接入支持 OpenAI 图片接口的客户端或工作流。
+
+## 常用参数
+
+- `model`：图片模型 ID，以控制台实际开放为准。
+- `prompt`：图片描述，越具体越容易得到稳定结果。
+- `size`：输出尺寸，例如 `1024x1024`，具体可选值取决于模型。
+- \`image\`：要编辑的原图文件，通常通过 multipart/form-data 上传。
+- \`mask\`：可选，用于指定需要修改的区域。
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/images/edits \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -F "model=gpt-image-1" \
+  -F "prompt=把背景改成办公室" \
+  -F "image=@input.png"
+```
+
+## 注意事项
+
+- 图片模型、尺寸和费用以控制台实际开放为准。
+- 图像编辑通常需要使用 multipart/form-data 上传文件。
+- 如果工具只支持文本模型，不能直接调用图片接口。
+- 如果图片生成失败，先降低尺寸、简化提示词，再查看请求日志中的错误信息。
+
+---
+
+# 图片生成
+
+Source: https://opensand.ai/zh/docs/api/ai-model/images/openai/post-v1-images-generations
+
+---
+title: "图片生成"
+source: "https://opensand.ai/zh/docs/api/ai-model/images/openai/post-v1-images-generations"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.086Z"
+---
+# 图片生成
+
+使用 OpenSand 调用 OpenAI 兼容的图像生成接口。
+
+## 请求地址
+
+```text
+POST /images/generations
+```
+
+## 适合什么时候用
+
+- 从文本提示词生成图片。
+- 需要接入支持 OpenAI 图片接口的客户端或工作流。
+
+## 常用参数
+
+- `model`：图片模型 ID，以控制台实际开放为准。
+- `prompt`：图片描述，越具体越容易得到稳定结果。
+- `size`：输出尺寸，例如 `1024x1024`，具体可选值取决于模型。
+- \`n\`：生成张数，具体上限取决于模型。
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/images/generations \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-image-1","prompt":"一张干净的产品海报","size":"1024x1024"}'
+```
+
+## 注意事项
+
+- 图片模型、尺寸和费用以控制台实际开放为准。
+- 图像编辑通常需要使用 multipart/form-data 上传文件。
+- 如果工具只支持文本模型，不能直接调用图片接口。
+- 如果图片生成失败，先降低尺寸、简化提示词，再查看请求日志中的错误信息。
+
+---
+
+# 模型列表
+
+Source: https://opensand.ai/zh/docs/api/ai-model/models/list/listmodels
+
+---
+title: "模型列表"
+source: "https://opensand.ai/zh/docs/api/ai-model/models/list/listmodels"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.082Z"
+---
+# 模型列表
+
+查询当前 API Key 可以访问的模型列表。接入新工具前，建议先调用这个接口确认模型 ID。
+
+## 新手先看
+
+如果你第一次接触 API，可以把一次请求理解成“向 OpenSand 发一封格式固定的消息”：
+
+- **请求地址**决定你要使用哪类能力，例如聊天、向量、图片或视频。
+- **API Key**证明这是你的账号在调用，必须放在 `Authorization` 请求头里。
+- **model** 决定真正使用哪个模型，必须和控制台或 `/models` 返回的模型 ID 完全一致。
+- **请求体**是你交给模型的任务，例如用户问题、提示词、图片参数或视频参数。
+
+## 请求地址
+
+```text
+GET /models
+```
+
+完整请求地址：
+
+```text
+https://opensand.ai/v1/models
+```
+
+如果某个客户端只让你填写 Base URL，请填写：
+
+```text
+https://opensand.ai/v1
+```
+
+## 认证
+
+所有请求都使用 OpenSand API Key：
+
+```http
+Authorization: Bearer sk-你的APIKey
+Content-Type: application/json
+```
+
+## 适合什么时候用
+
+用于发现可用模型、检查模型 ID、确认某个 Key 是否有权限访问目标模型。
+
+## 常用请求体
+
+GET 请求不需要请求体。
+
+## 请求体怎么填
+
+这是一个 GET 接口，不需要请求体。只要带上正确的 `Authorization` 请求头即可。
+
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/models \
+  -H "Authorization: Bearer sk-你的APIKey"
+```
+
+## 如何判断调用成功
+
+- HTTP 状态码是 200，通常说明请求成功。
+- 如果返回中包含 `id`、`choices`、`data` 或任务状态字段，说明 OpenSand 已经收到并处理请求。
+- 如果是流式接口，客户端会持续收到多段数据，直到结束标记。
+
+## 常见错误
+
+| 错误 | 含义 | 处理方式 |
+|---|---|---|
+| 401 Unauthorized | API Key 无效或没有传入 | 检查 `Authorization: Bearer sk-...` 格式 |
+| 403 Forbidden | 账号、分组或模型权限不足 | 检查账户状态、模型权限和额度 |
+| 404 Not Found | 路径或模型不存在 | 确认 Base URL、接口路径和模型 ID |
+| 429 Too Many Requests | 请求过快或额度限制 | 降低并发，稍后重试，或检查额度 |
+| 500/502/503 | 上游或平台临时错误 | 稍后重试，并查看请求日志 |
+
+## 注意事项
+
+- 返回结果中的 `id` 就是调用时填写的模型名称。
+- 不同 API Key 可能因为分组、额度或权限看到不同模型。
+
+---
+
+# Gemini 模型列表
+
+Source: https://opensand.ai/zh/docs/api/ai-model/models/list/listmodelsgemini
+
+---
+title: "Gemini 模型列表"
+source: "https://opensand.ai/zh/docs/api/ai-model/models/list/listmodelsgemini"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.082Z"
+---
+# Gemini 模型列表
+
+查看可通过 OpenSand 访问的 Gemini 兼容模型。多数用户直接使用通用 `/models` 即可。
+
+## 新手先看
+
+如果你第一次接触 API，可以把一次请求理解成“向 OpenSand 发一封格式固定的消息”：
+
+- **请求地址**决定你要使用哪类能力，例如聊天、向量、图片或视频。
+- **API Key**证明这是你的账号在调用，必须放在 `Authorization` 请求头里。
+- **model** 决定真正使用哪个模型，必须和控制台或 `/models` 返回的模型 ID 完全一致。
+- **请求体**是你交给模型的任务，例如用户问题、提示词、图片参数或视频参数。
+
+## 请求地址
+
+```text
+GET /models
+```
+
+完整请求地址：
+
+```text
+https://opensand.ai/v1/models
+```
+
+如果某个客户端只让你填写 Base URL，请填写：
+
+```text
+https://opensand.ai/v1
+```
+
+## 认证
+
+所有请求都使用 OpenSand API Key：
+
+```http
+Authorization: Bearer sk-你的APIKey
+Content-Type: application/json
+```
+
+## 适合什么时候用
+
+用于配置 Gemini 协议客户端或检查 Gemini 系列模型是否已开放。
+
+## 常用请求体
+
+GET 请求不需要请求体。
+
+## 请求体怎么填
+
+这是一个 GET 接口，不需要请求体。只要带上正确的 `Authorization` 请求头即可。
+
+
+## 示例
+
+```bash
+curl https://opensand.ai/v1/models \
+  -H "Authorization: Bearer sk-你的APIKey"
+```
+
+## 如何判断调用成功
+
+- HTTP 状态码是 200，通常说明请求成功。
+- 如果返回中包含 `id`、`choices`、`data` 或任务状态字段，说明 OpenSand 已经收到并处理请求。
+- 如果是流式接口，客户端会持续收到多段数据，直到结束标记。
+
+## 常见错误
+
+| 错误 | 含义 | 处理方式 |
+|---|---|---|
+| 401 Unauthorized | API Key 无效或没有传入 | 检查 `Authorization: Bearer sk-...` 格式 |
+| 403 Forbidden | 账号、分组或模型权限不足 | 检查账户状态、模型权限和额度 |
+| 404 Not Found | 路径或模型不存在 | 确认 Base URL、接口路径和模型 ID |
+| 429 Too Many Requests | 请求过快或额度限制 | 降低并发，稍后重试，或检查额度 |
+| 500/502/503 | 上游或平台临时错误 | 稍后重试，并查看请求日志 |
+
+## 注意事项
+
+- Gemini 协议工具可能要求填写不带 `/v1` 的站点地址，请以具体工具说明为准。
+- 模型 ID 仍以 OpenSand 控制台和 `/models` 返回为准。
+
+---
+
+# HappyHorse 视频生成
+
+Source: https://opensand.ai/zh/docs/api/ai-model/videos/happyhorse
+
+---
+title: "HappyHorse 视频生成"
+source: "https://opensand.ai/zh/docs/api/ai-model/videos/happyhorse"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# HappyHorse 视频生成
+
+HappyHorse 视频模型通过 OpenSand 的统一异步任务接口调用。视频生成通常耗时较长，因此接口会先返回任务 ID，再通过轮询查询结果。
+
+## 调用流程
+
+1. 提交视频生成任务：`POST /v1/video/generations`。
+2. 保存返回的 `task_id`。
+3. 轮询查询任务：`GET /v1/video/generations/{task_id}`。
+4. 任务成功后，从返回的 `url` 下载视频。
+
+## 常用参数
+
+- `model`：视频模型 ID，以控制台实际开放为准。
+- `prompt`：视频描述。建议写清主体、动作、场景、镜头和风格。
+- `duration`：视频时长，支持范围取决于模型。
+- `size` / `resolution`：分辨率或尺寸，越高通常越慢、越贵。
+- `image` / `images`：部分模型支持图生视频，需要公网可访问图片或上传方式。
+
+## 提交任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse",
+    "prompt": "一段自然光下的产品展示视频",
+    "duration": 5
+  }'
+```
+
+## 查询任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-你的APIKey"
+```
+
+## 注意事项
+
+- 视频模型、时长、分辨率和价格以控制台实际开放为准。
+- 生成失败时，请查看返回的 `error` 字段。
+- 下载链接通常有有效期，建议任务完成后及时保存结果。
+- 新手建议先用短时长和低分辨率测试提示词，再提交高质量任务。
+
+---
+
+# PixVerse 视频生成
+
+Source: https://opensand.ai/zh/docs/api/ai-model/videos/pixverse
+
+---
+title: "PixVerse 视频生成"
+source: "https://opensand.ai/zh/docs/api/ai-model/videos/pixverse"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# PixVerse 视频生成
+
+PixVerse 视频模型通过 OpenSand 的统一异步任务接口调用。视频生成通常耗时较长，因此接口会先返回任务 ID，再通过轮询查询结果。
+
+## 调用流程
+
+1. 提交视频生成任务：`POST /v1/video/generations`。
+2. 保存返回的 `task_id`。
+3. 轮询查询任务：`GET /v1/video/generations/{task_id}`。
+4. 任务成功后，从返回的 `url` 下载视频。
+
+## 常用参数
+
+- `model`：视频模型 ID，以控制台实际开放为准。
+- `prompt`：视频描述。建议写清主体、动作、场景、镜头和风格。
+- `duration`：视频时长，支持范围取决于模型。
+- `size` / `resolution`：分辨率或尺寸，越高通常越慢、越贵。
+- `image` / `images`：部分模型支持图生视频，需要公网可访问图片或上传方式。
+
+## 提交任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "pixverse",
+    "prompt": "一段自然光下的产品展示视频",
+    "duration": 5
+  }'
+```
+
+## 查询任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-你的APIKey"
+```
+
+## 注意事项
+
+- 视频模型、时长、分辨率和价格以控制台实际开放为准。
+- 生成失败时，请查看返回的 `error` 字段。
+- 下载链接通常有有效期，建议任务完成后及时保存结果。
+- 新手建议先用短时长和低分辨率测试提示词，再提交高质量任务。
+
+---
+
+# Seedance 视频生成
+
+Source: https://opensand.ai/zh/docs/api/ai-model/videos/seedance
+
+---
+title: "Seedance 视频生成"
+source: "https://opensand.ai/zh/docs/api/ai-model/videos/seedance"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# Seedance 视频生成
+
+Seedance 视频模型通过 OpenSand 的统一异步任务接口调用。视频生成通常耗时较长，因此接口会先返回任务 ID，再通过轮询查询结果。
+
+## 调用流程
+
+1. 提交视频生成任务：`POST /v1/video/generations`。
+2. 保存返回的 `task_id`。
+3. 轮询查询任务：`GET /v1/video/generations/{task_id}`。
+4. 任务成功后，从返回的 `url` 下载视频。
+
+## 常用参数
+
+- `model`：视频模型 ID，以控制台实际开放为准。
+- `prompt`：视频描述。建议写清主体、动作、场景、镜头和风格。
+- `duration`：视频时长，支持范围取决于模型。
+- `size` / `resolution`：分辨率或尺寸，越高通常越慢、越贵。
+- `image` / `images`：部分模型支持图生视频，需要公网可访问图片或上传方式。
+
+## 提交任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "seedance",
+    "prompt": "一段自然光下的产品展示视频",
+    "duration": 5
+  }'
+```
+
+## 查询任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-你的APIKey"
+```
+
+## 注意事项
+
+- 视频模型、时长、分辨率和价格以控制台实际开放为准。
+- 生成失败时，请查看返回的 `error` 字段。
+- 下载链接通常有有效期，建议任务完成后及时保存结果。
+- 新手建议先用短时长和低分辨率测试提示词，再提交高质量任务。
+
+---
+
+# Veo 3.1 视频生成
+
+Source: https://opensand.ai/zh/docs/api/ai-model/videos/veo31
+
+---
+title: "Veo 3.1 视频生成"
+source: "https://opensand.ai/zh/docs/api/ai-model/videos/veo31"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# Veo 3.1 视频生成
+
+Veo 3.1 视频模型通过 OpenSand 的统一异步任务接口调用。视频生成通常耗时较长，因此接口会先返回任务 ID，再通过轮询查询结果。
+
+## 调用流程
+
+1. 提交视频生成任务：`POST /v1/video/generations`。
+2. 保存返回的 `task_id`。
+3. 轮询查询任务：`GET /v1/video/generations/{task_id}`。
+4. 任务成功后，从返回的 `url` 下载视频。
+
+## 常用参数
+
+- `model`：视频模型 ID，以控制台实际开放为准。
+- `prompt`：视频描述。建议写清主体、动作、场景、镜头和风格。
+- `duration`：视频时长，支持范围取决于模型。
+- `size` / `resolution`：分辨率或尺寸，越高通常越慢、越贵。
+- `image` / `images`：部分模型支持图生视频，需要公网可访问图片或上传方式。
+
+## 提交任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo-3.1",
+    "prompt": "一段自然光下的产品展示视频",
+    "duration": 5
+  }'
+```
+
+## 查询任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-你的APIKey"
+```
+
+## 注意事项
+
+- 视频模型、时长、分辨率和价格以控制台实际开放为准。
+- 生成失败时，请查看返回的 `error` 字段。
+- 下载链接通常有有效期，建议任务完成后及时保存结果。
+- 新手建议先用短时长和低分辨率测试提示词，再提交高质量任务。
+
+---
+
+# Wanx 2.7 视频生成
+
+Source: https://opensand.ai/zh/docs/api/ai-model/videos/wanx27
+
+---
+title: "Wanx 2.7 视频生成"
+source: "https://opensand.ai/zh/docs/api/ai-model/videos/wanx27"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.087Z"
+---
+# Wanx 2.7 视频生成
+
+Wanx 2.7 视频模型通过 OpenSand 的统一异步任务接口调用。视频生成通常耗时较长，因此接口会先返回任务 ID，再通过轮询查询结果。
+
+## 调用流程
+
+1. 提交视频生成任务：`POST /v1/video/generations`。
+2. 保存返回的 `task_id`。
+3. 轮询查询任务：`GET /v1/video/generations/{task_id}`。
+4. 任务成功后，从返回的 `url` 下载视频。
+
+## 常用参数
+
+- `model`：视频模型 ID，以控制台实际开放为准。
+- `prompt`：视频描述。建议写清主体、动作、场景、镜头和风格。
+- `duration`：视频时长，支持范围取决于模型。
+- `size` / `resolution`：分辨率或尺寸，越高通常越慢、越贵。
+- `image` / `images`：部分模型支持图生视频，需要公网可访问图片或上传方式。
+
+## 提交任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wanx-2.7",
+    "prompt": "一段自然光下的产品展示视频",
+    "duration": 5
+  }'
+```
+
+## 查询任务示例
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-你的APIKey"
+```
+
+## 注意事项
+
+- 视频模型、时长、分辨率和价格以控制台实际开放为准。
+- 生成失败时，请查看返回的 `error` 字段。
+- 下载链接通常有有效期，建议任务完成后及时保存结果。
+- 新手建议先用短时长和低分辨率测试提示词，再提交高质量任务。
+
+---
+
+# 应用接入
+
+Source: https://opensand.ai/zh/docs/apps
+
+---
+title: "应用接入"
+source: "https://opensand.ai/zh/docs/apps"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.078Z"
+---
+# 应用接入
+
+只要工具支持 OpenAI Compatible、Custom Endpoint 或自定义 Base URL，通常都可以接入 OpenSand。
+
+## 通用配置
+
+| 字段 | 填写 |
+|---|---|
+| Base URL | `https://opensand.ai/v1` |
+| API Key | OpenSand 控制台创建的 Key |
+| Model | 控制台或 `/v1/models` 返回的模型 ID |
+
+## 推荐应用
+
+| 应用 | 适合人群 |
+|---|---|
+| [Cherry Studio](/zh/docs/apps/cherry-studio) | 桌面聊天、多模型对比 |
+| [Claude Code](/zh/docs/apps/claude-code) | 终端编码、Claude 协议工具 |
+| [Codex CLI](/zh/docs/apps/codex-cli) | 命令行开发代理 |
+| [OpenCode](/zh/docs/apps/opencode) | 终端编码 Agent |
+| [OpenClaw](/zh/docs/apps/openclaw) | 自托管多渠道 Agent |
+| [AionUi](/zh/docs/apps/aionui) | 本地 AI 工作台 |
+
+## 所有应用
+
+- [AionUi](/zh/docs/apps/aionui)
+- [AstrBot](/zh/docs/apps/astrbot)
+- [CC Switch](/zh/docs/apps/cc-switch)
+- [Cherry Studio](/zh/docs/apps/cherry-studio)
+- [Claude Code](/zh/docs/apps/claude-code)
+- [CodeBuddy](/zh/docs/apps/codebuddy)
+- [Codex CLI](/zh/docs/apps/codex-cli)
+- [Copilot CLI](/zh/docs/apps/copilot-cli)
+- [Crush](/zh/docs/apps/crush)
+- [Factory Droid CLI](/zh/docs/apps/factory-droid-cli)
+- [FluentRead](/zh/docs/apps/fluent-read)
+- [Hermes Agent](/zh/docs/apps/hermes-agent)
+- [LangBot](/zh/docs/apps/langbot)
+- [LunaTranslator](/zh/docs/apps/luna-translator)
+- [Memoh](/zh/docs/apps/memoh)
+- [nanobot](/zh/docs/apps/nanobot)
+- [Oh My Pi](/zh/docs/apps/oh-my-pi)
+- [OpenClaw](/zh/docs/apps/openclaw)
+- [OpenCode](/zh/docs/apps/opencode)
+- [Pi](/zh/docs/apps/pi-mono)
+
+---
+
+# AionUi
+
+Source: https://opensand.ai/zh/docs/apps/aionui
+
+---
+title: "AionUi"
+source: "https://opensand.ai/zh/docs/apps/aionui"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.089Z"
+---
+# AionUi
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+🚀 AionUi 是一款免费、本地、开源的Cowork，支持 Gemini CLI、Claude Code、Codex、OpenCode、Qwen Code、Goose CLI、Auggie 等多种 AI 代理。它提供了完整的 GUI 界面和 WebUI 远程访问功能，是 Cowork 的开源替代方案。
+
+- 官网地址：[https://www.aionui.com](https://www.aionui.com)
+- GitHub 仓库：[https://github.com/iOfficeAI/AionUi](https://github.com/iOfficeAI/AionUi)
+- 下载地址：[https://github.com/iOfficeAI/AionUi/releases](https://github.com/iOfficeAI/AionUi/releases)
+
+![AionUi Logo](../../../pictures/apps/aionui/aionui_logo.png)
+
+## 核心特性
+
+### 💬 多会话聊天
+- **多会话 + 独立上下文** - 可同时打开多个聊天会话，每个会话拥有独立的上下文记忆
+- **本地存储** - 所有对话数据保存在本地 SQLite 数据库中，不会丢失
+
+### 🤖 多模型支持
+- **多平台支持** - 支持 Gemini、OpenAI、Claude、Qwen 等主流模型，灵活切换
+- **本地模型支持** - 支持 Ollama、LM Studio 等本地模型部署
+
+### 🤝 多代理模式
+- **同时运行多个 AI 代理** - 可同时运行多个 AI 代理（如 Gemini CLI、Claude Code、Codex、OpenCode、Qwen Code、Goose CLI、Auggie 等）
+- **MCP 统一管理** - 通过 Model Context Protocol (MCP) 统一管理和配置所有代理，简化操作流程
+- **Skills 配置** - 支持为不同代理配置专属的 Skills，扩展代理能力
+- **助手自定义** - 支持自定义助手配置，打造个性化的 AI 工作流
+- **独立配置** - 每个代理可独立配置和使用，互不干扰
+- **灵活切换** - 在不同代理之间灵活切换，满足不同场景需求
+
+### 🗂️ 文件管理
+- **文件树浏览 + 拖拽上传** - 像文件夹一样浏览文件，支持拖拽文件或文件夹一键导入
+- **智能整理** - 可让 AI 帮助整理文件夹，自动分类
+
+### 📄 预览面板
+- **9+ 格式预览** - 支持 PDF、Word、Excel、PPT、代码、Markdown、图片等格式
+- **实时跟踪 + 可编辑** - 自动跟踪文件变化，支持实时编辑和调试 Markdown、代码、HTML
+
+### 🎨 AI 图像生成与编辑
+- **智能图像生成** - 支持 Gemini 2.5 Flash Image Preview、Nano、Banana 等多种图像生成模型
+- **图像识别与编辑** - AI 驱动的图像分析和编辑功能
+
+### 🌐 多渠道访问
+- **WebUI 远程访问** - 可通过浏览器从网络上的任何设备访问，支持移动设备
+- **Telegram 集成** - 支持通过 Telegram 机器人进行交互
+- **飞书集成** - 支持通过飞书进行访问和交互
+- **本地数据安全** - 所有数据存储在本地 SQLite 数据库中，适合服务器部署
+
+## OpenSand 接入方法
+
+### 参数填写
+
+提供商类型：OpenSand 支持的类型
+API 密钥：于 OpenSand 获取
+API 地址：OpenSand 站点地址（例如：`https://opensand.ai/v1`）
+
+### 配置步骤
+
+1. **在 OpenSand 中复制 API key**
+   ![复制 API 密钥](../../../pictures/apps/aionui/copy_apikey.png)
+
+2. **打开 AionUi 设置**
+   - 在 AionUi 中进入设置页面
+   - 找到 模型配置 Tab
+   - 点击"添加模型"
+   ![打开设置](../../../pictures/apps/aionui/add-model-1.png)
+
+3. **添加新的提供商**
+   - 点击"添加模型"
+   - 选择 OpenSand
+   ![添加 OpenSand 提供商](../../../pictures/apps/aionui/newapi_provider.png)
+
+4. **配置 API 信息**
+   - API 地址：填写您的 OpenSand 站点地址（格式：`https://opensand.ai/v1`）
+   - API 密钥：粘贴从 OpenSand 控制台复制的 API Key
+
+5. **添加模型**
+   - 下拉选择需要添加的模型
+   - 模型名称应与 OpenSand 中配置的模型名称一致
+   - 选择合适的请求协议
+
+6. **开始使用**
+   - 返回聊天页面
+   - 选择已配置的 OpenSand 模型开始对话
+
+## 相关链接
+
+- [GitHub 仓库](https://github.com/iOfficeAI/AionUi)
+- [完整使用指南](https://github.com/iOfficeAI/AionUi#-detailed-usage-guide)
+- [FAQ 常见问题](https://github.com/iOfficeAI/AionUi#-support--help)
+
+---
+
+# AstrBot
+
+Source: https://opensand.ai/zh/docs/apps/astrbot
+
+---
+title: "AstrBot"
+source: "https://opensand.ai/zh/docs/apps/astrbot"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.089Z"
+---
+# AstrBot - Agent 聊天机器人
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+AstrBot 是一个开源的一站式 Agent 聊天机器人平台，可将大模型能力无缝接入
+QQ、飞书、钉钉、企业微信等主流即时通讯软件，为个人、开发者和团队打造可靠、可扩展的对话式智能基础设施。无论是个人
+AI 伙伴、智能客服、自动化助手，还是企业知识库，AstrBot
+都能在你的即时通讯软件平台的工作流中快速构建生产可用的 AI 应用。
+
+- 官方网站：[https://astrbot.app](https://astrbot.app)
+- 官方文档：[https://docs.astrbot.app](https://docs.astrbot.app)
+- 项目主页：[https://github.com/astrbotdevs/astrbot](https://github.com/astrbotdevs/astrbot)
+
+## OpenSand 接入方法
+
+AstrBot 支持接入 OpenSand 作为模型提供商，用户可以通过 OpenSand 来访问和使用各种 AI 模型服务。
+
+### 配置步骤
+
+#### 获取 OpenSand API Key 密钥
+
+在 OpenSand 注册并登录后，点击上方导航栏的「控制台」，点击「令牌管理」，然后点击「添加令牌」按钮，创建一个新的 API Key 密钥，选择适当的权限，然后点击「创建」。
+
+![create-api-key](../../../pictures/apps/astrbot/image.png)
+
+创建成功后，点击复制密钥按钮，复制生成的 API Key 密钥。
+
+![copy-api-key](../../../pictures/apps/astrbot/image-1.png)
+
+#### 在 AstrBot 中配置 OpenSand 服务提供商
+
+打开 AstrBot 管理面板，进入「模型提供商」页面，然后，点击「新增模型提供商」按钮。
+
+OpenSand 完美地支持了 OpenAI Chat Completion 和 Responses 接口，我们点击 「OpenAI」，进入 OpenAI 提供商的配置页面。
+
+在弹出的对话框中，将 API Base URL 设置为 OpenSand 的接口地址。填写 OpenSand 的接口地址，例如 `https://opensand.ai/v1`。
+
+然后，将 API Key 填入「API Key」字段中，点击「保存」按钮。
+
+![astrbot-provider-config](../../../pictures/apps/astrbot/image-2.png)
+
+然后点击保存，完成 OpenSand 提供商的配置。
+
+#### 应用服务提供商
+
+进入「配置文件」页面，找到模型一节，将「默认聊天模型」修改为刚刚创建的 OpenSand 提供商，点击「保存」按钮。
+
+![apply](../../../pictures/apps/astrbot/image-3.png)
+
+至此，您已经成功配置了 OpenSand 作为 AstrBot 的模型提供商。现在，您可以通过 AstrBot 来访问和使用 OpenSand 提供的各种 AI 模型服务了。
+
+---
+
+# CC Switch
+
+Source: https://opensand.ai/zh/docs/apps/cc-switch
+
+---
+title: "CC Switch"
+source: "https://opensand.ai/zh/docs/apps/cc-switch"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.092Z"
+---
+# CC Switch
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**聊天设置选项**
+
+在 OpenSand 控制台的系统设置->聊天设置中，可添加如下快捷选项，便于在令牌管理页一键填充到 CC Switch：
+
+    ```json
+    { "CC Switch": "ccswitch" }
+    ```
+
+🔀 CC Switch 是一款开源、跨平台的 AI CLI 统一管理工具，支持 Claude Code、Codex 和 Gemini CLI
+的 Provider 配置一键切换、MCP 服务器统一管理、系统提示词（Prompts）管理以及 Skills 扩展管理，
+让你在多个 AI 编程助手之间自由切换，无需手动编辑配置文件。
+
+- GitHub 仓库：[https://github.com/farion1231/cc-switch](https://github.com/farion1231/cc-switch)
+- 下载地址：[GitHub Releases](https://github.com/farion1231/cc-switch/releases)
+
+## 核心特性
+
+### 🔌 Provider 管理
+- **一键切换** — 在 Claude Code、Codex、Gemini 的 API 配置之间一键切换，无需手动修改环境变量或配置文件
+- **多端点支持** — 每个 Provider 可配置多个端点，支持 API Key 管理与延迟测速
+- **4 层模型配置** — 支持 Haiku / Sonnet / Opus / Custom 四级模型粒度配置
+
+### 🛠️ MCP 服务器管理
+- **跨应用统一管理** — 单面板管理 Claude / Codex / Gemini 三端的 MCP 服务器
+- **三种传输类型** — 支持 stdio、HTTP、SSE（Server-Sent Events）
+- **自动同步** — 统一导入导出 + 双向同步
+
+### 💬 Prompts 管理
+- **多预设系统提示词** — 无限预设、快速切换
+- **跨应用支持** — Claude（`CLAUDE.md`）、Codex（`AGENTS.md`）、Gemini（`GEMINI.md`）
+- **Markdown 编辑器** — CodeMirror 6 + 实时预览
+
+### 🌐 多平台支持
+- **桌面应用** — Windows、macOS、Linux 原生安装包
+- **Web 版本** — 适用于无头服务器 / SSH 远程环境的浏览器访问方案
+- **CLI 版本** — 命令行交互模式与命令模式双支持
+
+## OpenSand 接入方法
+
+CC Switch 支持 `ccswitch://` Deep Link 协议，可从 OpenSand 令牌管理页一键导入 Provider 配置。
+
+### 配置步骤
+
+1. **在 OpenSand 令牌管理页，点击对应令牌的下拉菜单**
+   在菜单中选择 **CC Switch** 选项，系统会自动唤起 CC Switch 应用并弹出配置弹窗。
+
+2. **在弹窗中完成配置**
+   ![填入 CC Switch 弹窗](../../../pictures/apps/cc_switch/fill_dialog.png)
+
+   弹窗各字段说明：
+   - **应用**：顶部切换应用类型 — **Claude** / **Codex** / **Gemini**，根据需要选择目标应用
+   - **名称**：为该配置填写一个名称（例如 `My Claude`），方便后续在 CC Switch 中识别和切换
+   - **主模型**（必填）— 默认使用的主力模型
+   - **Haiku 模型** — 轻量快速模型
+   - **Sonnet 模型** — 均衡模型
+   - **Opus 模型** — 最强模型
+
+   所有模型均为下拉选择，未选择时显示「请选择模型」。
+
+3. **完成配置**
+   点击 **「打开 CC Switch」** 即可将配置导入 CC Switch 并开始使用；点击 **「取消」** 放弃本次操作。
+
+## 安装方式
+
+### macOS（推荐 Homebrew）
+
+```shell
+brew tap farion1231/ccswitch
+brew install --cask cc-switch
+```
+
+### Windows
+
+从 [Releases](https://github.com/farion1231/cc-switch/releases) 下载 `.msi` 安装包或便携版 `.zip`。
+
+### Linux
+
+从 [Releases](https://github.com/farion1231/cc-switch/releases) 下载 `.deb` 包或 `.AppImage`。
+
+ArchLinux 用户：
+
+```shell
+paru -S cc-switch-bin
+```
+
+### Web 版本（无头 / SSH 服务器）
+
+```shell
+wget https://github.com/farion1231/cc-switch/releases/latest/download/cc-switch-web-linux-x64.tar.gz
+tar -xzf cc-switch-web-linux-x64.tar.gz
+cd cc-switch-web/
+./cc-switch-web
+```
+
+默认端口 `17666`，通过浏览器访问 `http://localhost:17666`。
+
+## 相关链接
+
+- [GitHub 仓库](https://github.com/farion1231/cc-switch)
+- [更新日志](https://github.com/farion1231/cc-switch/blob/main/CHANGELOG.md)
+- [Web 版本仓库](https://github.com/cp-yu/cc-switch-web)
+- [CLI 版本仓库](https://github.com/thomas-jack/cc-switch-cli)
+
+---
+
+# Cherry Studio
+
+Source: https://opensand.ai/zh/docs/apps/cherry-studio
+
+---
+title: "Cherry Studio"
+source: "https://opensand.ai/zh/docs/apps/cherry-studio"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.092Z"
+---
+# Cherry Studio
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**聊天设置选项**
+
+在 OpenSand
+控制台的系统设置->聊天设置中，可添加如下快捷选项，便于在令牌管理页一键填充到
+Cherry Studio：
+
+    ```json
+    { "Cherry Studio": "cherrystudio://providers/api-keys?v=1&data={cherryConfig}" }
+    ```
+
+🍒 Cherry Studio 是一款功能强大的桌面 AI 客户端，专为专业用户设计，集成了 30+
+行业智能助手，能够满足各种工作场景的需求，显著提升工作效率。
+
+- 官网地址：[https://cherry-ai.com](https://cherry-ai.com/)
+- 下载地址：[https://cherry-ai.com/download](https://cherry-ai.com/download)
+- 官方文档：[https://docs.cherry-ai.com](https://docs.cherry-ai.com)
+
+## OpenSand 接入方法
+
+### 参数填写
+
+提供商类型：OpenSand 支持的类型
+API 密钥：于 OpenSand 获取
+API 地址：OpenSand 站点地址
+
+### 图文指引
+
+1. 在 OpenSand 中复制 API key
+   ![复制 API 密钥](../../../pictures/apps/cherry_studio/copy_api_key.png)
+
+2. 添加提供商
+   ![添加供应商](../../../pictures/apps/cherry_studio/add_provider.png)
+
+3. 添加模型
+   ![添加模型](../../../pictures/apps/cherry_studio/add_models.png)
+
+4. 返回聊天页面
+   ![切换聊天页面](../../../pictures/apps/cherry_studio/back_to_chat.png)
+
+5. 切换 OpenSand 模型
+   ![切换模型](../../../pictures/apps/cherry_studio/switch_model.png)
+
+---
+
+# Claude Code
+
+Source: https://opensand.ai/zh/docs/apps/claude-code
+
+---
+title: "Claude Code"
+source: "https://opensand.ai/zh/docs/apps/claude-code"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.093Z"
+---
+# Claude Code
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+直接在你的终端中释放 Claude
+的强大能力。瞬间搜索百万行代码库。将耗时数小时的工作流程化为一条命令。你的工具，你的工作流，你的代码库，以思维速度进化。
+
+- 官方主页：[https://www.anthropic.com/claude-code](https://www.anthropic.com/claude-code)
+
+### 特性
+
+| **功能分类**       | **特性**                                                       |
+| ------------------ | -------------------------------------------------------------- |
+| **代码理解**       | 深度代码库分析，利用智能代理搜索理解项目结构和依赖             |
+|                    | 自动生成高层次代码概述，快速帮助用户理解代码库               |
+| **代码编辑**       | 支持多文件协同编辑，适用于复杂代码修改                       |
+|                    | 提供符合项目模式和架构的实际可用代码建议                     |
+| **集成能力**       | 支持在终端中直接运行，无需切换上下文                         |
+|                    | 与VS Code和JetBrains IDE无缝集成，无需复制粘贴               |
+| **代码生成和优化** | 自动生成代码、创建测试、修复错误，支持从概念到提交的完整流程 |
+|                    | 为代码生成和理解优化，结合Claude Opus 4等先进模型            |
+| **安全与灵活性**   | 改动需获得用户明确授权，文件和命令操作更安全                 |
+|                    | 适应用户代码规范，支持自定义配置                             |
+| **工具链整合**     | 支持与GitHub、GitLab等工具结合，实现自动化工作流程           |
+|                    | 与测试套件、构建系统集成，增强现有开发工具                   |
+| **跨平台与扩展**   | 支持Windows、macOS、Linux操作系统                            |
+|                    | 可配置运行在SDK或GitHub Actions中，灵活适配不同需求          |
+| **主要应用场景**   | 代码库入门和理解、新成员快速上手                             |
+|                    | 代码问题修复与优化流程，从分析问题到提交PR                   |
+|                    | 项目代码重构与新功能实现                                     |
+| **用户反馈亮点**   | 提升日常开发效率，省去例行任务消耗的时间                     |
+|                    | 处理复杂多步骤任务表现优异，扩展开发可能性                   |
+
+## AI 模型配置方法
+
+### Windows 端图文指引
+
+#### 1.安装 Node.js 环境
+
+Claude Code 需要 Node.js 环境才能运行。
+
+**Node.js 环境安装步骤**
+
+- 打开浏览器访问 https://nodejs.org/
+- 点击 "LTS"版本进行下载（推荐长期支持版本）
+- 下载完成后双击 .msi 文件
+- 按照安装向导完成安装，保持默认设置即可
+
+**Windows 注意事项**
+
+- 建议使用 PowerShell 而不是 CMD
+- 如果遇到权限问题，尝试以管理员身份运行
+- 某些杀毒软件可能会误报，需要添加白名单
+
+![windows-img-01.webp](../../../pictures/apps/claude_code/windows-img-01.webp)
+
+![windows-img-02.webp](../../../pictures/apps/claude_code/windows-img-02.webp)
+
+![windows-img-03.webp](../../../pictures/apps/claude_code/windows-img-03.webp)
+
+![windows-img-05.webp](../../../pictures/apps/claude_code/windows-img-05.webp)
+
+**验证安装是否成功**
+
+安装完成后，打开 PowerShell 或 CMD，输入以下命令：
+
+```bash
+node --version
+npm --version
+```
+
+如果显示版本号，说明安装成功。
+
+#### 2.安装 Git Bash
+
+**Windows 注意事项**
+
+Windows 环境下需要使用 Git Bash 安装 Claude code。安装完成后，环境变量设置和使用 Claude Code 仍然在普通的 PowerShell 或 CMD 中进行。
+
+**下载并安装 Git for Windows**
+
+- 访问 https://git-scm.com/downloads/win
+- 点击 "Download for Windows" 下载安装包
+- 运行下载的 .exe 安装文件
+- 在安装过程中保持默认设置，直接点击 "Next" 完成安装
+
+![windows-img-08.webp](../../../pictures/apps/claude_code/windows-img-08.webp)
+
+**验证 Git Bash 安装**
+
+安装完成后，打开 Git Bash，输入以下命令验证：
+
+```bash
+git --version
+```
+
+如果显示版本号，说明安装成功。
+
+#### 3.安装 Claude Code
+
+**安装 Claude Code**
+
+打开 PowerShell，运行以下命令：
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+这个命令会从 npm 官方仓库下载并安装最新版本的 Claude Code。
+
+![windows-img-09.webp](../../../pictures/apps/claude_code/windows-img-09.webp)
+
+**将 ~/.local/bin 加入 PATH（仅当提示要求时）**
+
+```powershell
+[Environment]::SetEnvironmentVariable('Path', ([Environment]::GetEnvironmentVariable('Path','User') + ";$HOME\.local\bin"), 'User')
+```
+
+**验证 Claude Code 安装**
+
+安装完成后，输入以下命令检查是否安装成功：
+
+```bash
+claude --version
+```
+
+如果显示版本号，恭喜你！Claude Code 已经成功安装了。
+
+#### 4.设置环境变量
+
+**一键设置命令 (Windows 系统)**
+
+为了让 Claude Code 连接到 OpenSand，需要设置多个环境变量：
+
+```powershell
+iex (irm 'https://opensand.ai/scripts/claude-cli-setup.ps1')
+```
+
+![windows-configure](../../../pictures/apps/claude_code/windows_configure.png)
+
+#### 5.开始使用 Claude Code
+
+现在你可以开始使用 Claude Code 了！
+
+**启动 Claude Code**
+
+打开 PowerShell，直接启动 Claude Code：
+
+```bash
+claude
+```
+
+在特定项目中使用：
+
+```bash
+# 进入你的项目目录
+cd C:\path\to\your\project
+
+# 启动 Claude Code
+claude
+```
+
+![windows-img-11.webp](../../../pictures/apps/claude_code/windows-img-11.webp)
+
+![windows-img-12.webp](../../../pictures/apps/claude_code/windows-img-12.webp)
+
+![windows-img-13.webp](../../../pictures/apps/claude_code/windows-img-13.webp)
+
+![windows-img-14.webp](../../../pictures/apps/claude_code/windows-img-14.webp)
+
+![windows-img-15.webp](../../../pictures/apps/claude_code/windows-img-15.webp)
+
+**选择模型**
+
+输入命令：
+
+```bash
+/model
+```
+
+按 Enter 进入，选择模型，通常使用默认设置即可。
+
+![windows-img-16.webp](../../../pictures/apps/claude_code/windows-img-16.webp)
+
+![windows-img-17.webp](../../../pictures/apps/claude_code/windows-img-17.webp)
+
+> 注意：设置环境变量修改后，使用所有模型（包括官方预设模型）均调用自定义接入点，而不使用官方账号额度。
+
+### MacOS 端图文指引
+
+#### 1.安装 Claude Code CLI
+
+打开终端.app
+
+**安装 Claude Code**
+
+打开终端，运行以下命令：
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+可选项：出现提示后运行提供的命令
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+```
+
+![macos-img-02.webp](../../../pictures/apps/claude_code/macos-img-02.webp)
+
+#### 2.设置环境变量
+
+为了让 Claude Code 连接到 OpenSand，需要设置环境变量：
+
+**一键设置 Claude Code 环境变量**
+
+输入命令：
+
+```bash
+curl -fsSL https://opensand.ai/scripts/claude-cli-setup.sh | bash
+```
+
+![macos-configure](../../../pictures/apps/claude_code/macos_configure.png)
+
+**验证 Claude Code 安装**
+
+安装完成后，输入以下命令检查是否安装成功：
+
+```bash
+claude --version
+```
+
+如果显示版本号，恭喜你！Claude Code 已经成功安装了。
+
+#### 3.开始使用 Claude Code
+
+现在你可以开始使用 Claude Code 了！
+
+**启动 Claude Code**
+
+直接启动 Claude Code：
+
+```bash
+claude
+```
+
+在特定项目中使用：
+
+```bash
+# 进入你的项目目录
+cd /path/to/your/project
+
+# 启动 Claude Code
+claude
+```
+
+![macos-img-04.webp](../../../pictures/apps/claude_code/macos-img-04.webp)
+
+![macos-img-05.webp](../../../pictures/apps/claude_code/macos-img-05.webp)
+
+![macos-img-08.webp](../../../pictures/apps/claude_code/macos-img-08.webp)
+
+**选择模型 (可选)**
+
+输入命令：
+
+```bash
+/model
+```
+
+按 Enter 进入，选择官方模型，通常使用默认模型即可。
+
+> 注意：设置环境变量修改 `ANTHROPIC_BASE_URL` 后，使用所有模型（包括官方预设模型）均调用自定义接入点，而不使用官方账号额度。
+
+#### 4.macOS 常见问题解决
+
+**macOS 安全设置阻止运行**
+
+如果系统阻止运行 Claude Code：
+
+- 打开"系统偏好设置" → "安全性与隐私"
+- 点击"仍要打开"或"允许"
+- 或者在 Terminal 中运行：`sudo spctl --master-disable`
+
+### Linux 端图文指引
+
+#### 1.安装 Claude Code
+
+![linux-img-01.webp](../../../pictures/apps/claude_code/linux-img-01.webp)
+
+**安装 Claude Code**
+
+打开终端，运行以下命令：
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+如果遇到权限问题，可以使用 sudo：
+
+```bash
+sudo curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**验证 Claude Code 安装**
+
+安装完成后，输入以下命令检查是否安装成功：
+
+```bash
+claude --version
+```
+
+如果显示版本号，恭喜你！Claude Code 已经成功安装了。
+
+#### 2.设置环境变量
+
+为了让 Claude Code 连接到 OpenSand，需要设置两个环境变量：
+
+**一键修改环境变量**
+
+输入命令：
+
+```bash
+curl -fsSL https://opensand.ai/scripts/claude-cli-setup.sh | bash
+```
+
+![macos-configure](../../../pictures/apps/claude_code/macos_configure.png)
+
+#### 3.开始使用 Claude Code
+
+现在你可以开始使用 Claude Code 了！
+
+**启动 Claude Code**
+
+直接启动 Claude Code：
+
+```bash
+claude
+```
+
+在特定项目中使用：
+
+```bash
+# 进入你的项目目录
+cd /path/to/your/project
+
+# 启动 Claude Code
+claude
+```
+
+![linux-img-04.webp](../../../pictures/apps/claude_code/linux-img-04.webp)
+
+**选择模型**
+
+输入命令：
+
+```bash
+/model
+```
+
+按 Enter 进入，选择官方模型，通常使用默认模型即可。
+
+> 注意：设置环境变量修改 `ANTHROPIC_BASE_URL` 后，使用所有模型（包括官方预设模型）均调用自定义接入点，而不使用官方账号额度。
+
+#### 4.Linux 常见问题解决
+
+**缺少依赖库**
+
+某些 Linux 发行版需要安装额外依赖：
+
+```bash
+# Ubuntu/Debian
+sudo apt install build-essential
+
+# CentOS/RHEL
+sudo dnf groupinstall "Development Tools"
+```
+
+**环境变量不生效**
+
+检查以下几点：
+
+- 确认修改了正确的配置文件（`.bashrc` 或 `.zshrc`）
+- 重新启动终端或运行 `source ~/.bashrc`
+- 验证设置：`echo $ANTHROPIC_BASE_URL`
+
+---
+
+# CodeBuddy
+
+Source: https://opensand.ai/zh/docs/apps/codebuddy
+
+---
+title: "CodeBuddy"
+source: "https://opensand.ai/zh/docs/apps/codebuddy"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.093Z"
+---
+# CodeBuddy
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+WorkBuddy / CodeBuddy 是一款 AI Agent 与编程助手工具，通过本地 **JSON 模型配置文件** 管理可用模型。使用 OpenAI 兼容的 Chat Completions API，可无缝接入 OpenSand。
+
+## 📦 接入前准备
+
+**准备信息**
+
+- 已安装 WorkBuddy / CodeBuddy
+- 一个可用的 OpenSand 地址（必须以 `/v1` 结尾）
+- 一个可用的 OpenSand API Key（在控制台生成）
+- 想使用的模型名称（如 `claude-sonnet-4-6`、`gemini-2.5-flash` 等，需与 OpenSand 控制台中的模型 ID 完全一致）
+
+## 🚀 第一步：编辑模型配置文件
+
+找到 WorkBuddy / CodeBuddy 的本地模型配置 JSON 文件（通常位于用户目录下），添加 OpenSand 模型：
+
+```json
+{
+  "models": [
+    {
+      "id": "claude-sonnet-4-6",
+      "name": "Claude Sonnet 4.6 (OpenSand)",
+      "vendor": "OpenSand",
+      "url": "https://opensand.ai/v1/chat/completions",
+      "apiKey": "${OPENSAND_API_KEY}",
+      "maxInputTokens": 200000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": true,
+      "supportsImages": true
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "name": "Gemini 2.5 Flash (OpenSand)",
+      "vendor": "OpenSand",
+      "url": "https://opensand.ai/v1/chat/completions",
+      "apiKey": "${OPENSAND_API_KEY}",
+      "maxInputTokens": 1000000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": true,
+      "supportsImages": false
+    }
+  ],
+  "availableModels": [
+    "claude-sonnet-4-6",
+    "gemini-2.5-flash"
+  ]
+}
+```
+
+**字段要点**
+
+- `url` 必须是 **完整的 Chat Completions 端点地址**（含 `/v1/chat/completions`）
+- `id` 填写 OpenSand 控制台实际暴露的模型名称
+- `maxInputTokens` / `maxOutputTokens` 根据实际模型能力调整
+- `availableModels` 控制 UI 中可选的模型列表
+
+## 🔑 第二步：设置 API Key 环境变量
+
+### Linux / macOS
+
+```bash
+```
+
+### Windows（PowerShell）
+
+```powershell
+$env:OPENSAND_API_KEY="your-opensand-api-key"
+```
+
+建议将环境变量写入 shell 配置文件（`~/.bashrc` / `~/.zshrc` / PowerShell Profile）以便持久化。
+
+## ✅ 第三步：验证接入
+
+启动 WorkBuddy / CodeBuddy，在模型选择器中选择刚刚添加的 OpenSand 模型（如 `claude-sonnet-4-6`），发送一条测试消息：
+
+```
+帮我写一个快速排序的 TypeScript 实现
+```
+
+若模型正常响应则接入成功。
+
+## ❓ 常见问题
+
+| 问题 | 解决方案 |
+|------|----------|
+| 模型选择器看不到新加的模型 | 检查 `availableModels` 是否包含模型 ID，并重启应用 |
+| 401 / API Key 无效 | 确认环境变量已设置，且进程读取到了新值 |
+| `url must end with /chat/completions` | 确认 `url` 是完整端点，**不要只填到 `/v1`** |
+| 模型不存在 | 确认 `id` 与 OpenSand 控制台中的模型 ID 完全一致 |
+| 输出被截断 | 提高 `maxOutputTokens` 上限 |
+
+---
+
+# Codex CLI
+
+Source: https://opensand.ai/zh/docs/apps/codex-cli
+
+---
+title: "Codex CLI"
+source: "https://opensand.ai/zh/docs/apps/codex-cli"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.097Z"
+---
+# Codex CLI
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+Codex CLI 是一个来自 OpenAI 的编码代理，可在您的计算机上本地运行。
+
+- 官方主页：[https://chatgpt.com/codex](https://chatgpt.com/codex)
+- 项目主页：[https://github.com/openai/codex](https://github.com/openai/codex)
+
+## 效果演示
+
+![introduce-01.webp](../../../pictures/apps/codex/introduce-01.webp)
+
+### 特性
+
+| **功能分类**   | **特性**                                                                                                                     |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 终端式编码助手 | Codex CLI 是一个基于终端的交互式编码助理，用于在命令行中编辑代码、生成补丁并运行命令。                                       |
+| 工具驱动架构   | 提供 `apply_patch`、`shell`、`update_plan`、`multi_tool_use` 等工具，用于对仓库文件和操作进行可控修改。                      |
+| 原子补丁编辑   | 使用专门的补丁格式通过 `apply_patch` 原子地添加/更新/删除文件，便于审计与回滚。                                              |
+| 沙箱与审批     | 支持沙箱策略（如 `workspace-write`、`read-only`）和审批模式（`on-request`、`on-failure`、`never`），控制写入与网络访问权限。 |
+| 计划追踪       | `update_plan` 用于列出步骤并跟踪状态，要求始终只有一个 `in_progress` 步骤以保持明确进度。                                    |
+| 交互规范       | 在重要操作前发送简短前导说明，保持语气友好、简洁并提供进度更新。                                                             |
+| 安全约束       | 遵循严格规则（不随意更改无关文件、不添加版权头、不执行破坏性命令），需要用户批准敏感操作。                                   |
+| 测试与格式化   | 推荐在修改后运行相关测试与格式化工具，但不负责修复与当前任务无关的问题。                                                     |
+| 输出与风格     | 最终输出遵循 CLI 渲染规范（例如 `**` 标题、反引号表示路径/命令），保持可扫描的简洁结构。                                     |
+| 并行执行       | 支持通过 `multi_tool_use.parallel` 并行运行多个工具以提升效率。                                                              |
+
+## AI 模型配置方法
+
+### Windows 端图文指引
+
+#### 1.打开终端（WindowsPowerShell）
+
+#### 2.安装 WSL
+
+为在 Windows 上获得最佳性能，请安装并使用 Windows Subsystem for Linux (WSL2)。
+
+**安装 WSL2，重启 Windows 计算机**
+
+```powershell
+wsl --install
+```
+
+安装完成后重启 Windows 计算机。
+
+**Windows 注意事项**
+
+- 建议使用 PowerShell 而不是 CMD
+- 如果遇到权限问题，尝试以管理员身份运行
+- 某些杀毒软件可能会误报，需要添加白名单
+
+![windows-img-03.webp](../../../pictures/apps/codex/windows-img-03.webp)
+
+**下载 Node Version Manager (NVM)**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+```
+
+**NVM 安装 Node.js 22**
+
+标签栏新开一个 PowerShell 窗口，打开 WSL：
+
+```bash
+wsl
+```
+
+安装 Node.js（版本号有时效性，请根据 [OpenAI 官网](https://developers.openai.com/codex/windows) 要求安装对应版本）：
+
+```bash
+nvm install 22
+```
+
+#### 3.安装 Codex CLI
+
+**安装 Codex CLI**
+
+```bash
+npm i -g @openai/codex
+```
+
+这个命令会从 npm 官方仓库下载并安装最新版本的 Codex CLI。
+
+![windows-img-06.webp](../../../pictures/apps/codex/windows-img-06.webp)
+
+#### 4.修改配置文件
+
+**一键修改 Codex CLI 配置文件**
+
+```powershell
+iex (irm 'https://opensand.ai/scripts/codex-cli-setup.ps1')
+```
+
+![windows-configure](../../../pictures/apps/codex/windows_configure.png)
+
+#### 5.开始使用 Codex CLI
+
+现在你可以开始使用 Codex CLI 了！
+
+**启动 Codex CLI**
+
+启动 WSL2：
+
+```bash
+wsl
+```
+
+直接启动 Codex CLI：
+
+```bash
+codex
+```
+
+在特定项目中使用：
+
+```bash
+cd mnt/c/path/to/your/project
+codex
+```
+
+按 Enter 启动 Codex CLI。
+
+![windows-img-10.webp](../../../pictures/apps/codex/windows-img-10.webp)
+
+> 设置 Codex CLI 的权限：1. 允许 Codex 直接修改文件；2. Codex 修改文件需要手动授权
+
+**选择模型**
+
+```bash
+/model
+```
+
+![windows-img-11.webp](../../../pictures/apps/codex/windows-img-11.webp)
+
+![windows-img-12.webp](../../../pictures/apps/codex/windows-img-12.webp)
+
+![windows-img-13.webp](../../../pictures/apps/codex/windows-img-13.webp)
+
+![windows-img-14.webp](../../../pictures/apps/codex/windows-img-14.webp)
+
+> 注意：修改接口地址后，使用所有模型（包括官方预设模型）均调用自定义接入点，而不使用官方账号额度。
+
+### macOS 端图文指引
+
+#### 1.安装 Homebrew (已安装请跳过)
+
+Homebrew 是 macOS 缺失的软件包的管理器。
+
+官网：https://brew.sh
+
+**安装 Homebrew**
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+![macos-img-02.webp](../../../pictures/apps/codex/macos-img-02.webp)
+
+![macos-img-03.webp](../../../pictures/apps/codex/macos-img-03.webp)
+
+![macos-img-04.webp](../../../pictures/apps/codex/macos-img-04.webp)
+
+#### 2.安装 Node.js 环境
+
+**Node.js 环境安装步骤**
+
+更新 Homebrew：
+
+```bash
+brew update
+```
+
+安装 Node.js：
+
+```bash
+brew install node
+```
+
+**macOS 注意事项**
+
+- 如果遇到权限问题，可能需要使用 `sudo`
+- 首次运行可能需要在系统偏好设置中允许
+- 建议使用 Terminal 或 iTerm2
+
+![macos-img-05.webp](../../../pictures/apps/codex/macos-img-05.webp)
+
+![macos-img-06.webp](../../../pictures/apps/codex/macos-img-06.webp)
+
+**验证安装是否成功**
+
+安装完成后，打开终端，输入以下命令：
+
+```bash
+node --version
+npm --version
+```
+
+如果显示版本号，说明安装成功。
+
+#### 3.安装 Codex CLI
+
+**安装 Codex CLI**
+
+打开终端，运行以下命令：
+
+```bash
+# 全局安装 Codex CLI
+npm install -g @openai/codex
+```
+
+如果遇到权限问题，可以使用 sudo：
+
+```bash
+sudo npm install -g @openai/codex
+```
+
+![macos-img-07.webp](../../../pictures/apps/codex/macos-img-07.webp)
+
+**验证 Codex CLI 安装**
+
+安装完成后，输入以下命令检查是否安装成功：
+
+```bash
+codex --version
+```
+
+如果显示版本号，恭喜你！Codex CLI 已经成功安装了。
+
+#### 4.修改配置文件
+
+**一键修改 Codex CLI 配置文件**
+
+```bash
+curl -fsSL https://opensand.ai/scripts/codex-cli-setup.sh | bash
+```
+
+![macos-configure](../../../pictures/apps/codex/macos_configure.png)
+
+#### 5.开始使用 Codex CLI
+
+现在你可以开始使用 Codex CLI 了！
+
+**启动 Codex CLI**
+
+直接启动 Codex CLI：
+
+```bash
+codex
+```
+
+在特定项目中使用：
+
+```bash
+cd /path/to/your/project
+codex
+```
+
+按 Enter 启动 Codex CLI。
+
+![macos-img-09.webp](../../../pictures/apps/codex/macos-img-09.webp)
+
+![macos-img-10.webp](../../../pictures/apps/codex/macos-img-10.webp)
+
+> 设置 Codex CLI 的权限：1. 允许 Codex 直接修改文件；2. Codex 修改文件需要手动授权
+
+![macos-img-11.webp](../../../pictures/apps/codex/macos-img-11.webp)
+
+![macos-img-12.webp](../../../pictures/apps/codex/macos-img-12.webp)
+
+![macos-img-13.webp](../../../pictures/apps/codex/macos-img-13.webp)
+
+![macos-img-14.webp](../../../pictures/apps/codex/macos-img-14.webp)
+
+> 注意：修改接口地址后，使用所有模型（包括官方预设模型）均调用自定义接入点，而不使用官方账号额度。
+
+#### 6.macOS 常见问题解决
+
+**安装时提示权限错误**
+
+尝试以下解决方法：
+
+- 使用 `sudo` 安装：`sudo npm install -g @openai/codex`
+- 或者配置 `npm` 使用用户目录：`npm config set prefix ~/.npm-global`
+
+**macOS 安全设置阻止运行**
+
+如果系统阻止运行 Codex CLI：
+
+- 打开"系统偏好设置" → "安全性与隐私"
+- 点击"仍要打开"或"允许"
+- 或者在 Terminal 中运行：`sudo spctl --master-disable`
+
+### Linux 端图文指引
+
+#### 1.安装 Node.js 环境
+
+Codex CLI 需要 Node.js 环境才能运行。
+
+**Node.js 环境安装步骤**
+
+添加 NodeSource 仓库：
+
+```bash
+sudo curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+```
+
+安装 Node.js：
+
+```bash
+sudo apt-get install -y nodejs
+```
+
+**Linux 注意事项**
+
+- 某些发行版可能需要安装额外的依赖
+- 如果遇到权限问题，使用 sudo
+- 确保你的用户在 npm 的全局目录有写权限
+
+![linux-img-01.webp](../../../pictures/apps/codex/linux-img-01.webp)
+
+![linux-img-02.webp](../../../pictures/apps/codex/linux-img-02.webp)
+
+**验证安装是否成功**
+
+安装完成后，打开终端，输入以下命令：
+
+```bash
+node --version
+npm --version
+```
+
+如果显示版本号，说明安装成功。
+
+#### 2.安装 Codex CLI
+
+**安装 Codex CLI**
+
+打开终端，运行以下命令：
+
+```bash
+# 全局安装 Codex CLI
+npm install -g @openai/codex
+```
+
+如果遇到权限问题，可以使用 sudo：
+
+```bash
+sudo npm install -g @openai/codex
+```
+
+![linux-img-03.webp](../../../pictures/apps/codex/linux-img-03.webp)
+
+**验证 Codex CLI 安装**
+
+安装完成后，输入以下命令检查是否安装成功：
+
+```bash
+codex --version
+```
+
+如果显示版本号，恭喜你！Codex CLI 已经成功安装了。
+
+#### 3.修改配置文件
+
+**一键修改 Codex CLI 配置文件**
+
+```bash
+curl -fsSL https://opensand.ai/scripts/codex-cli-setup.sh | bash
+```
+
+![macos-configure](../../../pictures/apps/codex/macos_configure.png)
+
+#### 4.开始使用 Codex CLI
+
+现在你可以开始使用 Codex CLI 了！
+
+**启动 Codex CLI**
+
+直接启动 Codex CLI：
+
+```bash
+codex
+```
+
+在特定项目中使用：
+
+```bash
+# 进入你的项目目录
+cd /path/to/your/project
+
+# 启动 Codex CLI
+codex
+```
+
+按 Enter 启动 Codex CLI。
+
+![linux-img-05.webp](../../../pictures/apps/codex/linux-img-05.webp)
+
+![linux-img-06.webp](../../../pictures/apps/codex/linux-img-06.webp)
+
+> 设置 Codex CLI 的权限：1. 允许 Codex 直接修改文件；2. Codex 修改文件需要手动授权
+
+![linux-img-07.webp](../../../pictures/apps/codex/linux-img-07.webp)
+
+![linux-img-08.webp](../../../pictures/apps/codex/linux-img-08.webp)
+
+![linux-img-09.webp](../../../pictures/apps/codex/linux-img-09.webp)
+
+![linux-img-10.webp](../../../pictures/apps/codex/linux-img-10.webp)
+
+> 注意：修改接口地址后，使用所有模型（包括官方预设模型）均调用自定义接入点，而不使用官方账号额度。
+
+#### 5.Linux 常见问题解决
+
+**安装时提示权限错误**
+
+尝试以下解决方法：
+
+- 使用 `sudo` 安装：`sudo npm install -g @openai/codex`
+- 或者配置 `npm` 使用用户目录：`npm config set prefix ~/.npm-global`
+- 然后添加到 PATH：`export PATH=~/.npm-global/bin:$PATH`
+
+**缺少依赖库**
+
+某些 Linux 发行版需要安装额外依赖：
+
+```bash
+# Ubuntu/Debian
+sudo apt install build-essential
+
+# CentOS/RHEL
+sudo dnf groupinstall "Development Tools"
+```
+
+---
+
+# Copilot CLI
+
+Source: https://opensand.ai/zh/docs/apps/copilot-cli
+
+---
+title: "Copilot CLI"
+source: "https://opensand.ai/zh/docs/apps/copilot-cli"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.098Z"
+---
+# Copilot CLI
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+GitHub Copilot CLI 是 GitHub 官方推出的终端 AI 编程助手，支持 **BYOK（自带密钥）** 模式接入自定义模型端点，可通过环境变量直接对接 OpenSand。支持 Agent 模式、工具调用和 MCP。
+
+- 官方文档：[https://docs.github.com/copilot/how-tos/copilot-cli/cli-getting-started](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started)
+- 包地址：[https://www.npmjs.com/package/@github/copilot](https://www.npmjs.com/package/@github/copilot)
+
+本教程介绍如何将 Copilot CLI 通过 BYOK 模式指向 OpenSand，使用 OpenSand 网关分发的模型完成日常编码任务。
+
+## 📦 接入前准备
+
+**准备信息**
+
+- **Node.js 22 或更高版本**
+- 一个可用的 OpenSand 地址（必须以 `/v1` 结尾）
+- 一个可用的 OpenSand API Key（在控制台生成）
+- 想使用的模型名称（如 `claude-sonnet-4-6`、`gemini-2.5-flash` 等，需与 OpenSand 控制台中的模型 ID 完全一致）
+
+## 🚀 第一步：安装 Copilot CLI
+
+```bash
+npm install -g @github/copilot
+```
+
+安装完成后，验证版本：
+
+```bash
+copilot --version
+```
+
+详细安装说明请参考 [官方入门指南](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started)。
+
+## 🔧 第二步：配置 OpenSand（核心步骤）
+
+Copilot CLI 通过环境变量读取自定义 Provider 配置，**推荐使用 `anthropic` 类型**以获得最佳兼容性。
+
+### Linux / macOS
+
+```bash
+```
+
+### Windows（PowerShell）
+
+```powershell
+$env:COPILOT_PROVIDER_TYPE="anthropic"
+$env:COPILOT_PROVIDER_BASE_URL="https://opensand.ai/v1"
+$env:COPILOT_PROVIDER_API_KEY="your-opensand-api-key"
+$env:COPILOT_MODEL="claude-sonnet-4-6"
+```
+
+**为什么推荐 anthropic 类型**
+
+部分模型（特别是带思考链的推理模型）要求将 `reasoning_content` 在下一轮请求中原样回传。Copilot CLI 的 OpenAI 集成不支持此机制，可能触发 `400` 错误。改用 **Anthropic Messages API** 兼容端点可以规避此问题。
+
+如果你只使用非推理模型（如 `gemini-2.5-flash`），也可以将 `COPILOT_PROVIDER_TYPE` 改为 `openai`。
+
+### 可选：调整上下文与输出限制
+
+```bash
+```
+
+## ✅ 第三步：启动并验证
+
+```bash
+copilot
+```
+
+输入任意编程问题（例如 "帮我写一个读取 JSON 文件的 Python 函数"），模型正常响应即配置成功。
+
+```bash
+copilot help providers
+```
+
+可列出全部与 Provider 相关的环境变量说明。
+
+## 🔄 切换模型
+
+只需修改 `COPILOT_MODEL` 环境变量并重新启动 `copilot`：
+
+```bash
+copilot
+```
+
+模型名称必须与 OpenSand 控制台中暴露的模型 ID **完全一致**。
+
+## ❓ 常见问题
+
+| 问题 | 解决方案 |
+|------|----------|
+| 提示 `400 Bad Request` | 将 `COPILOT_PROVIDER_TYPE` 切换为 `anthropic` |
+| 提示模型不存在 | 确认 `COPILOT_MODEL` 与 OpenSand 控制台的模型 ID 一致 |
+| API Key 无效 | 在 OpenSand 控制台重新生成 Key 并更新环境变量 |
+| 环境变量不生效 | 检查是否新开了 shell，或将变量写入 `~/.bashrc` / `~/.zshrc` / PowerShell Profile |
+| 输出被截断 | 增加 `COPILOT_PROVIDER_MAX_OUTPUT_TOKENS` 的值 |
+
+---
+
+# Crush
+
+Source: https://opensand.ai/zh/docs/apps/crush
+
+---
+title: "Crush"
+source: "https://opensand.ai/zh/docs/apps/crush"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.098Z"
+---
+# Crush
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+**Crush** 是由 [Charm](https://charm.sh) 开发的开源 AI 编程 Agent，运行在终端中。支持多模型切换、LSP 集成、MCP 服务器和代理式编码工作流，UI 精致且交互流畅。
+
+- GitHub：[https://github.com/charmbracelet/crush](https://github.com/charmbracelet/crush)
+
+## 📦 接入前准备
+
+**准备信息**
+
+- 已安装 [Node.js](https://nodejs.org/zh-cn/download/)
+- 一个可用的 OpenSand 地址（必须以 `/v1` 结尾）
+- 一个可用的 OpenSand API Key（在控制台生成）
+- 想使用的模型名称（如 `claude-sonnet-4-6`、`gemini-2.5-flash` 等，需与 OpenSand 控制台中的模型 ID 完全一致）
+
+## 🚀 第一步：安装 Crush
+
+```bash
+npm install -g @charmland/crush
+```
+
+macOS 用户也可通过 Homebrew 安装：
+
+```bash
+brew install charmbracelet/tap/crush
+```
+
+验证安装：
+
+```bash
+crush --version
+```
+
+## 🔧 第二步：编辑配置文件
+
+配置文件位置：
+
+- **Linux / macOS**：`~/.config/crush/crush.json`
+- **Windows**：`%USERPROFILE%\.config\crush\crush.json`
+
+如果文件不存在，自行创建即可。填入以下内容：
+
+```json
+{
+  "$schema": "https://charm.land/crush.json",
+  "providers": {
+    "opensand": {
+      "type": "openai-compat",
+      "base_url": "https://opensand.ai/v1",
+      "api_key": "$OPENSAND_API_KEY",
+      "models": [
+        {
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6",
+          "context_window": 200000,
+          "default_max_tokens": 32768,
+          "can_reason": true
+        },
+        {
+          "id": "gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "context_window": 1000000,
+          "default_max_tokens": 32768,
+          "can_reason": false
+        }
+      ]
+    }
+  }
+}
+```
+
+**字段要点**
+
+- `type` 必须为 `openai-compat`
+- `base_url` 需以 `/v1` 结尾
+- `api_key` 使用 `$OPENSAND_API_KEY` 变量引用，避免把明文密钥写入配置文件
+- `models[].id` 必须与 OpenSand 控制台完全一致
+
+## 🔑 第三步：设置环境变量
+
+### Linux / macOS
+
+```bash
+```
+
+### Windows（PowerShell）
+
+```powershell
+$env:OPENSAND_API_KEY="your-opensand-api-key"
+```
+
+建议写入 shell 配置文件以便持久化。
+
+## ✅ 第四步：启动并选择模型
+
+进入你的项目目录：
+
+```bash
+cd /path/to/my-project
+crush
+```
+
+按 `Ctrl+L`（或输入 `/model`）打开模型切换器，选择 **opensand** 供应商，然后选择目标模型。发送一条测试消息验证响应。
+
+## ❓ 常见问题
+
+| 问题 | 解决方案 |
+|------|----------|
+| 模型切换器看不到 opensand | 检查 `crush.json` 路径和 JSON 格式是否正确 |
+| 401 Unauthorized | 确认 `OPENSAND_API_KEY` 已导出到当前 shell |
+| 模型不存在 | 核对 `models[].id` 与 OpenSand 控制台完全一致 |
+| 修改配置后没生效 | 退出 Crush 重新启动 |
+
+---
+
+# Factory Droid CLI
+
+Source: https://opensand.ai/zh/docs/apps/factory-droid-cli
+
+---
+title: "Factory Droid CLI"
+source: "https://opensand.ai/zh/docs/apps/factory-droid-cli"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.099Z"
+---
+# Factory Droid CLI
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+Droid CLI 是由 Factory AI 开发的命令行工具，旨在作为 AI 软件工程代理运行。它允许用户通过终端与各种大型语言模型交互，构建、调试和重构代码，甚至创建完整的应用程序。
+
+- 官方主页：[https://factory.ai/product/cli](https://factory.ai/product/cli)
+- 官方文档：[https://docs.factory.ai/cli/getting-started/quickstart](https://docs.factory.ai/cli/getting-started/quickstart)
+
+## 效果演示
+
+![droid.webp](../../../pictures/apps/factory_droid_cli/droid_example.webp)
+
+### 特性
+
+| 类别           | 特性                                                                       | 价值/能力                    | 示例/备注                                             |
+| -------------- | -------------------------------------------------------------------------- | ---------------------------- | ----------------------------------------------------- |
+| 快速上手与 CLI | 30 秒安装；在项目目录中启动 droid 交互会话；支持 macOS/Linux 与 Windows    | 快速接入当前工程，无需新工具 | Windows 安装：`irm https://app.factory.ai/cli/windows \| iex`；启动：`droid` |
+| 端到端特性开发 | 从规划到实现到测试的全流程自动化；透明的评审流程                           | 提升交付速度，保持人类把控   | 原生 diff 查看与批准流程（见"透明与可控"）            |
+| 代码库深度理解 | 融合组织在代码库、文档、Issue 追踪中的共享知识；上下文感知，效果随时间提升 | 更准确的建议与改动           | 持续利用跨仓库与文档的知识                            |
+| 工程系统集成   | 原生集成 Jira、Notion、Slack 等工具；开发工作与团队流程保持同步            | 减少工具切换与信息孤岛       | "等"表示还有更多集成                                  |
+| 生产级自动化   | 工作流可在本地与 CI/CD 复用；企业级安全与合规内建                          | 一致性与可审计性             | 适配流水线与企业环境                                  |
+| 企业级能力     | 私有部署选项、SOC-2 合规、空气隔离（air-gapped）环境                       | 满足安全与合规要求           | 以安全与质量优先                                      |
+| 现有工具增强   | 在终端、IDE 与既有开发环境中工作；无需切换编辑器或学习新界面               | 保持现有工作习惯、低迁移成本 | 与熟悉工具深度集成                                    |
+| 透明与可控     | 每个决策可见且可审阅；对代码变更保持完全监督；原生 diff 查看与审批工作流   | 降低风险、提升可控性         | 审核友好、可追踪                                      |
+| 模型灵活性     | 不锁定单一 AI 提供商；按任务选择最佳模型；组织级一致行为与记忆             | 在性能与成本间做最优选择     | 支持多模型路由                                        |
+| 下一步与资源   | Quickstart、Common Use Cases、IDE Integration、Configuration、AGENTS.md    | 便于落地与实践               | 见页面 "Next steps/Additional resources"              |
+
+## AI 模型配置方法
+
+### Windows 端图文指引
+
+#### 1.打开终端 ， 安装 Factory Droid CLI
+
+官方一键安装命令：
+
+**一键安装命令**
+
+```powershell
+irm https://app.factory.ai/cli/windows | iex
+```
+
+![windows-install](../../../pictures/apps/factory_droid_cli/windows_install_droid.webp)
+
+#### 2.修改配置文件
+
+Droid CLI 使用 OpenSand 需要修改配置文件。
+
+![windows-configure.webp](../../../pictures/apps/factory_droid_cli/factory_cli_setup_windows.png)
+
+**修改环境变量**
+
+```powershell
+iex (irm 'https://opensand.ai/scripts/factory-droid-cli-setup.ps1')
+```
+
+#### 3.开始使用 Droid CLI
+
+现在你可以开始使用 Droid CLI 了！
+
+**启动 Droid CLI**
+
+直接启动 Droid CLI：
+
+```bash
+droid
+```
+
+在特定项目中使用：
+
+```bash
+# 进入你的项目目录
+cd C:\path\to\your\project
+
+# 启动 Droid CLI
+droid
+```
+
+按 Enter 启动 Droid CLI。
+
+Droid CLI 要求用户登录官方账号（免费）后才能使用。
+
+#### 4.Windows 常见问题解决
+
+**安装时提示 permission denied 错误**
+
+这通常是权限问题，尝试以下解决方法：
+
+- 以管理员身份运行 PowerShell
+- 或者配置 `npm` 使用用户目录：`npm config set prefix %APPDATA%\npm`
+
+**PowerShell 执行策略错误**
+
+如果遇到执行策略限制，运行：
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### macOS/Linux 端图文指引
+
+#### 1.安装 Droid CLI
+
+**安装 Droid CLI**
+
+打开终端，运行以下命令：
+
+```bash
+curl -fsSL https://app.factory.ai/cli | sh
+```
+
+![macos-img-02.webp](../../../pictures/apps/factory_droid_cli/macos_install_droid_2.webp)
+
+按照安装提示修改环境变量（直接复制安装提示代码）：
+
+Linux 视情况选择 `~/.bashrc` 或 `~/.zshrc`
+
+**Droid CLI 环境变量 (仅作示例)**
+
+```bash
+echo 'export PATH=/Users/修改此处/.local/bin:$PATH' >> ~/.zshrc
+source ~/.zshrc
+```
+
+#### 2.修改配置文件
+
+Droid CLI 使用 OpenSand 需要修改配置文件。
+
+**一键修改配置文件**
+
+```bash
+curl -fsSL https://opensand.ai/scripts/factory-droid-cli-setup.sh | bash
+```
+
+![macos-img-03.webp](../../../pictures/apps/factory_droid_cli/macos_configure.png)
+
+#### 3.开始使用 Droid CLI
+
+现在你可以开始使用 Droid CLI 了！
+
+**启动 Droid CLI**
+
+直接启动 Droid CLI：
+
+```bash
+droid
+```
+
+在特定项目中使用：
+
+```bash
+# 进入你的项目目录
+cd /path/to/your/project
+
+# 启动 Droid CLI
+droid
+```
+
+按 Enter 启动 Droid CLI。
+
+> Droid CLI 要求用户登录官方账号（免费）后才能使用。
+
+---
+
+# FluentRead
+
+Source: https://opensand.ai/zh/docs/apps/fluent-read
+
+---
+title: "FluentRead"
+source: "https://opensand.ai/zh/docs/apps/fluent-read"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.100Z"
+---
+# 流畅阅读 (FluentRead) - 开源翻译插件
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**聊天设置选项**
+
+在 OpenSand
+控制台的系统设置->聊天设置中，可添加如下快捷选项，便于在令牌管理页一键填充到
+FluentRead：
+
+    ```json
+    { "流畅阅读": "fluentread" }
+    ```
+
+🌊
+流畅阅读（FluentRead）是一款开源浏览器翻译插件，致力于提供母语般的阅读体验。
+
+- 项目地址：[https://github.com/Bistutu/FluentRead](https://github.com/Bistutu/FluentRead)
+
+## 🌟 核心特性
+
+### 智能翻译引擎
+
+- **多引擎支持**：支持 20+ 种翻译引擎
+- **传统翻译**：微软翻译、谷歌翻译、DeepL翻译等
+- **AI 大模型**：OpenAI、DeepSeek、Kimi、Ollama等
+- **自定义引擎**：支持自定义翻译服务配置
+
+### 沉浸式阅读体验
+
+- **双语对照**：原文与译文并列显示，阅读更轻松
+- **划词翻译**：选中任意文本，即时获得翻译结果
+- **一键复制**：快速复制译文，提高阅读效率
+- **全文翻译**：悬浮球一键翻译整个网页，无需刷新页面
+
+### 隐私与定制
+
+- **隐私保护**：所有数据本地存储，代码开源透明
+- **高度定制**：丰富的自定义选项，满足不同场景需求
+- **完全免费**：开源免费，非商业化项目
+
+## 📦 安装方式
+
+| 浏览器      | 安装方式                                                                                                                                                                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Chrome**  | [Chrome 应用商店](https://chromewebstore.google.com/detail/%E6%B5%81%E7%95%85%E9%98%85%E8%AF%BB/djnlaiohfaaifbibleebjggkghlmcpcj?hl=zh-CN&authuser=0) \| [国内镜像](https://www.crxsoso.com/webstore/detail/djnlaiohfaaifbibleebjggkghlmcpcj) |
+| **Edge**    | [Edge 应用商店](https://microsoftedge.microsoft.com/addons/detail/%E6%B5%81%E7%95%85%E9%98%85%E8%AF%BB/kakgmllfpjldjhcnkghpplmlbnmcoflp?hl=zh-CN)                                                                                             |
+| **Firefox** | [Firefox 附加组件商店](https://addons.mozilla.org/zh-CN/firefox/addon/%E6%B5%81%E7%95%85%E9%98%85%E8%AF%BB/)                                                                                                                                  |
+
+## 🚀 配置方法
+
+### 从 OpenSand 控制台导入配置（推荐）
+
+当浏览器安装了流畅阅读插件后，打开 OpenSand 控制台->令牌管理页面会弹出添加流畅阅读的提示
+
+![添加提示](../../../pictures/apps/fluentread/hint.png)
+
+选择模型后点击一键填充到FluentRead，会弹出确认窗口，检查对应的信息是否正确
+
+![确认](../../../pictures/apps/fluentread/confirm.png)
+
+确认导入后在流畅阅读中的OpenSand配置便会启用
+
+![配置结果](../../../pictures/apps/fluentread/fluentread.png)
+
+### 在流畅阅读中手动填写配置
+
+![手动配置](../../../pictures/apps/fluentread/configuration.png)
+
+| 配置项     | 内容                       |
+| ---------- | -------------------------- |
+| 翻译服务   | OpenSand                     |
+| 访问令牌   | OpenSand 密钥                |
+| OpenSand接口 | OpenSand部署地址（不带/v1）  |
+| 模型       | 列表中选择，或者自定义模型 |
+| 自定义模型 | 模型名称                   |
+
+---
+
+# Hermes Agent
+
+Source: https://opensand.ai/zh/docs/apps/hermes-agent
+
+---
+title: "Hermes Agent"
+source: "https://opensand.ai/zh/docs/apps/hermes-agent"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.100Z"
+---
+# Hermes Agent
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+Hermes Agent 是由 Nous Research 出品的开源终端 AI Agent，在你的终端中提供强大的工具调用、文件读写和代码执行能力。通过内置的 Custom Endpoint 能力，Hermes 可以无缝接入任何 OpenAI 兼容 API — 包括 OpenSand，**全程无需写任何代码或插件**。
+
+- 官方主页：[https://hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com)
+- 快速开始：[https://hermes-agent.nousresearch.com/docs/getting-started/quickstart](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)
+- GitHub：[https://github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+
+Hermes Agent 完全开源，你可以在 [Hermes Agent 的 GitHub 仓库](https://github.com/NousResearch/hermes-agent) 浏览源码、提交 Issue 或参与贡献。本教程涵盖安装、配置，以及将 Hermes Agent 对接 OpenSand 的完整步骤。
+
+## 🌟 核心特性
+
+### 智能代理能力
+
+- **工具调用**：原生支持工具调用、文件读写和代码执行
+- **持久记忆**：支持后台常驻运行，拥有长期记忆
+- **技能系统**：通过 `hermes skills` 命令搜索和安装技能包
+- **多界面支持**：支持命令行和 TUI（终端 UI）两种模式
+
+### 多渠道集成
+
+- **消息网关**：通过 `hermes gateway` 统一管理所有渠道
+- **多平台支持**：可接入 Telegram、Discord、Slack、WhatsApp 等消息应用
+- **持续在线**：作为后台服务常驻运行
+
+### 开放的模型生态
+
+- **自定义 Provider**：内置 Custom Endpoint 支持，可接入任何 OpenAI 兼容 API
+- **交互式配置**：通过 `hermes model` 命令以交互菜单方式完成配置，无需编辑配置文件
+- **灵活切换**：支持在对话中通过 `/model` 命令随时切换模型
+
+## 📦 接入前准备
+
+**准备信息**
+
+- 已安装 Hermes Agent（见下方安装步骤）
+- 一个可用的 OpenSand 地址（必须以 `/v1` 结尾）
+- 一个可用的 OpenSand API Key（在控制台生成）
+- 想使用的模型名称（如 `claude-sonnet-4-6`、`gemini-2.5-flash` 等，需与 OpenSand 控制台中的模型 ID 完全一致）
+
+**模型上下文要求**
+
+Hermes Agent 要求所使用的模型至少支持 **64K tokens** 的上下文窗口。选择模型时请确认它满足此要求，否则可能出现 context 不足的报错。
+
+## 🚀 第一步：安装 Hermes Agent
+
+### Linux / macOS / WSL2
+
+在终端中运行官方一键安装脚本：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+安装完成后，重新加载终端环境变量：
+
+```bash
+source ~/.bashrc
+```
+
+如果你使用的是 zsh（macOS 默认），请改为：
+
+```bash
+source ~/.zshrc
+```
+
+### Windows
+
+**Windows 用户注意**
+
+Hermes Agent 本身不直接支持 Windows 原生环境，你需要先安装 **WSL2**（Windows Subsystem for Linux 2），然后在 WSL2 终端中运行上方的 Linux/macOS 安装命令。
+
+WSL2 安装参考：[https://learn.microsoft.com/windows/wsl/install](https://learn.microsoft.com/windows/wsl/install)
+
+### 验证安装
+
+输入以下命令验证 Hermes 是否安装成功：
+
+```bash
+hermes --version
+```
+
+如果显示版本号，说明安装成功 🎉。
+
+## 🔧 第二步：配置 OpenSand（核心步骤）
+
+这是整个接入流程中最关键的一步。Hermes Agent 提供了 **交互式菜单**，用户无需写任何代码或手动编辑配置文件，只需根据提示填入 OpenSand 的 URL、Key 和模型名即可。
+
+在终端中运行：
+
+```bash
+hermes model
+```
+
+这会打开一个交互式菜单，使用键盘上下方向键选择选项，回车确认。
+
+### 操作流程
+
+**配置步骤**
+
+**1. 选择 Provider**
+
+用方向键滚动到 **Custom Endpoint**（或类似的「自定义端点」选项），按回车确认。
+
+**2. 填写 Base URL**
+
+输入你的 OpenSand 地址，例如：
+
+```
+https://opensand.ai/v1
+```
+
+> ⚠️ 地址**必须以 `/v1` 结尾**，这是最常见的配置错误来源。
+
+**3. 填写 API Key**
+
+输入你在 OpenSand 控制台生成的 API Key，例如：
+
+```
+sk-xxxxxxxxxxxxxxxx
+```
+
+**4. 填写模型名称**
+
+输入你想使用的模型，例如：
+
+```
+claude-sonnet-4-6
+```
+
+> 模型名称必须与 OpenSand 控制台中的模型 ID **完全一致**，否则会报模型不存在的错误。
+
+**5. 确认保存**
+
+按提示确认，配置完成。
+
+### 关键配置说明
+
+| 配置项 | 说明 | 示例 |
+| --- | --- | --- |
+| Base URL | OpenSand 地址，**必须以 `/v1` 结尾** | `https://opensand.ai/v1` |
+| API Key | OpenSand 控制台生成的令牌 | `sk-xxxxxxxxxxxxxxxx` |
+| Model | 模型名称，需与 OpenSand 实际暴露的模型 ID 一致 | `claude-sonnet-4-6` |
+
+## ✅ 第三步：验证是否接入成功
+
+配置完成后，直接启动 Hermes 开始对话：
+
+```bash
+hermes
+```
+
+或使用更现代的 TUI 模式（终端图形界面）：
+
+```bash
+hermes --tui
+```
+
+随便输入一条测试消息，例如：
+
+```
+你好，告诉我今天星期几
+```
+
+如果模型正常返回回复，说明接入成功 🎉。
+
+### 查看和切换模型
+
+在对话中直接输入以下命令，可以查看当前使用的模型，并快速切换：
+
+```
+/model
+```
+
+你也可以随时再次运行 `hermes model` 来**覆盖之前的配置**，重新填入新的 URL、Key 或模型名。
+
+## ❓ 常见问题
+
+| 问题 | 解决方案 |
+| --- | --- |
+| 回复为空或报错 | 检查 Base URL 是否以 `/v1` 结尾 |
+| 提示模型不存在 | 确认模型名称与 OpenSand 控制台中的模型 ID **完全一致** |
+| 提示 API Key 无效 | 在 OpenSand 控制台重新生成一个 Key，然后再次运行 `hermes model` |
+| 不知道怎么进入配置菜单 | 在终端输入 `hermes model` 并回车 |
+| 想切换模型 | 重新运行 `hermes model`，或在对话中输入 `/model` |
+| 提示 context 不够 | Hermes 要求模型至少支持 64K tokens，请更换支持更大上下文的模型 |
+| 想修改之前的配置 | 再次运行 `hermes model`，会覆盖之前的设置 |
+| Windows 上无法安装 | Hermes 不原生支持 Windows，请先安装 WSL2，在 WSL2 终端中执行安装命令 |
+
+## 🎯 后续进阶（可选）
+
+接入 OpenSand 成功后，你还可以继续探索 Hermes Agent 的更多能力：
+
+### 启动消息网关
+
+将 Hermes 连接到 Telegram、Discord、Slack 等消息应用：
+
+```bash
+hermes gateway setup
+```
+
+### 搜索并安装技能
+
+Hermes 内置技能商店，可以一键扩展能力：
+
+```bash
+hermes skills search <关键词>
+```
+
+### 查看所有可用命令
+
+```bash
+hermes --help
+```
+
+**小贴士**
+
+接入 OpenSand 后，所有 Hermes Agent 的后续能力（消息网关、技能调用、后台常驻等）都会通过 OpenSand 调用你选择的模型，无需再为每个功能单独配置模型提供商。
+
+---
+
+# LangBot
+
+Source: https://opensand.ai/zh/docs/apps/langbot
+
+---
+title: "LangBot"
+source: "https://opensand.ai/zh/docs/apps/langbot"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.101Z"
+---
+# LangBot - 即时通信机器人开发平台
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+LangBot
+是一个开源的即时通信机器人开发平台，支持多种即时通信平台，如飞书、钉钉、微信、QQ、Telegram、Discord、Slack
+等。接入全球主流的 AI 模型，支持知识库、Agent、MCP等多种 AI
+应用能力，并完美适配 OpenSand。
+
+- 官网地址：[https://langbot.app](https://langbot.app/)
+- 下载地址：[https://github.com/langbot-app/LangBot/releases](https://github.com/langbot-app/LangBot/releases)
+- 官方文档：[https://docs.langbot.app](https://docs.langbot.app/)
+- 开源地址：[https://github.com/langbot-app/LangBot](https://github.com/langbot-app/LangBot)
+
+## 接入 OpenSand
+
+LangBot 支持通过 OpenAI 兼容接口接入 OpenSand。
+
+### 使用方式
+
+1.  从 OpenSand 中获取 API key
+    ![获取 API key](../../../pictures/apps/langbot/get_api_key.png)
+
+        使用 OpenSand 时请填写 `https://opensand.ai/v1`，地址需要包含 `/v1`。
+
+2.  在 LangBot 中添加模型，选择使用 OpenSand 供应商，填写对应的 API key 和 API 地址
+    ![添加 OpenSand 模型](../../../pictures/apps/langbot/add_newapi_model.png)
+
+3.  在流水线中选择使用模型
+
+    ![选择模型](../../../pictures/apps/langbot/select_model.png)
+
+4.  在对话调试中对话或与绑定至流水线的机器人对话即可使用
+
+    ![对话](../../../pictures/apps/langbot/debug_chat.png)
+
+    ![微信对话](../../../pictures/apps/langbot/wechat.png)
+
+    部署配置机器人请参考[部署机器人](https://docs.langbot.app/zh/deploy/platforms/readme.html)。
+
+### 使用 LangBot 知识库
+
+LangBot 支持使用 OpenSand 的嵌入模型，并将其作为知识库的向量模型。
+
+1. 在 LangBot 中添加嵌入模型，选择使用 OpenSand 供应商
+   ![添加嵌入模型](../../../pictures/apps/langbot/add_embedding_model.png)
+
+2. 在新建知识库时选用嵌入模型
+   ![使用嵌入模型](../../../pictures/apps/langbot/use_embedding_model.png)
+
+更多使用方式请查看 LangBot 官方文档：[https://docs.langbot.app](https://docs.langbot.app/)
+
+---
+
+# LunaTranslator
+
+Source: https://opensand.ai/zh/docs/apps/luna-translator
+
+---
+title: "LunaTranslator"
+source: "https://opensand.ai/zh/docs/apps/luna-translator"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.102Z"
+---
+# LunaTranslator - 开源 GalGame 翻译器
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**聊天设置选项**
+
+在 OpenSand
+控制台的系统设置->聊天设置中，可添加如下快捷选项，便于在令牌管理页一键填充到
+LunaTranslator：
+
+    ```json
+    { "LunaTranslator": "lunatranslator://llmapi/base64?data={cheryConfig}" }
+    ```
+
+LunaTranslator
+是一款开源免费的视觉小说（GalGame）翻译器，致力于提供母语级别的视觉小说游玩体验。
+
+- 项目地址：[https://github.com/HIllya51/LunaTranslator](https://github.com/HIllya51/LunaTranslator)
+- 项目文档：[https://docs.lunatranslator.org](https://docs.lunatranslator.org/zh/README.html)
+
+## 功能支持
+
+- **HOOK** 主要使用HOOK提取游戏文本，几乎适配了所有的常见和冷门的视觉小说
+
+- **内嵌翻译** 部分游戏还可以直接内嵌翻译到游戏中，以获取沉浸式体验
+
+- **HOOK模拟器** 对NS/PSP/PSV/PS2上的大部分游戏，支持HOOK模拟器直接读取游戏文本
+
+- **OCR** 内置较高精度的OCR模型，并支持许多其他在线&离线OCR引擎，以便灵活的读取任意文本
+
+- **丰富的翻译接口** 支持几乎所有翻译引擎，包括大语言模型翻译、离线翻译等
+
+- **语言学习** 支持日语分词及假名注音，支持AnkiConnect，支持Yomitan插件
+
+- **语音合成** 支持大量在线&离线语音合成引擎
+
+- **语音识别** 在Windows 10和Windows 11上，可以使用Windows语音识别。
+
+## 安装方式
+
+在 [LunaTranslator 文档- 下载 & 启动 & 更新](https://docs.lunatranslator.org/zh/README.html) 进行下载安装
+
+## 在 LunaTranslator 接入 OpenSand
+
+LunaTranslator 支持通过自定义大模型接口接入 OpenSand。
+
+### 一键配置
+
+1. 在 OpenSand 控制台的`系统设置`->`聊天设置`中，添加如下快捷选项：
+
+   ```json
+   { "LunaTranslator": "lunatranslator://llmapi/base64?data={cheryConfig}" }
+   ```
+
+   ![add_config](../../../pictures/apps/luna_translator/add_config.png)
+
+2. 在 **`OpenSand`** -> `控制台` -> `令牌管理` 选项卡中选择要使用在 LunaTranslator 的令牌，点击聊天按钮旁的下拉选项，选择 `LunaTranslator`,将会跳转到 LunaTranslator 并自动配置 API 地址与 API Key
+
+   ![跳转到 LunaTranslator](../../../pictures/apps/luna_translator/jump_to_app.png)
+
+3. 在 **`LunaTranslator`** -> `设置` -> `翻译设置` -> `大模型` 中将出现一个新增的大模型接口配置，点击编辑
+
+   ![设置api](../../../pictures/apps/luna_translator/api_setting.png)
+
+4. 点击 **model** 下拉框旁的刷新按钮，获取 OpenSand 平台的模型列表，选择或输入模型名称，完成后点击确定保存
+
+   ![设置模型](../../../pictures/apps/luna_translator/setting_model.png)
+
+5. 检查 **new_api** 大模型接口配置旁边的开关按钮是否打开，若未启用则启用接口即可开始使用
+
+   ![开启配置](../../../pictures/apps/luna_translator/open_config.png)
+
+### 手动配置
+
+1. 在 **`OpenSand`** -> `控制台` -> `令牌管理` 选项卡中获取 API Key
+
+   ![获取 API Key](../../../pictures/apps/luna_translator/copy_api_key.png)
+
+2. 在 **`LunaTranslator`** -> `设置` - `翻译设置` -> `大模型` 中选择添加
+
+   ![添加 API](../../../pictures/apps/luna_translator/add_api.png)
+
+3. 复制 **大模型通用接口** 模板，新增接口
+
+   ![添加 API2](../../../pictures/apps/luna_translator/add_api_2.png)
+
+4. 在 **新增的接口** 中，填写对应的 API 地址和 API Key
+
+   ![设置 API1](../../../pictures/apps/luna_translator/setting_api.png)
+
+   ![设置 API2](../../../pictures/apps/luna_translator/setting_api2.png)
+
+5. 点击 **model** 下拉框旁的刷新按钮，获取 OpenSand 平台的模型列表，选择或输入模型名称，完成后点击确定保存
+
+   ![设置 API3](../../../pictures/apps/luna_translator/setting_api3.png)
+
+6. 点击 **OpenSand** 旁边的开关按钮，启用接口即可开始使用
+
+   ![打开API](../../../pictures/apps/luna_translator/open_api.png)
+
+更多使用方式请查看 LunaTranslator 官方文档:[LunaTranslator 文档 - 大模型翻译接口](https://docs.lunatranslator.org/zh/guochandamoxing.html)
+
+---
+
+# Memoh
+
+Source: https://opensand.ai/zh/docs/apps/memoh
+
+---
+title: "Memoh"
+source: "https://opensand.ai/zh/docs/apps/memoh"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.103Z"
+---
+# Memoh - 容器化 AI 智能体平台
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+Memoh 是一个开源的自托管 AI
+智能体平台，每个机器人运行在独立的容器中，拥有持久化记忆和独立文件系统。支持接入
+Telegram、Discord、飞书、QQ、Matrix、企业微信、微信、邮件以及内置 Web
+UI 等 9 种渠道，并支持 MCP 工具调用、浏览器自动化、定时任务等丰富的智能体能力。
+
+- 官方网站：[https://memoh.sh](https://memoh.sh)
+- 官方文档：[https://docs.memoh.ai](https://docs.memoh.ai)
+- 项目主页：[https://github.com/memohai/Memoh](https://github.com/memohai/Memoh)
+
+## 核心特性
+
+- **容器化隔离**：每个机器人运行在独立的 containerd 容器中，拥有专属文件系统和网络，支持快照、数据导入导出
+- **记忆引擎**：基于 LLM 的事实抽取、混合检索（稠密 + 稀疏 + BM25）、24 小时上下文加载、记忆压缩与重建
+- **多渠道支持**：Telegram、Discord、飞书、QQ、Matrix、企业微信、微信、邮件、Web UI
+- **MCP 支持**：完整的 MCP 协议支持（HTTP / SSE / Stdio / OAuth），每个机器人可独立管理 MCP 连接
+- **浏览器自动化**：内置 Playwright 驱动的无头浏览器，支持网页浏览、表单填写、截图等操作
+- **Web 管理面板**：基于 Vue 3 + Tailwind CSS 的现代化管理界面，支持流式对话、工具调用可视化、文件管理等
+
+## 快速安装
+
+Memoh 基于 Docker 部署，一键安装（需要 Docker）：
+
+```bash
+curl -fsSL https://memoh.sh | sudo sh
+```
+
+或手动安装：
+
+```bash
+git clone --depth 1 https://github.com/memohai/Memoh.git
+cd Memoh
+cp conf/app.docker.toml config.toml
+# 编辑 config.toml 配置文件
+sudo docker compose up -d
+```
+
+启动后访问 `http://localhost:8082`，默认账号密码：`admin` / `admin123`。
+
+## OpenSand 接入方法
+
+Memoh 支持接入 OpenAI 兼容的模型提供商。这里使用 Memoh 内置的 NewAPI/OpenAI 兼容提供商类型，把请求转发到 OpenSand。
+
+### 配置步骤
+
+#### 获取 OpenSand API Key
+
+登录 OpenSand 控制台，进入令牌管理页面，创建一个新的 API Key，并妥善保存。
+
+创建成功后，点击复制密钥按钮，复制生成的 API Key 密钥。
+
+![copy-api-key](../../../pictures/apps/memoh/copy_api_key.png)
+
+#### 在 Memoh 中添加模型提供商
+
+登录 Memoh Web 管理面板，进入提供商管理页面，选择 NewAPI 或 OpenAI 兼容提供商。
+
+![switch-to-newapi-provider](../../../pictures/apps/memoh/switch_to_newapi_provider.png)
+
+在配置页面中填写以下信息：
+
+- **API Base URL**：填写 OpenSand 的接口地址，例如 `https://opensand.ai/v1`
+- **API Key**：粘贴 OpenSand 控制台创建的 API Key
+
+点击保存，完成提供商配置。
+
+#### 导入模型
+
+提供商配置完成后，进入模型管理页面，点击自动导入或手动添加你需要使用的模型。
+
+#### 为机器人配置模型
+
+进入机器人设置页面，在模型配置一栏中，将默认聊天模型切换为刚刚通过 NewAPI 提供商添加的模型，点击保存。
+
+![set_chat_model](../../../pictures/apps/memoh/set_chat_model.png)
+
+至此，您已经成功将 OpenSand 配置为 Memoh 的模型提供商。现在，您可以通过 Memoh 中的各个渠道（Telegram、Discord、飞书等）与 AI 机器人对话，所有请求将通过 OpenSand 转发。
+
+---
+
+# nanobot
+
+Source: https://opensand.ai/zh/docs/apps/nanobot
+
+---
+title: "nanobot"
+source: "https://opensand.ai/zh/docs/apps/nanobot"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.103Z"
+---
+# nanobot
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+**nanobot** 是一个轻量级 AI 智能体，支持接入常用聊天工具，通过单个 `config.json` 配置文件自定义 API 端点。依赖 [uv](https://github.com/astral-sh/uv) 管理 Python 环境，安装和启动都非常简单。
+
+## 📦 接入前准备
+
+**准备信息**
+
+- 已安装 [uv](https://github.com/astral-sh/uv)
+- 一个可用的 OpenSand 地址（必须以 `/v1` 结尾）
+- 一个可用的 OpenSand API Key（在控制台生成）
+- 想使用的模型名称（如 `claude-sonnet-4-6`、`gemini-2.5-flash` 等，需与 OpenSand 控制台中的模型 ID 完全一致）
+
+## 🚀 第一步：安装 nanobot
+
+```bash
+uv tool install nanobot-ai
+```
+
+### Windows 额外步骤
+
+Windows 用户需将 `.local/bin` 添加到环境变量，以便直接调用 `nanobot` 命令：
+
+```powershell
+$env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
+```
+
+建议将其写入 PowerShell Profile 以便持久化。
+
+### 验证安装
+
+```bash
+nanobot --version
+```
+
+## 🔧 第二步：初始化并编辑配置
+
+### 1. 生成默认配置
+
+```bash
+nanobot onboard
+```
+
+该命令会在用户目录下创建配置文件：
+
+- **Windows**：`%USERPROFILE%\.nanobot\config.json`
+- **Linux / macOS**：`~/.nanobot/config.json`
+
+### 2. 修改 `config.json`
+
+将 `providers` 和 `agents.defaults` 配置为指向 OpenSand：
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "model": "claude-sonnet-4-6",
+      "provider": "opensand"
+    }
+  },
+  "providers": {
+    "opensand": {
+      "apiKey": "your-opensand-api-key",
+      "apiBase": "https://opensand.ai/v1"
+    }
+  }
+}
+```
+
+**字段要点**
+
+- `apiBase` 必须以 `/v1` 结尾
+- `model` 必须是 OpenSand 控制台中实际暴露的模型 ID
+- 多个 provider 可并列配置，`agents.defaults.provider` 指定默认使用哪个
+
+## ✅ 第三步：启动并验证
+
+```bash
+nanobot agent
+```
+
+启动后输入任意问题（例如 "你好，告诉我今天是星期几"），模型正常响应即配置成功。
+
+## 🔄 切换模型
+
+直接修改 `config.json` 中的 `agents.defaults.model`，保存后重启 `nanobot agent` 即可切换模型。
+
+## ❓ 常见问题
+
+| 问题 | 解决方案 |
+|------|----------|
+| `nanobot` 命令找不到 | Windows 用户需把 `.local/bin` 加入 PATH |
+| 401 Unauthorized | 确认 `apiKey` 已正确填入 `config.json` |
+| 模型不存在 | 核对 `model` 字段与 OpenSand 控制台完全一致 |
+| 修改配置后没生效 | 配置修改需重启 `nanobot agent` 才能加载 |
+
+---
+
+# Oh My Pi
+
+Source: https://opensand.ai/zh/docs/apps/oh-my-pi
+
+---
+title: "Oh My Pi"
+source: "https://opensand.ai/zh/docs/apps/oh-my-pi"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.104Z"
+---
+# Oh My Pi
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+**Oh My Pi** 是一款终端 AI 编程 Agent，通过 `models.yml` 配置文件添加自定义模型供应商。支持思考模式（reasoning effort）、工具调用和完整的上下文管理。
+
+- GitHub：[https://github.com/can1357/oh-my-pi](https://github.com/can1357/oh-my-pi)
+- 安装指南：[https://github.com/can1357/oh-my-pi#installation](https://github.com/can1357/oh-my-pi#installation)
+
+## 📦 接入前准备
+
+**准备信息**
+
+- 已安装 Oh My Pi（`omp` 命令可用）
+- 一个可用的 OpenSand 地址（本工具配置时 **不要加 `/v1`** 后缀，见下文说明）
+- 一个可用的 OpenSand API Key（在控制台生成）
+- 想使用的模型名称（如 `claude-sonnet-4-6`、`gemini-2.5-flash` 等，需与 OpenSand 控制台中的模型 ID 完全一致）
+
+## 🔑 第一步：设置环境变量
+
+```bash
+```
+
+## 🔧 第二步：创建配置文件
+
+创建 `~/.omp/agent/models.yml`，添加 OpenSand 供应商：
+
+```yaml
+providers:
+  opensand:
+    baseUrl: https://opensand.ai/v1
+    api: openai-completions
+    apiKey: OPENSAND_API_KEY
+    authHeader: true
+    models:
+      - id: claude-sonnet-4-6
+        name: Claude Sonnet 4.6
+        reasoning: true
+        thinking:
+          minLevel: high
+          maxLevel: xhigh
+          mode: effort
+        input: [text]
+        contextWindow: 200000
+        maxTokens: 128000
+        compat:
+          supportsDeveloperRole: false
+          supportsReasoningEffort: true
+          maxTokensField: max_tokens
+          reasoningEffortMap:
+            high: high
+            xhigh: max
+          supportsToolChoice: false
+          requiresReasoningContentForToolCalls: true
+          requiresAssistantContentForToolCalls: true
+        extraBody:
+          thinking:
+            type: enabled
+      - id: gemini-2.5-flash
+        name: Gemini 2.5 Flash
+        reasoning: false
+        input: [text]
+        contextWindow: 1000000
+        maxTokens: 65536
+        compat:
+          supportsDeveloperRole: false
+          maxTokensField: max_tokens
+```
+
+**关键配置说明**
+
+| 配置项 | 说明 |
+|--------|------|
+| `baseUrl` | OpenSand 地址，按 OpenSand 标准写 `/v1`（Oh My Pi 内部会处理路径拼接） |
+| `authHeader: true` | 发送 `Authorization: Bearer $OPENSAND_API_KEY` |
+| `supportsDeveloperRole: false` | 以 `system` 角色发系统提示词 |
+| `maxTokensField: max_tokens` | 输出限制字段使用 `max_tokens` |
+| `supportsToolChoice: false` | thinking mode 下不接受 `tool_choice` 参数 |
+| `requiresReasoningContentForToolCalls: true` | tool call 对话的历史消息中必须保留 `reasoning_content` |
+| `requiresAssistantContentForToolCalls: true` | 确保 tool call 消息的 `content` 字段不为空 |
+
+**重要**
+
+`models.yml` 中的 `compat` 字段是 **整块替换**，不会与内置条目合并。必须写全所有需要的字段，缺失的字段会被当作默认值处理。
+
+## ✅ 第三步：启动并验证
+
+进入你的项目目录，带参数启动：
+
+```bash
+cd /path/to/your-project
+omp --model opensand/claude-sonnet-4-6
+```
+
+需要更快响应时，切换到非推理模型：
+
+```bash
+omp --model opensand/gemini-2.5-flash
+```
+
+在 Oh My Pi 内随时按 `Ctrl+L` 或输入 `/model` 切换模型。
+
+## ❓ 常见问题
+
+| 问题 | 解决方案 |
+|------|----------|
+| 启动后提示找不到 provider | 检查 `~/.omp/agent/models.yml` 路径是否正确 |
+| 401 Unauthorized | 确认 `OPENSAND_API_KEY` 已导出到当前 shell |
+| 推理模型 tool call 报错 | 确认 `requiresReasoningContentForToolCalls: true` 已启用 |
+| 切换模型后行为异常 | 非推理模型请关闭 `reasoning: true` 和 `extraBody.thinking` |
+
+---
+
+# OpenClaw
+
+Source: https://opensand.ai/zh/docs/apps/openclaw
+
+---
+title: "OpenClaw"
+source: "https://opensand.ai/zh/docs/apps/openclaw"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.104Z"
+---
+# OpenClaw
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+OpenClaw 是一个开源、自托管的个人 AI
+助手平台，将消息应用连接到运行在你自己硬件上的 AI
+代理。专为开发者和高级用户设计，无需交出数据控制权即可拥有自主 AI 助手。
+
+- 官方主页：[https://openclaw.ai](https://openclaw.ai)
+- 项目文档：[https://docs.openclaw.ai](https://docs.openclaw.ai)
+- GitHub：[https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
+
+OpenClaw 完全开源，你可以在 [OpenClaw 的 GitHub 仓库](https://github.com/openclaw/openclaw) 浏览源码、提交 Issue 或参与贡献。本教程涵盖安装、配置，以及将 OpenClaw 对接 OpenSand 的完整步骤。
+
+## 🌟 核心特性
+
+### 多渠道集成
+
+- **多渠道集成**：支持 Telegram、Discord、WhatsApp、iMessage 等多种消息渠道，也可通过插件扩展更多平台
+- **单一网关**：通过一个 Gateway 进程统一管理所有渠道
+- **语音支持**：支持 macOS/iOS/Android 语音交互
+- **Canvas 界面**：可渲染交互式 Canvas 界面
+
+### 自托管与数据安全
+
+- **完全自托管**：运行在你自己的机器或服务器上
+- **开源透明**：MIT 开源协议，代码完全透明
+- **数据本地化**：上下文和技能存储在你的本地计算机，而非云端
+
+### 智能代理能力
+
+- **持续运行**：支持后台常驻运行，拥有持久记忆
+- **计划任务**：支持 cron 定时任务
+- **会话隔离**：按代理/工作区/发送者隔离会话
+- **多代理路由**：支持多代理协同工作
+- **工具调用**：原生支持工具调用和代码执行
+
+## 📦 接入前准备
+
+**准备信息**
+
+- Node.js 22 或更高版本
+- 一个可用的 OpenSand 地址（通常以 `/v1` 结尾）
+- 一个可用的 OpenSand API Key
+
+在开始接入 OpenSand 之前，建议先按 OpenClaw 官方当前推荐流程把 Gateway 和 Control UI 跑起来。这样后续排查问题时，更容易区分是 OpenClaw 本身未启动，还是模型提供商配置有误。
+
+### 1. 安装 OpenClaw（macOS/Linux）
+
+```bash
+curl -fsSL https://openclaw.ai/install.sh | bash
+```
+
+其他安装方式可参考 OpenClaw 官方文档：[Getting Started](https://docs.openclaw.ai/start/getting-started)。
+
+### 2. 运行引导向导
+
+```bash
+openclaw onboard --install-daemon
+```
+
+该向导会完成基础认证、Gateway 设置，以及可选的渠道初始化。这里的目标是先把 OpenClaw 跑起来，后面再把默认模型切到 OpenSand。
+
+### 3. 检查 Gateway 与 Control UI
+
+```bash
+openclaw gateway status
+```
+
+```bash
+openclaw dashboard
+```
+
+如果浏览器能打开 Control UI，说明 OpenClaw 基础运行已经正常。这个阶段不需要先配置 Telegram、Discord、飞书等消息渠道。
+
+### 4. 定位配置文件
+
+OpenClaw 的配置文件通常位于 `~/.openclaw/openclaw.json`，你可以在引导向导生成的基础上继续修改。
+
+**路径相关环境变量**
+
+如果你把 OpenClaw 跑在专用服务账号下，或希望自定义配置/状态目录，可以使用：
+
+- `OPENCLAW_HOME`
+- `OPENCLAW_STATE_DIR`
+- `OPENCLAW_CONFIG_PATH`
+
+详细说明见官方环境变量文档：[Environment Variables](https://docs.openclaw.ai/help/environment)。
+
+## 🚀 使用 OpenSand 作为模型提供商
+
+OpenClaw 支持通过 `models.providers` 接入自定义或兼容 OpenAI 接口的模型网关。对于 OpenSand，最常见的做法是把它作为一个自定义 provider 加进配置里，再把默认模型指向 `opensand/模型ID`。
+
+### 接入思路
+
+1. 在 `models.providers` 下声明一个 `opensand` provider
+2. 将 `baseUrl` 指向你的 OpenSand 地址，并确保包含 `/v1`
+3. 将 `api` 设为 `openai-completions`
+4. 在 `models` 中列出你希望 OpenClaw 使用的模型 ID
+5. 在 `agents.defaults.model.primary` 中把默认模型切到 `opensand/...`
+
+### 推荐做法：用环境变量保存密钥
+
+先在当前 shell、服务环境，或 OpenClaw 可读取的 `.env` 中提供你的 OpenSand 密钥：
+
+```bash
+```
+
+然后在 `openclaw.json` 里补充或修改以下片段：
+
+```json5
+{
+  models: {
+    mode: "merge",
+    providers: {
+      opensand: {
+        baseUrl: "https://opensand.ai/v1",
+        apiKey: "${OPENSAND_API_KEY}",
+        api: "openai-completions",
+        models: [
+          { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
+          { id: "kimi-k2.5", name: "Kimi K2.5" },
+        ],
+      },
+    },
+  },
+
+  agents: {
+    defaults: {
+      model: {
+        primary: "opensand/gemini-2.5-flash",
+        fallbacks: ["opensand/kimi-k2.5"],
+      },
+      models: {
+        "opensand/gemini-2.5-flash": { alias: "flash" },
+        "opensand/kimi-k2.5": { alias: "kimi" },
+      },
+    },
+  },
+}
+```
+
+这不是一份必须原样照抄的完整配置，而是接入 OpenSand 最关键的部分。只要 `provider`、模型 ID 和默认模型引用对应正确，OpenClaw 就能通过 OpenSand 调用你暴露出来的模型资源。
+
+### 关键配置说明
+
+| 配置项 | 说明 |
+| --- | --- |
+| `models.mode` | 建议设为 `merge`，在保留 OpenClaw 内置 provider 的同时追加 `opensand` |
+| `models.providers.opensand.baseUrl` | 你的 OpenSand 地址，通常需要带上 `/v1` |
+| `models.providers.opensand.apiKey` | OpenSand 密钥，推荐通过 `${OPENSAND_API_KEY}` 注入 |
+| `models.providers.opensand.api` | 对于 OpenSand 这类 OpenAI 兼容网关，使用 `openai-completions` |
+| `models.providers.opensand.models` | 这里列出的模型 ID 必须与你的 OpenSand 实际暴露的模型名称一致 |
+| `agents.defaults.model.primary` | 默认主模型，格式必须是 `provider/model-id` |
+| `agents.defaults.model.fallbacks` | 备选模型列表，主模型失败时自动切换 |
+| `agents.defaults.models` | 可选，用来给模型起别名，方便在 UI 或会话里引用 |
+
+### 验证是否接入成功
+
+完成配置后，回到 Control UI 或重新打开：
+
+```bash
+openclaw dashboard
+```
+
+如果你能在 OpenClaw 中正常发起对话，并且默认模型已经变成 `opensand/...`，说明接入成功。你也可以使用：
+
+```bash
+openclaw models list
+```
+
+确认 `opensand/` 前缀的模型已经出现在可选列表中。
+
+### 常见问题
+
+- `baseUrl` 没带 `/v1`：这是最常见的接入错误之一。
+- 模型 ID 填错：`primary` 和 `fallbacks` 必须与 `models.providers.opensand.models` 里的 `id` 对应。
+- 密钥只在当前终端生效：如果 Gateway 以后台服务运行，请确保服务进程也能读取 `OPENSAND_API_KEY`。
+- 想前台排障：可使用官方前台运行方式 `openclaw gateway --port 18789` 观察日志与报错。
+
+---
+
+# OpenCode
+
+Source: https://opensand.ai/zh/docs/apps/opencode
+
+---
+title: "OpenCode"
+source: "https://opensand.ai/zh/docs/apps/opencode"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.106Z"
+---
+# OpenCode
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+OpenCode 是一款开源的终端 AI 编程智能体，支持 TUI / CLI 双模式运行，兼容 **75+ 种 AI 服务提供商**。通过内置的 `@ai-sdk/anthropic` 和 `@ai-sdk/openai-compatible` 适配器，可无缝接入 OpenSand 提供的 Anthropic 协议模型与 OpenAI 兼容模型。
+
+- 官网：[https://opencode.ai](https://opencode.ai)
+- GitHub：[https://github.com/opencode-ai/opencode](https://github.com/opencode-ai/opencode)
+
+## 📦 接入前准备
+
+**准备信息**
+
+- 已安装 OpenCode
+- 一个可用的 OpenSand 地址（必须以 `/v1` 结尾）
+- 一个可用的 OpenSand API Key（在控制台生成）
+- 想使用的模型名称（如 `claude-sonnet-4-6`、`claude-haiku-4-5`、`deepseek-v4-pro`、`gpt-5.5` 等，需与 OpenSand 控制台中的模型 ID 完全一致）
+
+## 🚀 方式一：交互式配置（推荐新手）
+
+在 OpenCode TUI 中直接通过菜单添加 OpenSand：
+
+1. 启动 OpenCode TUI 界面
+2. 输入 `/connect` 命令
+3. 在供应商列表中选择 **「Other」**（自定义端点）
+4. 根据提示填写：
+   - **Base URL**：`https://opensand.ai/v1`
+   - **API Key**：你的 OpenSand API Key
+5. 保存后，输入 `/models` 切换到新添加的模型即可
+
+## 🔧 方式二：配置文件（推荐长期使用）
+
+适合希望锁定多个模型、跨项目复用的场景。
+
+### 1. 编辑 OpenCode 配置
+
+配置文件位置：
+
+- **全局**：`~/.config/opencode/opencode.json`
+- **项目级**（优先级更高）：项目根目录 `opencode.json`
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "opensand-anthropic": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "OpenSand (Anthropic)",
+      "options": {
+        "baseURL": "https://opensand.ai/v1",
+        "apiKey": "sk-123"
+      },
+      "models": {
+        "claude-sonnet-4-6": {
+          "name": "Claude Sonnet 4.6",
+          "limit": { "context": 200000, "output": 8192 }
+        },
+        "haiku": {
+          "id": "claude-haiku-4-5",
+          "name": "Claude Haiku 4.5 (fast)",
+          "limit": { "context": 200000, "output": 8192 }
+        }
+      }
+    },
+    "opensand": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenSand",
+      "options": {
+        "baseURL": "https://opensand.ai/v1",
+        "apiKey": "sk-123"
+      },
+      "models": {
+        "deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "limit": { "context": 131072, "output": 16384 }
+        },
+        "deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro",
+          "limit": { "context": 131072, "output": 16384 }
+        },
+        "gpt-5.5": {
+          "name": "GPT-5.5",
+          "limit": { "context": 128000, "output": 32768 }
+        },
+        "gpt-5.4": {
+          "name": "GPT-5.4",
+          "limit": { "context": 128000, "output": 32768 }
+        },
+        "gpt-5.4-mini": {
+          "name": "GPT-5.4 Mini",
+          "limit": { "context": 128000, "output": 16384 }
+        }
+      }
+    }
+  },
+  "model": "opensand-anthropic/claude-sonnet-4-6",
+  "autoshare": false
+}
+```
+
+**关键字段说明**
+
+- 示例中声明了两个 provider：
+  - `opensand-anthropic`：`npm` 必须填 `@ai-sdk/anthropic`，用于接入 Claude 等 Anthropic 协议模型
+  - `opensand`：`npm` 必须填 `@ai-sdk/openai-compatible`，用于接入 DeepSeek、GPT 等 OpenAI 兼容模型
+- 两个 provider 的 `baseURL` 均为 `https://opensand.ai/v1`
+- `apiKey` 字段直接写在配置文件中，请替换为你自己的 OpenSand API Key（示例中的 `sk-123` 仅为占位）
+- `models` 中的模型 ID 必须与 OpenSand 控制台实际暴露的模型名称 **完全一致**；若希望自定义简写，可使用 `id` 字段指向真实模型（如示例中的 `haiku` → `claude-haiku-4-5`）
+- 顶层 `model` 字段指定默认模型，格式为 `<provider>/<model>`
+- 项目级 `opencode.json` 优先级高于全局配置
+
+### 2. 配置 API Key
+
+上方示例已在 `opencode.json` 中直接通过 `options.apiKey` 内嵌 API Key，将 `sk-123` 替换为你自己的 Key 即可，无需额外步骤。
+
+**可选：使用 auth.json 管理密钥**
+
+如果不希望将 API Key 写入 `opencode.json`，可以从配置中移除 `apiKey` 字段，改为编辑 `~/.local/share/opencode/auth.json`：
+
+```json
+{
+  "opensand-anthropic": {
+    "type": "api",
+    "key": "sk-your-opensand-key"
+  },
+  "opensand": {
+    "type": "api",
+    "key": "sk-your-opensand-key"
+  }
+}
+```
+
+或通过命令行登录：
+
+```bash
+opencode auth login
+```
+
+按提示分别为 `opensand-anthropic` 和 `opensand` 输入 API Key 即可。
+
+## ✅ 第三步：验证接入
+
+启动 OpenCode 后输入 `/models`，查看是否出现 `opensand-anthropic/claude-sonnet-4-6`、`opensand/deepseek-v4-pro` 等模型。选择目标模型后发送一条测试消息，收到正常响应即配置成功。
+
+## ❓ 常见问题
+
+| 问题 | 解决方案 |
+|------|----------|
+| `/models` 看不到 OpenSand 下的模型 | 检查配置文件中 `provider.opensand-anthropic.models` 或 `provider.opensand.models` 是否有内容 |
+| 提示模型不存在 | 确认模型 ID 与 OpenSand 控制台完全一致 |
+| API Key 无效 | 检查 `opencode.json` 中的 `apiKey` 或 `auth.json` 是否正确；也可重跑 `opencode auth login` |
+| Claude 模型调用报协议错误 | 确认使用的是 `opensand-anthropic` provider（`@ai-sdk/anthropic`），而非 `opensand`（`@ai-sdk/openai-compatible`） |
+| 配置修改后没生效 | 重新启动 OpenCode，项目级配置优先级高于全局 |
+
+---
+
+# Pi
+
+Source: https://opensand.ai/zh/docs/apps/pi-mono
+
+---
+title: "Pi"
+source: "https://opensand.ai/zh/docs/apps/pi-mono"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.106Z"
+---
+# Pi
+
+> 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
+
+
+**项目介绍**
+
+**Pi**（pi-mono）是一个极简且高度可扩展的终端编码框架，支持 TypeScript 扩展、技能、提示模板和主题，拥有树状会话结构和 **15+ 内置供应商**。通过配置文件即可添加 OpenSand 作为自定义 OpenAI 兼容供应商。
+
+- GitHub：[https://github.com/can1357/pi-mono](https://github.com/can1357/pi-mono)
+
+## 📦 接入前准备
+
+**准备信息**
+
+- 已安装 Pi（pi-mono）
+- 一个可用的 OpenSand 地址（必须以 `/v1` 结尾）
+- 一个可用的 OpenSand API Key（在控制台生成）
+- 想使用的模型名称（如 `claude-sonnet-4-6`、`gemini-2.5-flash` 等，需与 OpenSand 控制台中的模型 ID 完全一致）
+
+## 🔑 第一步：设置环境变量
+
+```bash
+```
+
+## 🔧 第二步：编辑配置文件
+
+在 Pi 的配置文件中添加 OpenSand 供应商：
+
+```json
+{
+  "providers": {
+    "opensand": {
+      "baseUrl": "https://opensand.ai/v1",
+      "api": "openai-completions",
+      "apiKey": "$OPENSAND_API_KEY",
+      "models": [
+        {
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6",
+          "contextWindow": 200000,
+          "maxTokens": 128000,
+          "input": ["text"],
+          "reasoning": true,
+          "compat": {
+            "requiresReasoningContentOnAssistantMessages": true,
+            "thinkingFormat": "anthropic",
+            "reasoningEffortMap": {
+              "minimal": "low",
+              "low": "low",
+              "medium": "medium",
+              "high": "high",
+              "xhigh": "max"
+            }
+          }
+        },
+        {
+          "id": "gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "contextWindow": 1000000,
+          "maxTokens": 65536,
+          "input": ["text"],
+          "reasoning": false
+        }
+      ]
+    }
+  }
+}
+```
+
+**字段要点**
+
+- `baseUrl` 使用 OpenSand 标准地址 `https://opensand.ai/v1`
+- `api` 固定为 `openai-completions`
+- `apiKey` 使用 `$OPENSAND_API_KEY` 变量引用
+- `compat.requiresReasoningContentOnAssistantMessages: true` 确保思考模式下历史消息保留推理内容
+- `reasoningEffortMap` 将 Pi 的推理等级映射到目标模型支持的等级；非推理模型可直接省略此块
+
+## ✅ 第三步：启动并验证
+
+启动 Pi，在供应商选择器中选择 **opensand**，然后选择目标模型。发送一条测试消息，收到正常响应即配置成功。
+
+## ❓ 常见问题
+
+| 问题 | 解决方案 |
+|------|----------|
+| 供应商列表没有 opensand | 检查配置文件路径与 JSON 格式是否正确 |
+| 401 Unauthorized | 确认 `OPENSAND_API_KEY` 已导出到当前 shell |
+| 推理模型行为异常 | 核对 `requiresReasoningContentOnAssistantMessages` 和 `thinkingFormat` 是否与模型匹配 |
+| 模型不存在 | 核对 `models[].id` 与 OpenSand 控制台完全一致 |
+
+---
+
+# API 令牌
+
+Source: https://opensand.ai/zh/docs/guide/console/api-token
+
+---
+title: "API 令牌"
+source: "https://opensand.ai/zh/docs/guide/console/api-token"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.078Z"
+---
+# API 令牌
+
+API 令牌用于调用 OpenSand API。每个令牌都可以独立管理，适合按项目、工具或团队成员分开使用。
+
+## 建议做法
+
+- 不同项目使用不同 API Key。
+- 不要把 API Key 写进公开仓库。
+- Key 泄露后立即删除并重新创建。
+- 给自动化任务设置单独 Key，方便追踪用量。
+
+## 创建后怎么用
+
+在请求头中加入：
+
+```http
+Authorization: Bearer sk-你的APIKey
+```
+
+客户端工具则把它填到 API Key 字段。
+
+## 新手常见问题
+
+| 问题 | 说明 |
+|---|---|
+| API Key 要不要带引号 | 在客户端里不要额外加引号；在代码字符串里按语言语法加引号 |
+| Base URL 是不是 Key 的一部分 | 不是。Base URL 是接口地址，API Key 是凭证 |
+| 一个 Key 能不能多个工具共用 | 可以，但不建议。分开创建更方便查日志和控成本 |
+| Key 泄露怎么办 | 立刻删除旧 Key，重新创建新 Key |
+
+## 安全建议
+
+- 前端网页不要直接暴露 API Key。
+- 公开仓库不要提交 `.env`、配置文件或截图里的 Key。
+- 生产环境建议把 Key 放到环境变量或密钥管理系统中。
+
+---
+
+# 在线聊天
+
+Source: https://opensand.ai/zh/docs/guide/console/chat
+
+---
+title: "在线聊天"
+source: "https://opensand.ai/zh/docs/guide/console/chat"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.080Z"
+---
+# 在线聊天
+
+在线聊天适合快速体验 OpenSand 已开放的模型。
+
+## 使用建议
+
+- 先选择一个稳定、成本适中的模型。
+- 长对话会增加上下文成本，重要内容建议单独保存。
+- 如果回答异常，切换模型或检查模型是否支持对应能力。
+
+---
+
+# 控制台概览
+
+Source: https://opensand.ai/zh/docs/guide/console/dashboard
+
+---
+title: "控制台概览"
+source: "https://opensand.ai/zh/docs/guide/console/dashboard"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.079Z"
+---
+# 控制台概览
+
+控制台用于查看账户状态、模型可用性、近期用量和请求情况。
+
+## 你可以在这里做什么
+
+- 查看账户余额或额度。
+- 查看近期调用趋势。
+- 快速进入令牌、日志、模型和 Playground。
+- 判断问题是 Key、模型、额度还是请求参数导致。
+
+如果刚开始使用，建议先创建 API Key，再到 Playground 发送一条测试消息。
+
+## 新手推荐流程
+
+1. 先看余额或额度是否正常。
+2. 创建 API Key。
+3. 到 Playground 选择一个模型测试。
+4. 测试成功后，再复制同样的模型 ID 到客户端。
+5. 如果客户端失败，到用量日志里看有没有请求记录。
+
+---
+
+# Playground
+
+Source: https://opensand.ai/zh/docs/guide/console/playground
+
+---
+title: "Playground"
+source: "https://opensand.ai/zh/docs/guide/console/playground"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.080Z"
+---
+# Playground
+
+Playground 用于在控制台中测试模型，不需要先写代码。
+
+## 适合做什么
+
+- 验证 API Key 和模型是否可用。
+- 对比不同模型的回答质量。
+- 调试提示词和参数。
+- 在接入工具前先确认模型 ID。
+
+测试通过后，再把相同模型名称填到客户端或 API 请求里。
+
+## 测试建议
+
+- 第一次测试只写一句简单问题，避免把提示词问题和接口问题混在一起。
+- 先关闭流式、工具调用、联网等高级能力。
+- 如果某个模型失败，换一个基础聊天模型测试，判断是模型问题还是账号/接口问题。
+- 把 Playground 里可用的模型 ID 原样复制到客户端。
+
+---
+
+# 个人资料
+
+Source: https://opensand.ai/zh/docs/guide/console/profile
+
+---
+title: "个人资料"
+source: "https://opensand.ai/zh/docs/guide/console/profile"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.080Z"
+---
+# 个人资料
+
+个人资料页面用于管理账户基础信息和安全相关设置。
+
+## 建议
+
+- 确认邮箱或登录方式可用。
+- 不共享个人账号和 API Key。
+- 团队协作时为不同用途创建独立令牌。
+
+---
+
+# 用量日志
+
+Source: https://opensand.ai/zh/docs/guide/console/usage-log
+
+---
+title: "用量日志"
+source: "https://opensand.ai/zh/docs/guide/console/usage-log"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.080Z"
+---
+# 用量日志
+
+用量日志用于排查请求问题和分析成本。
+
+## 重点看什么
+
+- 请求时间：定位问题发生时间。
+- 模型：确认是否调用了预期模型。
+- 状态码：判断成功、鉴权失败、限流或模型错误。
+- Token / 消耗：分析成本来源。
+
+## 常见排查
+
+| 现象 | 检查 |
+|---|---|
+| 401 | API Key 是否正确 |
+| 429 | 是否触发频率限制或额度限制 |
+| 模型不存在 | 模型 ID 是否拼写正确 |
+| 成本异常 | 是否传入过长上下文或开启高成本模型 |
+
+## 怎么读一条日志
+
+一条日志通常能回答四个问题：
+
+1. 谁调用的：看 API Key 或用户信息。
+2. 调了什么：看模型和接口路径。
+3. 成功没有：看状态码和错误信息。
+4. 花了多少：看 Token、图片/视频参数和消耗。
+
+当用户反馈“工具不能用”时，先让他在工具里发起一次请求，再刷新日志。如果日志里没有记录，通常是客户端没有真正请求到 OpenSand。
+
+---
+
+# 价格与用量
+
+Source: https://opensand.ai/zh/docs/guide/pricing
+
+---
+title: "价格与用量"
+source: "https://opensand.ai/zh/docs/guide/pricing"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.077Z"
+---
+# 价格与用量
+
+OpenSand 的实际扣费取决于模型、输入输出 Token、图片/视频参数以及站点当前配置。文档不写死价格，避免用户看到过期信息。
+
+## 在哪里看价格
+
+- 控制台的模型或价格页面会显示当前可用模型与费率。
+- 请求日志会显示单次请求的用量和消耗。
+- 余额或额度不足时，请先降低模型规格、减少输出长度，或补充额度。
+
+## 文本模型如何计费
+
+文本模型通常按 Token 计费：
+
+- 输入 Token：用户消息、系统提示词、历史上下文。
+- 输出 Token：模型生成的内容。
+- 长上下文和多轮对话会增加输入 Token。
+
+你可以把 Token 理解成模型看到和生成的文本片段。中文、英文、符号都会被拆成 Token。一次对话越长，历史消息越多，输入 Token 就越高。
+
+### 为什么同一个问题费用可能不同
+
+- 选择的模型不同：高级模型通常更贵。
+- 输出长度不同：让模型写长文会增加输出 Token。
+- 上下文不同：带上很多历史消息会增加输入 Token。
+- 是否开启工具调用、推理、图片或视频能力。
+
+### 新手建议
+
+刚开始接入时，先用中低成本模型跑通流程。等提示词和业务流程稳定后，再切换到更强模型。
+
+## 图片和视频如何计费
+
+图片和视频模型通常还会受到尺寸、时长、分辨率、是否生成音频等参数影响。提交高成本任务前，建议先用小尺寸或短时长测试。
+
+视频生成尤其要注意：时长越长、分辨率越高、是否生成音频，都会影响成本和等待时间。
+
+## 控制成本的建议
+
+- 先用较便宜或较快的模型做草稿。
+- 设置合理的 `max_tokens` 或输出长度。
+- 视频任务先用短时长验证提示词。
+- 定期查看用量日志，排查异常消耗。
+
+## 如何排查费用异常
+
+1. 打开请求日志，按时间找到异常请求。
+2. 查看使用的模型，确认是否误用了高成本模型。
+3. 查看输入和输出 Token，确认是否传入了过长上下文。
+4. 检查是否有脚本或客户端在循环重试。
+5. 给不同项目使用不同 API Key，方便定位来源。
+
+---
+
+# 快速入门
+
+Source: https://opensand.ai/zh/docs/guide/quick-start
+
+---
+title: "快速入门"
+source: "https://opensand.ai/zh/docs/guide/quick-start"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.077Z"
+---
+# 快速入门
+
+这篇文档带你完成三件事：创建 API Key、调用第一个接口、把 OpenSand 配到常用工具里。
+
+## 开始前先理解三个概念
+
+| 概念 | 是什么 | 常见填写位置 |
+|---|---|---|
+| API Key | 你的调用凭证，通常以 `sk-` 开头 | 客户端的 API Key、Token 或 Secret 字段 |
+| Base URL | OpenSand 的接口入口 | 客户端的 Base URL、API Address 或 Endpoint 字段 |
+| Model | 要调用的模型名称 | 客户端的 Model、模型 ID 或 Deployment 字段 |
+
+大多数 OpenAI 兼容工具只需要填写这三项：
+
+```text
+Base URL: https://opensand.ai/v1
+API Key: sk-你的APIKey
+Model: 从控制台或 /v1/models 查询
+```
+
+## 1. 创建 API Key
+
+1. 打开 [https://opensand.ai](https://opensand.ai) 并登录。
+2. 进入控制台的 API 令牌页面。
+3. 创建一个新令牌，复制并妥善保存。
+
+API Key 通常只完整显示一次。泄露后请立即删除并重新创建。
+
+建议你为不同用途创建不同 Key，例如：
+
+- 桌面聊天工具一个 Key。
+- 代码工具一个 Key。
+- 自动化脚本一个 Key。
+
+这样后续查日志和控制成本会简单很多。
+
+## 2. 调用第一个聊天接口
+
+```bash
+curl https://opensand.ai/v1/chat/completions \
+  -H "Authorization: Bearer sk-你的APIKey" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "user", "content": "用一句话介绍 OpenSand"}
+    ]
+  }'
+```
+
+## 3. 使用 Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://opensand.ai/v1",
+    api_key="sk-你的APIKey",
+)
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "你好"}],
+)
+
+print(response.choices[0].message.content)
+```
+
+## 4. 查询模型列表
+
+```bash
+curl https://opensand.ai/v1/models \
+  -H "Authorization: Bearer sk-你的APIKey"
+```
+
+返回结果里的 `id` 就是请求中要填写的模型名称。
+
+如果这一步成功，说明 API Key、Base URL 和账户状态都是正常的。接下来如果某个客户端不可用，通常是客户端配置问题，而不是 OpenSand API 本身不可用。
+
+## 5. 接入工具
+
+如果工具支持 OpenAI Compatible、Custom Endpoint 或自定义 Base URL，通常按下面填写：
+
+| 字段 | 填写 |
+|---|---|
+| Base URL | `https://opensand.ai/v1` |
+| API Key | OpenSand API Key |
+| Model | 控制台或 `/v1/models` 返回的模型 ID |
+
+下一步可以查看 [应用接入](/zh/docs/apps)。
+
+## 常见报错
+
+| 报错 | 可能原因 | 处理方式 |
+|---|---|---|
+| 401 Unauthorized | API Key 错误、过期或没有传入 | 重新复制 Key，确认请求头是 `Authorization: Bearer sk-...` |
+| 403 Forbidden | 账号、额度、分组或模型权限问题 | 检查控制台余额、令牌状态和模型权限 |
+| model not found | 模型名称填错 | 调用 `/v1/models`，复制返回的 `id` |
+| connection error | Base URL 填错 | 大多数工具填写 `https://opensand.ai/v1` |
+| empty response | 模型返回异常或客户端解析失败 | 换一个模型测试，并查看请求日志 |
+
+## 下一步
+
+- 想写代码接入：看 [API 文档](/zh/docs/api)。
+- 想接入客户端：看 [应用接入](/zh/docs/apps)。
+- 想看费用：看 [价格与用量](/zh/docs/guide/pricing)。
+
+---
+
+# 项目介绍
+
+Source: https://opensand.ai/zh/docs/guide/wiki/basic-concepts/project-introduction
+
+---
+title: "项目介绍"
+source: "https://opensand.ai/zh/docs/guide/wiki/basic-concepts/project-introduction"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.081Z"
+---
+# OpenSand 是什么
+
+OpenSand 是一个统一的 AI API 网关。它把不同模型和供应商聚合到同一个入口，开发者只需要维护一套 API Key、Base URL 和调用方式。
+
+## 适合谁
+
+- 想快速接入多模型能力的开发者。
+- 需要统一管理 API Key、用量和模型权限的团队。
+- 想把 Claude Code、Codex CLI、Cherry Studio、OpenClaw 等工具接到同一平台的用户。
+
+## 核心价值
+
+- 统一接口：减少不同供应商之间的适配成本。
+- 统一管理：集中管理 Key、模型、用量和日志。
+- 工具兼容：兼容 OpenAI API 和常见 AI 工具。
+
+---
+
+# 技术架构
+
+Source: https://opensand.ai/zh/docs/guide/wiki/basic-concepts/technical-architecture
+
+---
+title: "技术架构"
+source: "https://opensand.ai/zh/docs/guide/wiki/basic-concepts/technical-architecture"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.081Z"
+---
+# 技术架构
+
+OpenSand 的核心思路是把客户端请求统一接入，再根据模型、渠道和策略转发到对应上游。
+
+## 请求链路
+
+1. 客户端携带 API Key 请求 OpenSand。
+2. OpenSand 完成鉴权、额度、模型和策略检查。
+3. 请求被路由到可用模型渠道。
+4. 返回结果写入日志和用量统计。
+5. 客户端收到统一格式的响应。
+
+## 对用户意味着什么
+
+- 客户端只需要配置一个 Base URL。
+- 切换模型通常只需要修改 `model` 字段。
+- 问题排查可以从请求日志开始。
+
+---
+
+# 更新日志
+
+Source: https://opensand.ai/zh/docs/guide/wiki/changelog
+
+---
+title: "更新日志"
+source: "https://opensand.ai/zh/docs/guide/wiki/changelog"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.081Z"
+---
+# 更新日志
+
+这里记录 OpenSand 面向用户的功能更新、模型变更和重要修复。
+
+## 维护方式
+
+每次发布建议记录：
+
+- 发布日期。
+- 新增或下线的模型。
+- API 兼容性变化。
+- 控制台功能变化。
+- 影响用户的迁移说明。
+
+当前页面是模板，正式上线前请补充真实发布记录。
+
+---
+
+# 项目记录
+
+Source: https://opensand.ai/zh/docs/guide/wiki/project-records/changelog
+
+---
+title: "项目记录"
+source: "https://opensand.ai/zh/docs/guide/wiki/project-records/changelog"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.081Z"
+---
+# 项目记录
+
+项目记录用于沉淀面向维护者的变更说明。用户只关心结果，维护者还需要知道背景和影响范围。
+
+## 建议记录
+
+- 为什么做这个变更。
+- 涉及哪些模型、接口或控制台页面。
+- 是否需要用户迁移。
+- 是否需要更新截图或脚本。
+
+---
+
+# 特别鸣谢
+
+Source: https://opensand.ai/zh/docs/guide/wiki/project-records/special-thanks
+
+---
+title: "特别鸣谢"
+source: "https://opensand.ai/zh/docs/guide/wiki/project-records/special-thanks"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.081Z"
+---
+# 特别鸣谢
+
+这里用于记录项目推进过程中需要公开感谢的人、团队和社区资源。
+
+请只写真实、可公开、已确认的名称和链接。
+
+---
+
+# 特别鸣谢
+
+Source: https://opensand.ai/zh/docs/guide/wiki/special-thanks
+
+---
+title: "特别鸣谢"
+source: "https://opensand.ai/zh/docs/guide/wiki/special-thanks"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.081Z"
+---
+# 特别鸣谢
+
+感谢所有参与 OpenSand 测试、反馈、部署和推广的用户与开发者。
+
+正式上线前，请在这里补充真实贡献者、合作伙伴和社区资源。

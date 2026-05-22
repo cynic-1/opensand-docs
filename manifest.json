@@ -1,0 +1,23 @@
+{
+  "source": "https://opensand.ai",
+  "adaptedFor": "OpenSand",
+  "adaptedAt": "2026-05-22T02:38:34.173Z",
+  "languages": {
+    "zh": {
+      "docs": "https://opensand.ai/zh/docs",
+      "totalPages": 55,
+      "savedPages": 55,
+      "manifest": "zh/manifest.json"
+    },
+    "en": {
+      "docs": "https://opensand.ai/en/docs",
+      "totalPages": 55,
+      "savedPages": 55,
+      "manifest": "en/manifest.json"
+    }
+  },
+  "scripts": "scripts/",
+  "curatedForHumans": true,
+  "curatedAt": "2026-05-22T02:54:35.143Z",
+  "pictures": "pictures/apps/"
+}

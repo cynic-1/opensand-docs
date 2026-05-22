@@ -1,0 +1,404 @@
+{
+  "source": "https://opensand.ai/en/docs",
+  "llmsIndex": "https://opensand.ai/en/llms.txt",
+  "fetchedAt": "2026-05-21T07:13:09.469Z",
+  "totalPages": 55,
+  "savedPages": 55,
+  "failedPages": 0,
+  "pages": [
+    {
+      "title": "Quick Start",
+      "path": "/",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx",
+      "canonicalUrl": "https://opensand.ai/en/docs",
+      "file": "en/index.md"
+    },
+    {
+      "title": "API Docs",
+      "path": "/api",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api",
+      "canonicalUrl": "https://opensand.ai/en/docs/api",
+      "file": "en/api/index.md"
+    },
+    {
+      "title": "Claude Messages",
+      "path": "/api/ai-model/chat/createmessage",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/chat/createmessage",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/chat/createmessage",
+      "file": "en/api/ai-model/chat/createmessage/index.md"
+    },
+    {
+      "title": "Gemini Text Chat",
+      "path": "/api/ai-model/chat/gemini/geminirelayv1beta",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/chat/gemini/geminirelayv1beta",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/chat/gemini/geminirelayv1beta",
+      "file": "en/api/ai-model/chat/gemini/geminirelayv1beta/index.md"
+    },
+    {
+      "title": "Gemini Multimodal Chat",
+      "path": "/api/ai-model/chat/gemini/geminirelayv1beta-391536411",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/chat/gemini/geminirelayv1beta-391536411",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/chat/gemini/geminirelayv1beta-391536411",
+      "file": "en/api/ai-model/chat/gemini/geminirelayv1beta-391536411/index.md"
+    },
+    {
+      "title": "Chat Completions",
+      "path": "/api/ai-model/chat/openai/createchatcompletion",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/chat/openai/createchatcompletion",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/chat/openai/createchatcompletion",
+      "file": "en/api/ai-model/chat/openai/createchatcompletion/index.md"
+    },
+    {
+      "title": "Responses",
+      "path": "/api/ai-model/chat/openai/createresponse",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/chat/openai/createresponse",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/chat/openai/createresponse",
+      "file": "en/api/ai-model/chat/openai/createresponse/index.md"
+    },
+    {
+      "title": "Text Completions",
+      "path": "/api/ai-model/completions/createcompletion",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/completions/createcompletion",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/completions/createcompletion",
+      "file": "en/api/ai-model/completions/createcompletion/index.md"
+    },
+    {
+      "title": "Embeddings",
+      "path": "/api/ai-model/embeddings/openai/createembedding",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/embeddings/openai/createembedding",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/embeddings/openai/createembedding",
+      "file": "en/api/ai-model/embeddings/openai/createembedding/index.md"
+    },
+    {
+      "title": "Gemini Image Generation",
+      "path": "/api/ai-model/images/gemini/geminirelayv1beta-383837589",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/images/gemini/geminirelayv1beta-383837589",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/images/gemini/geminirelayv1beta-383837589",
+      "file": "en/api/ai-model/images/gemini/geminirelayv1beta-383837589/index.md"
+    },
+    {
+      "title": "Gemini Image Editing",
+      "path": "/api/ai-model/images/gemini/geminirelayv1beta-389846313",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/images/gemini/geminirelayv1beta-389846313",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/images/gemini/geminirelayv1beta-389846313",
+      "file": "en/api/ai-model/images/gemini/geminirelayv1beta-389846313/index.md"
+    },
+    {
+      "title": "Image Editing",
+      "path": "/api/ai-model/images/openai/post-v1-images-edits",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/images/openai/post-v1-images-edits",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/images/openai/post-v1-images-edits",
+      "file": "en/api/ai-model/images/openai/post-v1-images-edits/index.md"
+    },
+    {
+      "title": "Image Generation",
+      "path": "/api/ai-model/images/openai/post-v1-images-generations",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/images/openai/post-v1-images-generations",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/images/openai/post-v1-images-generations",
+      "file": "en/api/ai-model/images/openai/post-v1-images-generations/index.md"
+    },
+    {
+      "title": "Model List",
+      "path": "/api/ai-model/models/list/listmodels",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/models/list/listmodels",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/models/list/listmodels",
+      "file": "en/api/ai-model/models/list/listmodels/index.md"
+    },
+    {
+      "title": "Gemini Model List",
+      "path": "/api/ai-model/models/list/listmodelsgemini",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/models/list/listmodelsgemini",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/models/list/listmodelsgemini",
+      "file": "en/api/ai-model/models/list/listmodelsgemini/index.md"
+    },
+    {
+      "title": "HappyHorse Video Generation",
+      "path": "/api/ai-model/videos/happyhorse",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/videos/happyhorse",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/videos/happyhorse",
+      "file": "en/api/ai-model/videos/happyhorse/index.md"
+    },
+    {
+      "title": "PixVerse Video Generation",
+      "path": "/api/ai-model/videos/pixverse",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/videos/pixverse",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/videos/pixverse",
+      "file": "en/api/ai-model/videos/pixverse/index.md"
+    },
+    {
+      "title": "Seedance Video Generation",
+      "path": "/api/ai-model/videos/seedance",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/videos/seedance",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/videos/seedance",
+      "file": "en/api/ai-model/videos/seedance/index.md"
+    },
+    {
+      "title": "Veo 3.1 Video Generation",
+      "path": "/api/ai-model/videos/veo31",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/videos/veo31",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/videos/veo31",
+      "file": "en/api/ai-model/videos/veo31/index.md"
+    },
+    {
+      "title": "Wanx 2.7 Video Generation",
+      "path": "/api/ai-model/videos/wanx27",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/api/ai-model/videos/wanx27",
+      "canonicalUrl": "https://opensand.ai/en/docs/api/ai-model/videos/wanx27",
+      "file": "en/api/ai-model/videos/wanx27/index.md"
+    },
+    {
+      "title": "App Integrations",
+      "path": "/apps",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps",
+      "file": "en/apps/index.md"
+    },
+    {
+      "title": "AionUi",
+      "path": "/apps/aionui",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/aionui",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/aionui",
+      "file": "en/apps/aionui/index.md"
+    },
+    {
+      "title": "AstrBot",
+      "path": "/apps/astrbot",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/astrbot",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/astrbot",
+      "file": "en/apps/astrbot/index.md"
+    },
+    {
+      "title": "CC Switch",
+      "path": "/apps/cc-switch",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/cc-switch",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/cc-switch",
+      "file": "en/apps/cc-switch/index.md"
+    },
+    {
+      "title": "Cherry Studio",
+      "path": "/apps/cherry-studio",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/cherry-studio",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/cherry-studio",
+      "file": "en/apps/cherry-studio/index.md"
+    },
+    {
+      "title": "Claude Code",
+      "path": "/apps/claude-code",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/claude-code",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/claude-code",
+      "file": "en/apps/claude-code/index.md"
+    },
+    {
+      "title": "CodeBuddy",
+      "path": "/apps/codebuddy",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/codebuddy",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/codebuddy",
+      "file": "en/apps/codebuddy/index.md"
+    },
+    {
+      "title": "Codex CLI",
+      "path": "/apps/codex-cli",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/codex-cli",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/codex-cli",
+      "file": "en/apps/codex-cli/index.md"
+    },
+    {
+      "title": "Copilot CLI",
+      "path": "/apps/copilot-cli",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/copilot-cli",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/copilot-cli",
+      "file": "en/apps/copilot-cli/index.md"
+    },
+    {
+      "title": "Crush",
+      "path": "/apps/crush",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/crush",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/crush",
+      "file": "en/apps/crush/index.md"
+    },
+    {
+      "title": "Factory Droid CLI",
+      "path": "/apps/factory-droid-cli",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/factory-droid-cli",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/factory-droid-cli",
+      "file": "en/apps/factory-droid-cli/index.md"
+    },
+    {
+      "title": "FluentRead",
+      "path": "/apps/fluent-read",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/fluent-read",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/fluent-read",
+      "file": "en/apps/fluent-read/index.md"
+    },
+    {
+      "title": "Hermes Agent",
+      "path": "/apps/hermes-agent",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/hermes-agent",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/hermes-agent",
+      "file": "en/apps/hermes-agent/index.md"
+    },
+    {
+      "title": "LangBot",
+      "path": "/apps/langbot",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/langbot",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/langbot",
+      "file": "en/apps/langbot/index.md"
+    },
+    {
+      "title": "LunaTranslator",
+      "path": "/apps/luna-translator",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/luna-translator",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/luna-translator",
+      "file": "en/apps/luna-translator/index.md"
+    },
+    {
+      "title": "Memoh",
+      "path": "/apps/memoh",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/memoh",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/memoh",
+      "file": "en/apps/memoh/index.md"
+    },
+    {
+      "title": "nanobot",
+      "path": "/apps/nanobot",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/nanobot",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/nanobot",
+      "file": "en/apps/nanobot/index.md"
+    },
+    {
+      "title": "Oh My Pi",
+      "path": "/apps/oh-my-pi",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/oh-my-pi",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/oh-my-pi",
+      "file": "en/apps/oh-my-pi/index.md"
+    },
+    {
+      "title": "OpenClaw",
+      "path": "/apps/openclaw",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/openclaw",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/openclaw",
+      "file": "en/apps/openclaw/index.md"
+    },
+    {
+      "title": "OpenCode",
+      "path": "/apps/opencode",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/opencode",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/opencode",
+      "file": "en/apps/opencode/index.md"
+    },
+    {
+      "title": "Pi",
+      "path": "/apps/pi-mono",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/apps/pi-mono",
+      "canonicalUrl": "https://opensand.ai/en/docs/apps/pi-mono",
+      "file": "en/apps/pi-mono/index.md"
+    },
+    {
+      "title": "API Tokens",
+      "path": "/guide/console/api-token",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/console/api-token",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/console/api-token",
+      "file": "en/guide/console/api-token/index.md"
+    },
+    {
+      "title": "Chat",
+      "path": "/guide/console/chat",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/console/chat",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/console/chat",
+      "file": "en/guide/console/chat/index.md"
+    },
+    {
+      "title": "Dashboard",
+      "path": "/guide/console/dashboard",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/console/dashboard",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/console/dashboard",
+      "file": "en/guide/console/dashboard/index.md"
+    },
+    {
+      "title": "Playground",
+      "path": "/guide/console/playground",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/console/playground",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/console/playground",
+      "file": "en/guide/console/playground/index.md"
+    },
+    {
+      "title": "Profile",
+      "path": "/guide/console/profile",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/console/profile",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/console/profile",
+      "file": "en/guide/console/profile/index.md"
+    },
+    {
+      "title": "Usage Logs",
+      "path": "/guide/console/usage-log",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/console/usage-log",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/console/usage-log",
+      "file": "en/guide/console/usage-log/index.md"
+    },
+    {
+      "title": "Pricing and Usage",
+      "path": "/guide/pricing",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/pricing",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/pricing",
+      "file": "en/guide/pricing/index.md"
+    },
+    {
+      "title": "Quick Start",
+      "path": "/guide/quick-start",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/quick-start",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/quick-start",
+      "file": "en/guide/quick-start/index.md"
+    },
+    {
+      "title": "Project Introduction",
+      "path": "/guide/wiki/basic-concepts/project-introduction",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/wiki/basic-concepts/project-introduction",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/wiki/basic-concepts/project-introduction",
+      "file": "en/guide/wiki/basic-concepts/project-introduction/index.md"
+    },
+    {
+      "title": "Technical Architecture",
+      "path": "/guide/wiki/basic-concepts/technical-architecture",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/wiki/basic-concepts/technical-architecture",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/wiki/basic-concepts/technical-architecture",
+      "file": "en/guide/wiki/basic-concepts/technical-architecture/index.md"
+    },
+    {
+      "title": "Changelog",
+      "path": "/guide/wiki/changelog",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/wiki/changelog",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/wiki/changelog",
+      "file": "en/guide/wiki/changelog/index.md"
+    },
+    {
+      "title": "Project Records",
+      "path": "/guide/wiki/project-records/changelog",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/wiki/project-records/changelog",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/wiki/project-records/changelog",
+      "file": "en/guide/wiki/project-records/changelog/index.md"
+    },
+    {
+      "title": "Special Thanks",
+      "path": "/guide/wiki/project-records/special-thanks",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/wiki/project-records/special-thanks",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/wiki/project-records/special-thanks",
+      "file": "en/guide/wiki/project-records/special-thanks/index.md"
+    },
+    {
+      "title": "Special Thanks",
+      "path": "/guide/wiki/special-thanks",
+      "llmsUrl": "https://opensand.ai/en/llms.mdx/guide/wiki/special-thanks",
+      "canonicalUrl": "https://opensand.ai/en/docs/guide/wiki/special-thanks",
+      "file": "en/guide/wiki/special-thanks/index.md"
+    }
+  ],
+  "failures": [],
+  "adaptedFor": "OpenSand",
+  "adaptedAt": "2026-05-22T02:38:34.166Z",
+  "notes": [
+    "Generated from the local captured documentation and adapted with OpenSand fields.",
+    "Verify screenshots, scripts, repository URLs, support channels, and release notes before publishing."
+  ],
+  "curatedForHumans": true,
+  "curatedAt": "2026-05-22T02:54:35.140Z"
+}

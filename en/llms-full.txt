@@ -1,0 +1,4983 @@
+# Quick Start
+
+Source: https://opensand.ai/en/docs
+
+---
+title: "Quick Start"
+source: "https://opensand.ai/en/docs"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.128Z"
+---
+# OpenSand Docs
+
+OpenSand is a unified AI model gateway. Use one API key and one Base URL for chat, embeddings, images, video, and common developer tools.
+
+## Start Here
+
+1. [Quick Start](/en/docs/guide/quick-start): create an API key and make your first API call.
+2. [Pricing and Usage](/en/docs/guide/pricing): understand balance, usage, and model cost.
+3. [API Docs](/en/docs/api): review OpenAI-compatible and model APIs.
+4. [App Integrations](/en/docs/apps): configure Claude Code, Codex CLI, Cherry Studio, OpenClaw, and more.
+
+## Most Common Settings
+
+| Setting | Value |
+|---|---|
+| API Base URL | `https://opensand.ai/v1` |
+| API Key | Create it in the OpenSand console |
+| Model name | Query the console or `/v1/models` |
+
+## Common Questions
+
+- Which URL should I use? Most OpenAI-compatible tools use `https://opensand.ai/v1`.
+- Which model name should I use? Call `GET /v1/models`.
+- A request fails? Check the API key first, then the model name and account quota.
+
+---
+
+# API Docs
+
+Source: https://opensand.ai/en/docs/api
+
+---
+title: "API Docs"
+source: "https://opensand.ai/en/docs/api"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.128Z"
+---
+# API Docs
+
+OpenSand exposes OpenAI-compatible APIs and selected native model protocols. Most applications only need the OpenAI-compatible APIs.
+
+## Basics
+
+| Item | Value |
+|---|---|
+| Base URL | `https://opensand.ai/v1` |
+| Authentication | `Authorization: Bearer sk-your-api-key` |
+| Request format | JSON, except upload endpoints such as image edits |
+
+## What a Minimal Request Looks Like
+
+Most OpenAI-compatible requests have three parts:
+
+1. Request URL, such as `https://opensand.ai/v1/chat/completions`.
+2. Headers, including API key and content type.
+3. Body, including model name and input.
+
+```bash
+curl https://opensand.ai/v1/chat/completions \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","messages":[{"role":"user","content":"Hello"}]}'
+```
+
+When using an SDK, you usually only need to set `base_url` to `https://opensand.ai/v1`.
+
+## Recommended Reading Order
+
+1. [Model List](/en/docs/api/ai-model/models/list/listmodels)
+2. [Chat Completions](/en/docs/api/ai-model/chat/openai/createchatcompletion)
+3. [Responses](/en/docs/api/ai-model/chat/openai/createresponse)
+4. [Claude Messages](/en/docs/api/ai-model/chat/createmessage)
+5. [Embeddings](/en/docs/api/ai-model/embeddings/openai/createembedding)
+6. [Image Generation](/en/docs/api/ai-model/images/openai/post-v1-images-generations)
+
+## Which Endpoint Should I Use?
+
+| Need | Endpoint |
+|---|---|
+| Chat, agents, OpenAI SDK | `/chat/completions` |
+| Newer OpenAI Responses clients | `/responses` |
+| Native Claude protocol tools | `/messages` |
+| Semantic search and RAG | `/embeddings` |
+| Image generation | `/images/generations` |
+| Video generation | `/video/generations` |
+
+## Debugging Tips
+
+- Always call `/models` first to confirm the key works and copy the correct model ID.
+- Then send a minimal `/chat/completions` request.
+- Add SDKs, clients, streaming, tools, or complex parameters after the minimal request works.
+- Avoid debugging streaming, tool calling, long context, and advanced models all at once.
+
+---
+
+# Claude Messages
+
+Source: https://opensand.ai/en/docs/api/ai-model/chat/createmessage
+
+---
+title: "Claude Messages"
+source: "https://opensand.ai/en/docs/api/ai-model/chat/createmessage"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Claude Messages
+
+Call Claude-style models with the Anthropic Claude Messages API format. Claude Code, Anthropic SDKs, and native Claude tools commonly use this format.
+
+## Start Here
+
+If you are new to APIs, think of a request as a structured message sent to OpenSand:
+
+- **Endpoint** decides which capability you are using, such as chat, embeddings, images, or video.
+- **API key** proves the request belongs to your account and must be sent in the `Authorization` header.
+- **model** selects the actual model and must exactly match a model ID from the console or `/models`.
+- **Request body** contains the task you want the model to perform.
+
+## Endpoint
+
+```text
+POST /messages
+```
+
+Full request URL:
+
+```text
+https://opensand.ai/v1/messages
+```
+
+If a client only asks for Base URL, use:
+
+```text
+https://opensand.ai/v1
+```
+
+## Authentication
+
+Use your OpenSand API key on every request:
+
+```http
+Authorization: Bearer sk-your-api-key
+Content-Type: application/json
+```
+
+## When To Use It
+
+Use it for tools that explicitly require the Anthropic protocol. For normal OpenAI-compatible chat clients, `/chat/completions` is usually simpler.
+
+## Common Request Body
+
+- `model`: Claude-compatible model ID.
+- `messages`: message array.
+- `max_tokens`: required output limit.
+- `system`: system prompt.
+- `stream`: return streaming output when enabled.
+
+## How To Fill the Body
+
+Start with the smallest valid request, confirm it works, then add advanced parameters such as `temperature`, `stream`, tools, image size, or video options.
+
+When editing JSON:
+
+- Field names are case-sensitive, so `max_tokens` is not the same as `maxTokens`.
+- JSON strings must use double quotes.
+- If you copy an API key from the console, make sure there are no leading or trailing spaces.
+
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/messages \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{"model":"claude-sonnet-4-6","max_tokens":512,"messages":[{"role":"user","content":"Summarize this project"}]}'
+```
+
+## How To Know It Worked
+
+- HTTP 200 usually means the request succeeded.
+- A response containing `id`, `choices`, `data`, or task status fields means OpenSand accepted and processed the request.
+- For streaming endpoints, the client receives multiple chunks until the stream ends.
+
+## Common Errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| 401 Unauthorized | Missing or invalid API key | Check `Authorization: Bearer sk-...` |
+| 403 Forbidden | Account, group, or model permission issue | Check account status, model access, and quota |
+| 404 Not Found | Wrong path or model | Check Base URL, endpoint path, and model ID |
+| 429 Too Many Requests | Rate limit or quota limit | Reduce concurrency, retry later, or check quota |
+| 500/502/503 | Temporary platform or upstream issue | Retry later and check request logs |
+
+## Notes
+
+- Include the `anthropic-version` header.
+- `x-api-key` may work in some clients, but Bearer Token is the recommended format.
+- The Claude Code setup script configures the required environment variables.
+
+---
+
+# Gemini Text Chat
+
+Source: https://opensand.ai/en/docs/api/ai-model/chat/gemini/geminirelayv1beta
+
+---
+title: "Gemini Text Chat"
+source: "https://opensand.ai/en/docs/api/ai-model/chat/gemini/geminirelayv1beta"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# Gemini Text Chat
+
+OpenSand can provide a Gemini-compatible entry point for clients that require the Gemini protocol. Use this page only when your tool explicitly expects Gemini API formatting.
+
+## Common Uses
+
+- Use Gemini-family models for text or multimodal chat.
+- Connect third-party tools that only support Gemini API paths.
+
+## Configuration Notes
+
+- API key: use a key created in the OpenSand console.
+- Model name: use the OpenSand console or model list as the source of truth.
+- Base URL: follow the client requirement; if it supports OpenAI-compatible APIs, prefer `https://opensand.ai/v1`.
+
+## Beginner Advice
+
+Gemini protocol settings vary across clients. If you only need chat, coding, or a normal agent integration, prefer OpenAI-compatible mode. Use Gemini-compatible settings only when the tool explicitly asks for a Gemini API key or Gemini endpoint.
+
+When troubleshooting, confirm:
+
+1. Whether the tool expects Gemini or OpenAI protocol.
+2. Whether the model ID comes from the OpenSand console.
+3. Whether the Base URL matches the tool's expectation.
+
+## Recommendation
+
+If your tool supports OpenAI-compatible APIs, prefer [Chat Completions](/en/docs/api/ai-model/chat/openai/createchatcompletion). It is simpler to configure and easier to troubleshoot.
+
+---
+
+# Gemini Multimodal Chat
+
+Source: https://opensand.ai/en/docs/api/ai-model/chat/gemini/geminirelayv1beta-391536411
+
+---
+title: "Gemini Multimodal Chat"
+source: "https://opensand.ai/en/docs/api/ai-model/chat/gemini/geminirelayv1beta-391536411"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# Gemini Multimodal Chat
+
+OpenSand can provide a Gemini-compatible entry point for clients that require the Gemini protocol. Use this page only when your tool explicitly expects Gemini API formatting.
+
+## Common Uses
+
+- Use Gemini-family models for text or multimodal chat.
+- Connect third-party tools that only support Gemini API paths.
+
+## Configuration Notes
+
+- API key: use a key created in the OpenSand console.
+- Model name: use the OpenSand console or model list as the source of truth.
+- Base URL: follow the client requirement; if it supports OpenAI-compatible APIs, prefer `https://opensand.ai/v1`.
+
+## Beginner Advice
+
+Gemini protocol settings vary across clients. If you only need chat, coding, or a normal agent integration, prefer OpenAI-compatible mode. Use Gemini-compatible settings only when the tool explicitly asks for a Gemini API key or Gemini endpoint.
+
+When troubleshooting, confirm:
+
+1. Whether the tool expects Gemini or OpenAI protocol.
+2. Whether the model ID comes from the OpenSand console.
+3. Whether the Base URL matches the tool's expectation.
+
+## Recommendation
+
+If your tool supports OpenAI-compatible APIs, prefer [Chat Completions](/en/docs/api/ai-model/chat/openai/createchatcompletion). It is simpler to configure and easier to troubleshoot.
+
+---
+
+# Chat Completions
+
+Source: https://opensand.ai/en/docs/api/ai-model/chat/openai/createchatcompletion
+
+---
+title: "Chat Completions"
+source: "https://opensand.ai/en/docs/api/ai-model/chat/openai/createchatcompletion"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Chat Completions
+
+Create chat responses using the OpenAI Chat Completions format. This is the default choice for most chat, agent, and OpenAI SDK integrations.
+
+## Start Here
+
+If you are new to APIs, think of a request as a structured message sent to OpenSand:
+
+- **Endpoint** decides which capability you are using, such as chat, embeddings, images, or video.
+- **API key** proves the request belongs to your account and must be sent in the `Authorization` header.
+- **model** selects the actual model and must exactly match a model ID from the console or `/models`.
+- **Request body** contains the task you want the model to perform.
+
+## Endpoint
+
+```text
+POST /chat/completions
+```
+
+Full request URL:
+
+```text
+https://opensand.ai/v1/chat/completions
+```
+
+If a client only asks for Base URL, use:
+
+```text
+https://opensand.ai/v1
+```
+
+## Authentication
+
+Use your OpenSand API key on every request:
+
+```http
+Authorization: Bearer sk-your-api-key
+Content-Type: application/json
+```
+
+## When To Use It
+
+Use it for multi-turn chat, streaming, tool calling, structured output, and most OpenAI-compatible clients.
+
+## Common Request Body
+
+- `model`: model ID returned by `/models`.
+- `messages`: chat message array with roles such as `system`, `user`, and `assistant`.
+- `stream`: set to `true` for SSE streaming.
+- `temperature`, `top_p`: control randomness.
+- `max_tokens` or `max_completion_tokens`: limit output length.
+
+## How To Fill the Body
+
+Start with the smallest valid request, confirm it works, then add advanced parameters such as `temperature`, `stream`, tools, image size, or video options.
+
+When editing JSON:
+
+- Field names are case-sensitive, so `max_tokens` is not the same as `maxTokens`.
+- JSON strings must use double quotes.
+- If you copy an API key from the console, make sure there are no leading or trailing spaces.
+
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/chat/completions \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","messages":[{"role":"user","content":"Introduce OpenSand in one sentence"}]}'
+```
+
+## How To Know It Worked
+
+- HTTP 200 usually means the request succeeded.
+- A response containing `id`, `choices`, `data`, or task status fields means OpenSand accepted and processed the request.
+- For streaming endpoints, the client receives multiple chunks until the stream ends.
+
+## Common Errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| 401 Unauthorized | Missing or invalid API key | Check `Authorization: Bearer sk-...` |
+| 403 Forbidden | Account, group, or model permission issue | Check account status, model access, and quota |
+| 404 Not Found | Wrong path or model | Check Base URL, endpoint path, and model ID |
+| 429 Too Many Requests | Rate limit or quota limit | Reduce concurrency, retry later, or check quota |
+| 500/502/503 | Temporary platform or upstream issue | Retry later and check request logs |
+
+## Notes
+
+- Use `https://opensand.ai/v1` as the Base URL in clients.
+- The model name must exactly match an `id` returned by the console or `/models`.
+- For 401 errors, check the API key first. For 404 or model errors, check the model ID.
+
+---
+
+# Responses
+
+Source: https://opensand.ai/en/docs/api/ai-model/chat/openai/createresponse
+
+---
+title: "Responses"
+source: "https://opensand.ai/en/docs/api/ai-model/chat/openai/createresponse"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Responses
+
+Create responses using the OpenAI Responses API format. Use it when your client expects the newer unified input format or reasoning-related options.
+
+## Start Here
+
+If you are new to APIs, think of a request as a structured message sent to OpenSand:
+
+- **Endpoint** decides which capability you are using, such as chat, embeddings, images, or video.
+- **API key** proves the request belongs to your account and must be sent in the `Authorization` header.
+- **model** selects the actual model and must exactly match a model ID from the console or `/models`.
+- **Request body** contains the task you want the model to perform.
+
+## Endpoint
+
+```text
+POST /responses
+```
+
+Full request URL:
+
+```text
+https://opensand.ai/v1/responses
+```
+
+If a client only asks for Base URL, use:
+
+```text
+https://opensand.ai/v1
+```
+
+## Authentication
+
+Use your OpenSand API key on every request:
+
+```http
+Authorization: Bearer sk-your-api-key
+Content-Type: application/json
+```
+
+## When To Use It
+
+Use it for newer OpenAI SDK integrations, applications that expect the `input` field, and projects standardizing on the Responses API.
+
+## Common Request Body
+
+- `model`: model ID.
+- `input`: string or structured input.
+- `stream`: return streaming output when enabled.
+- `reasoning`: configure reasoning effort for supported models.
+- `tools`: tool definitions, depending on model support.
+
+## How To Fill the Body
+
+Start with the smallest valid request, confirm it works, then add advanced parameters such as `temperature`, `stream`, tools, image size, or video options.
+
+When editing JSON:
+
+- Field names are case-sensitive, so `max_tokens` is not the same as `maxTokens`.
+- JSON strings must use double quotes.
+- If you copy an API key from the console, make sure there are no leading or trailing spaces.
+
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/responses \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","input":"Write a three-bullet product summary"}'
+```
+
+## How To Know It Worked
+
+- HTTP 200 usually means the request succeeded.
+- A response containing `id`, `choices`, `data`, or task status fields means OpenSand accepted and processed the request.
+- For streaming endpoints, the client receives multiple chunks until the stream ends.
+
+## Common Errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| 401 Unauthorized | Missing or invalid API key | Check `Authorization: Bearer sk-...` |
+| 403 Forbidden | Account, group, or model permission issue | Check account status, model access, and quota |
+| 404 Not Found | Wrong path or model | Check Base URL, endpoint path, and model ID |
+| 429 Too Many Requests | Rate limit or quota limit | Reduce concurrency, retry later, or check quota |
+| 500/502/503 | Temporary platform or upstream issue | Retry later and check request logs |
+
+## Notes
+
+- If your tool only supports Chat Completions, use `/chat/completions` instead.
+- Responses and Chat Completions return different shapes. Do not reuse response parsers blindly.
+
+---
+
+# Text Completions
+
+Source: https://opensand.ai/en/docs/api/ai-model/completions/createcompletion
+
+---
+title: "Text Completions"
+source: "https://opensand.ai/en/docs/api/ai-model/completions/createcompletion"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Text Completions
+
+Generate text with the legacy OpenAI Completions format. It is mainly for older SDKs, older projects, or tools that only accept `prompt`.
+
+## Start Here
+
+If you are new to APIs, think of a request as a structured message sent to OpenSand:
+
+- **Endpoint** decides which capability you are using, such as chat, embeddings, images, or video.
+- **API key** proves the request belongs to your account and must be sent in the `Authorization` header.
+- **model** selects the actual model and must exactly match a model ID from the console or `/models`.
+- **Request body** contains the task you want the model to perform.
+
+## Endpoint
+
+```text
+POST /completions
+```
+
+Full request URL:
+
+```text
+https://opensand.ai/v1/completions
+```
+
+If a client only asks for Base URL, use:
+
+```text
+https://opensand.ai/v1
+```
+
+## Authentication
+
+Use your OpenSand API key on every request:
+
+```http
+Authorization: Bearer sk-your-api-key
+Content-Type: application/json
+```
+
+## When To Use It
+
+Prefer `/chat/completions` for new projects. Use this endpoint only when a client explicitly requires the Completions protocol.
+
+## Common Request Body
+
+- `model`: model ID.
+- `prompt`: input text.
+- `max_tokens`: output length.
+- `temperature`: randomness.
+- `stream`: return streaming output when enabled.
+
+## How To Fill the Body
+
+Start with the smallest valid request, confirm it works, then add advanced parameters such as `temperature`, `stream`, tools, image size, or video options.
+
+When editing JSON:
+
+- Field names are case-sensitive, so `max_tokens` is not the same as `maxTokens`.
+- JSON strings must use double quotes.
+- If you copy an API key from the console, make sure there are no leading or trailing spaces.
+
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/completions \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-4o","prompt":"OpenSand is","max_tokens":80}'
+```
+
+## How To Know It Worked
+
+- HTTP 200 usually means the request succeeded.
+- A response containing `id`, `choices`, `data`, or task status fields means OpenSand accepted and processed the request.
+- For streaming endpoints, the client receives multiple chunks until the stream ends.
+
+## Common Errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| 401 Unauthorized | Missing or invalid API key | Check `Authorization: Bearer sk-...` |
+| 403 Forbidden | Account, group, or model permission issue | Check account status, model access, and quota |
+| 404 Not Found | Wrong path or model | Check Base URL, endpoint path, and model ID |
+| 429 Too Many Requests | Rate limit or quota limit | Reduce concurrency, retry later, or check quota |
+| 500/502/503 | Temporary platform or upstream issue | Retry later and check request logs |
+
+## Notes
+
+- Not every model supports the legacy Completions protocol.
+- If the model is not supported, switch to Chat Completions.
+
+---
+
+# Embeddings
+
+Source: https://opensand.ai/en/docs/api/ai-model/embeddings/openai/createembedding
+
+---
+title: "Embeddings"
+source: "https://opensand.ai/en/docs/api/ai-model/embeddings/openai/createembedding"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Embeddings
+
+Convert text into vectors for semantic search, retrieval, deduplication, clustering, and recommendation.
+
+## Start Here
+
+If you are new to APIs, think of a request as a structured message sent to OpenSand:
+
+- **Endpoint** decides which capability you are using, such as chat, embeddings, images, or video.
+- **API key** proves the request belongs to your account and must be sent in the `Authorization` header.
+- **model** selects the actual model and must exactly match a model ID from the console or `/models`.
+- **Request body** contains the task you want the model to perform.
+
+## Endpoint
+
+```text
+POST /embeddings
+```
+
+Full request URL:
+
+```text
+https://opensand.ai/v1/embeddings
+```
+
+If a client only asks for Base URL, use:
+
+```text
+https://opensand.ai/v1
+```
+
+## Authentication
+
+Use your OpenSand API key on every request:
+
+```http
+Authorization: Bearer sk-your-api-key
+Content-Type: application/json
+```
+
+## When To Use It
+
+Use it for RAG knowledge bases, similarity search, and text feature extraction. Chat models are not a drop-in replacement for embedding models.
+
+## Common Request Body
+
+- `model`: embedding model ID.
+- `input`: string or string array.
+- `encoding_format`: optional; the default is usually fine.
+
+## How To Fill the Body
+
+Start with the smallest valid request, confirm it works, then add advanced parameters such as `temperature`, `stream`, tools, image size, or video options.
+
+When editing JSON:
+
+- Field names are case-sensitive, so `max_tokens` is not the same as `maxTokens`.
+- JSON strings must use double quotes.
+- If you copy an API key from the console, make sure there are no leading or trailing spaces.
+
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/embeddings \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"text-embedding-3-small","input":"OpenSand API docs"}'
+```
+
+## How To Know It Worked
+
+- HTTP 200 usually means the request succeeded.
+- A response containing `id`, `choices`, `data`, or task status fields means OpenSand accepted and processed the request.
+- For streaming endpoints, the client receives multiple chunks until the stream ends.
+
+## Common Errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| 401 Unauthorized | Missing or invalid API key | Check `Authorization: Bearer sk-...` |
+| 403 Forbidden | Account, group, or model permission issue | Check account status, model access, and quota |
+| 404 Not Found | Wrong path or model | Check Base URL, endpoint path, and model ID |
+| 429 Too Many Requests | Rate limit or quota limit | Reduce concurrency, retry later, or check quota |
+| 500/502/503 | Temporary platform or upstream issue | Retry later and check request logs |
+
+## Notes
+
+- Vector dimensions depend on the model. Confirm your database field dimension before indexing.
+- Batching an input array can reduce request count.
+
+---
+
+# Gemini Image Generation
+
+Source: https://opensand.ai/en/docs/api/ai-model/images/gemini/geminirelayv1beta-383837589
+
+---
+title: "Gemini Image Generation"
+source: "https://opensand.ai/en/docs/api/ai-model/images/gemini/geminirelayv1beta-383837589"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# Gemini Image Generation
+
+OpenSand can provide a Gemini-compatible entry point for clients that require the Gemini protocol. Use this page only when your tool explicitly expects Gemini API formatting.
+
+## Common Uses
+
+- Use Gemini-family models for image understanding, image generation, or multimodal processing.
+- Connect third-party tools that only support Gemini API paths.
+
+## Configuration Notes
+
+- API key: use a key created in the OpenSand console.
+- Model name: use the OpenSand console or model list as the source of truth.
+- Base URL: follow the client requirement; if it supports OpenAI-compatible APIs, prefer `https://opensand.ai/v1`.
+
+## Beginner Advice
+
+Gemini protocol settings vary across clients. If you only need chat, coding, or a normal agent integration, prefer OpenAI-compatible mode. Use Gemini-compatible settings only when the tool explicitly asks for a Gemini API key or Gemini endpoint.
+
+When troubleshooting, confirm:
+
+1. Whether the tool expects Gemini or OpenAI protocol.
+2. Whether the model ID comes from the OpenSand console.
+3. Whether the Base URL matches the tool's expectation.
+
+## Recommendation
+
+If your tool supports OpenAI-compatible APIs, prefer [Chat Completions](/en/docs/api/ai-model/chat/openai/createchatcompletion). It is simpler to configure and easier to troubleshoot.
+
+---
+
+# Gemini Image Editing
+
+Source: https://opensand.ai/en/docs/api/ai-model/images/gemini/geminirelayv1beta-389846313
+
+---
+title: "Gemini Image Editing"
+source: "https://opensand.ai/en/docs/api/ai-model/images/gemini/geminirelayv1beta-389846313"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# Gemini Image Editing
+
+OpenSand can provide a Gemini-compatible entry point for clients that require the Gemini protocol. Use this page only when your tool explicitly expects Gemini API formatting.
+
+## Common Uses
+
+- Use Gemini-family models for image understanding, image generation, or multimodal processing.
+- Connect third-party tools that only support Gemini API paths.
+
+## Configuration Notes
+
+- API key: use a key created in the OpenSand console.
+- Model name: use the OpenSand console or model list as the source of truth.
+- Base URL: follow the client requirement; if it supports OpenAI-compatible APIs, prefer `https://opensand.ai/v1`.
+
+## Beginner Advice
+
+Gemini protocol settings vary across clients. If you only need chat, coding, or a normal agent integration, prefer OpenAI-compatible mode. Use Gemini-compatible settings only when the tool explicitly asks for a Gemini API key or Gemini endpoint.
+
+When troubleshooting, confirm:
+
+1. Whether the tool expects Gemini or OpenAI protocol.
+2. Whether the model ID comes from the OpenSand console.
+3. Whether the Base URL matches the tool's expectation.
+
+## Recommendation
+
+If your tool supports OpenAI-compatible APIs, prefer [Chat Completions](/en/docs/api/ai-model/chat/openai/createchatcompletion). It is simpler to configure and easier to troubleshoot.
+
+---
+
+# Image Editing
+
+Source: https://opensand.ai/en/docs/api/ai-model/images/openai/post-v1-images-edits
+
+---
+title: "Image Editing"
+source: "https://opensand.ai/en/docs/api/ai-model/images/openai/post-v1-images-edits"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Image Editing
+
+Use OpenSand with the OpenAI-compatible image editing endpoint.
+
+## Endpoint
+
+```text
+POST /images/edits
+```
+
+## When To Use It
+
+- Modify, restyle, or repaint an existing image.
+- Integrate clients or workflows that support OpenAI image APIs.
+
+## Common Parameters
+
+- `model`: image model ID enabled in the console.
+- `prompt`: image description. More specific prompts are usually more stable.
+- `size`: output size, such as `1024x1024`, depending on model support.
+- \`image\`: source image file, usually uploaded as multipart/form-data.
+- \`mask\`: optional area mask for targeted edits.
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/images/edits \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -F "model=gpt-image-1" \
+  -F "prompt=Change the background to an office" \
+  -F "image=@input.png"
+```
+
+## Notes
+
+- Available image models, sizes, and pricing depend on the console configuration.
+- Image editing usually requires multipart/form-data file upload.
+- Text-only clients cannot call image endpoints directly.
+- If generation fails, try a smaller size, simplify the prompt, and check request logs for the error.
+
+---
+
+# Image Generation
+
+Source: https://opensand.ai/en/docs/api/ai-model/images/openai/post-v1-images-generations
+
+---
+title: "Image Generation"
+source: "https://opensand.ai/en/docs/api/ai-model/images/openai/post-v1-images-generations"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Image Generation
+
+Use OpenSand with the OpenAI-compatible image generation endpoint.
+
+## Endpoint
+
+```text
+POST /images/generations
+```
+
+## When To Use It
+
+- Generate images from text prompts.
+- Integrate clients or workflows that support OpenAI image APIs.
+
+## Common Parameters
+
+- `model`: image model ID enabled in the console.
+- `prompt`: image description. More specific prompts are usually more stable.
+- `size`: output size, such as `1024x1024`, depending on model support.
+- \`n\`: number of images, depending on model limits.
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/images/generations \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"gpt-image-1","prompt":"A clean product poster","size":"1024x1024"}'
+```
+
+## Notes
+
+- Available image models, sizes, and pricing depend on the console configuration.
+- Image editing usually requires multipart/form-data file upload.
+- Text-only clients cannot call image endpoints directly.
+- If generation fails, try a smaller size, simplify the prompt, and check request logs for the error.
+
+---
+
+# Model List
+
+Source: https://opensand.ai/en/docs/api/ai-model/models/list/listmodels
+
+---
+title: "Model List"
+source: "https://opensand.ai/en/docs/api/ai-model/models/list/listmodels"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Model List
+
+List models available to the current API key. Call this before configuring a new tool to confirm model IDs.
+
+## Start Here
+
+If you are new to APIs, think of a request as a structured message sent to OpenSand:
+
+- **Endpoint** decides which capability you are using, such as chat, embeddings, images, or video.
+- **API key** proves the request belongs to your account and must be sent in the `Authorization` header.
+- **model** selects the actual model and must exactly match a model ID from the console or `/models`.
+- **Request body** contains the task you want the model to perform.
+
+## Endpoint
+
+```text
+GET /models
+```
+
+Full request URL:
+
+```text
+https://opensand.ai/v1/models
+```
+
+If a client only asks for Base URL, use:
+
+```text
+https://opensand.ai/v1
+```
+
+## Authentication
+
+Use your OpenSand API key on every request:
+
+```http
+Authorization: Bearer sk-your-api-key
+Content-Type: application/json
+```
+
+## When To Use It
+
+Use it to discover available models, check exact model IDs, and confirm whether a key can access a model.
+
+## Common Request Body
+
+GET requests do not require a request body.
+
+## Request Body
+
+This is a GET endpoint and does not require a request body. Send the correct `Authorization` header.
+
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/models \
+  -H "Authorization: Bearer sk-your-api-key"
+```
+
+## How To Know It Worked
+
+- HTTP 200 usually means the request succeeded.
+- A response containing `id`, `choices`, `data`, or task status fields means OpenSand accepted and processed the request.
+- For streaming endpoints, the client receives multiple chunks until the stream ends.
+
+## Common Errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| 401 Unauthorized | Missing or invalid API key | Check `Authorization: Bearer sk-...` |
+| 403 Forbidden | Account, group, or model permission issue | Check account status, model access, and quota |
+| 404 Not Found | Wrong path or model | Check Base URL, endpoint path, and model ID |
+| 429 Too Many Requests | Rate limit or quota limit | Reduce concurrency, retry later, or check quota |
+| 500/502/503 | Temporary platform or upstream issue | Retry later and check request logs |
+
+## Notes
+
+- Use the returned `id` as the model name in requests.
+- Different keys may see different models depending on groups, quota, or permissions.
+
+---
+
+# Gemini Model List
+
+Source: https://opensand.ai/en/docs/api/ai-model/models/list/listmodelsgemini
+
+---
+title: "Gemini Model List"
+source: "https://opensand.ai/en/docs/api/ai-model/models/list/listmodelsgemini"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.130Z"
+---
+# Gemini Model List
+
+Review Gemini-compatible models available through OpenSand. Most users can use the general `/models` endpoint.
+
+## Start Here
+
+If you are new to APIs, think of a request as a structured message sent to OpenSand:
+
+- **Endpoint** decides which capability you are using, such as chat, embeddings, images, or video.
+- **API key** proves the request belongs to your account and must be sent in the `Authorization` header.
+- **model** selects the actual model and must exactly match a model ID from the console or `/models`.
+- **Request body** contains the task you want the model to perform.
+
+## Endpoint
+
+```text
+GET /models
+```
+
+Full request URL:
+
+```text
+https://opensand.ai/v1/models
+```
+
+If a client only asks for Base URL, use:
+
+```text
+https://opensand.ai/v1
+```
+
+## Authentication
+
+Use your OpenSand API key on every request:
+
+```http
+Authorization: Bearer sk-your-api-key
+Content-Type: application/json
+```
+
+## When To Use It
+
+Use it when configuring Gemini-protocol clients or checking whether Gemini-family models are enabled.
+
+## Common Request Body
+
+GET requests do not require a request body.
+
+## Request Body
+
+This is a GET endpoint and does not require a request body. Send the correct `Authorization` header.
+
+
+## Example
+
+```bash
+curl https://opensand.ai/v1/models \
+  -H "Authorization: Bearer sk-your-api-key"
+```
+
+## How To Know It Worked
+
+- HTTP 200 usually means the request succeeded.
+- A response containing `id`, `choices`, `data`, or task status fields means OpenSand accepted and processed the request.
+- For streaming endpoints, the client receives multiple chunks until the stream ends.
+
+## Common Errors
+
+| Error | Meaning | Fix |
+|---|---|---|
+| 401 Unauthorized | Missing or invalid API key | Check `Authorization: Bearer sk-...` |
+| 403 Forbidden | Account, group, or model permission issue | Check account status, model access, and quota |
+| 404 Not Found | Wrong path or model | Check Base URL, endpoint path, and model ID |
+| 429 Too Many Requests | Rate limit or quota limit | Reduce concurrency, retry later, or check quota |
+| 500/502/503 | Temporary platform or upstream issue | Retry later and check request logs |
+
+## Notes
+
+- Some Gemini-protocol tools may ask for the site URL without `/v1`; follow the tool-specific guide.
+- Model IDs still come from the OpenSand console and `/models`.
+
+---
+
+# HappyHorse Video Generation
+
+Source: https://opensand.ai/en/docs/api/ai-model/videos/happyhorse
+
+---
+title: "HappyHorse Video Generation"
+source: "https://opensand.ai/en/docs/api/ai-model/videos/happyhorse"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# HappyHorse Video Generation
+
+HappyHorse video models use OpenSand's unified asynchronous task API. Video generation usually takes longer than text generation, so the API returns a task ID first and you poll for the result.
+
+## Flow
+
+1. Submit a generation task: `POST /v1/video/generations`.
+2. Save the returned `task_id`.
+3. Poll the task: `GET /v1/video/generations/{task_id}`.
+4. Download the video from the returned `url` when the task succeeds.
+
+## Common Parameters
+
+- `model`: video model ID enabled in the console.
+- `prompt`: video description. Include subject, action, scene, camera movement, and style.
+- `duration`: video length, depending on model support.
+- `size` / `resolution`: higher resolution is usually slower and more expensive.
+- `image` / `images`: some models support image-to-video and may require public image URLs or upload support.
+
+## Submit a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "happyhorse",
+    "prompt": "A product showcase video in natural light",
+    "duration": 5
+  }'
+```
+
+## Check a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-your-api-key"
+```
+
+## Notes
+
+- Available video models, durations, resolutions, and pricing depend on console configuration.
+- Check the returned `error` field when a task fails.
+- Download URLs are usually temporary. Save completed results promptly.
+- Beginners should test prompts with short duration and lower resolution before submitting high-quality jobs.
+
+---
+
+# PixVerse Video Generation
+
+Source: https://opensand.ai/en/docs/api/ai-model/videos/pixverse
+
+---
+title: "PixVerse Video Generation"
+source: "https://opensand.ai/en/docs/api/ai-model/videos/pixverse"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# PixVerse Video Generation
+
+PixVerse video models use OpenSand's unified asynchronous task API. Video generation usually takes longer than text generation, so the API returns a task ID first and you poll for the result.
+
+## Flow
+
+1. Submit a generation task: `POST /v1/video/generations`.
+2. Save the returned `task_id`.
+3. Poll the task: `GET /v1/video/generations/{task_id}`.
+4. Download the video from the returned `url` when the task succeeds.
+
+## Common Parameters
+
+- `model`: video model ID enabled in the console.
+- `prompt`: video description. Include subject, action, scene, camera movement, and style.
+- `duration`: video length, depending on model support.
+- `size` / `resolution`: higher resolution is usually slower and more expensive.
+- `image` / `images`: some models support image-to-video and may require public image URLs or upload support.
+
+## Submit a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "pixverse",
+    "prompt": "A product showcase video in natural light",
+    "duration": 5
+  }'
+```
+
+## Check a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-your-api-key"
+```
+
+## Notes
+
+- Available video models, durations, resolutions, and pricing depend on console configuration.
+- Check the returned `error` field when a task fails.
+- Download URLs are usually temporary. Save completed results promptly.
+- Beginners should test prompts with short duration and lower resolution before submitting high-quality jobs.
+
+---
+
+# Seedance Video Generation
+
+Source: https://opensand.ai/en/docs/api/ai-model/videos/seedance
+
+---
+title: "Seedance Video Generation"
+source: "https://opensand.ai/en/docs/api/ai-model/videos/seedance"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# Seedance Video Generation
+
+Seedance video models use OpenSand's unified asynchronous task API. Video generation usually takes longer than text generation, so the API returns a task ID first and you poll for the result.
+
+## Flow
+
+1. Submit a generation task: `POST /v1/video/generations`.
+2. Save the returned `task_id`.
+3. Poll the task: `GET /v1/video/generations/{task_id}`.
+4. Download the video from the returned `url` when the task succeeds.
+
+## Common Parameters
+
+- `model`: video model ID enabled in the console.
+- `prompt`: video description. Include subject, action, scene, camera movement, and style.
+- `duration`: video length, depending on model support.
+- `size` / `resolution`: higher resolution is usually slower and more expensive.
+- `image` / `images`: some models support image-to-video and may require public image URLs or upload support.
+
+## Submit a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "seedance",
+    "prompt": "A product showcase video in natural light",
+    "duration": 5
+  }'
+```
+
+## Check a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-your-api-key"
+```
+
+## Notes
+
+- Available video models, durations, resolutions, and pricing depend on console configuration.
+- Check the returned `error` field when a task fails.
+- Download URLs are usually temporary. Save completed results promptly.
+- Beginners should test prompts with short duration and lower resolution before submitting high-quality jobs.
+
+---
+
+# Veo 3.1 Video Generation
+
+Source: https://opensand.ai/en/docs/api/ai-model/videos/veo31
+
+---
+title: "Veo 3.1 Video Generation"
+source: "https://opensand.ai/en/docs/api/ai-model/videos/veo31"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# Veo 3.1 Video Generation
+
+Veo 3.1 video models use OpenSand's unified asynchronous task API. Video generation usually takes longer than text generation, so the API returns a task ID first and you poll for the result.
+
+## Flow
+
+1. Submit a generation task: `POST /v1/video/generations`.
+2. Save the returned `task_id`.
+3. Poll the task: `GET /v1/video/generations/{task_id}`.
+4. Download the video from the returned `url` when the task succeeds.
+
+## Common Parameters
+
+- `model`: video model ID enabled in the console.
+- `prompt`: video description. Include subject, action, scene, camera movement, and style.
+- `duration`: video length, depending on model support.
+- `size` / `resolution`: higher resolution is usually slower and more expensive.
+- `image` / `images`: some models support image-to-video and may require public image URLs or upload support.
+
+## Submit a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "veo-3.1",
+    "prompt": "A product showcase video in natural light",
+    "duration": 5
+  }'
+```
+
+## Check a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-your-api-key"
+```
+
+## Notes
+
+- Available video models, durations, resolutions, and pricing depend on console configuration.
+- Check the returned `error` field when a task fails.
+- Download URLs are usually temporary. Save completed results promptly.
+- Beginners should test prompts with short duration and lower resolution before submitting high-quality jobs.
+
+---
+
+# Wanx 2.7 Video Generation
+
+Source: https://opensand.ai/en/docs/api/ai-model/videos/wanx27
+
+---
+title: "Wanx 2.7 Video Generation"
+source: "https://opensand.ai/en/docs/api/ai-model/videos/wanx27"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.131Z"
+---
+# Wanx 2.7 Video Generation
+
+Wanx 2.7 video models use OpenSand's unified asynchronous task API. Video generation usually takes longer than text generation, so the API returns a task ID first and you poll for the result.
+
+## Flow
+
+1. Submit a generation task: `POST /v1/video/generations`.
+2. Save the returned `task_id`.
+3. Poll the task: `GET /v1/video/generations/{task_id}`.
+4. Download the video from the returned `url` when the task succeeds.
+
+## Common Parameters
+
+- `model`: video model ID enabled in the console.
+- `prompt`: video description. Include subject, action, scene, camera movement, and style.
+- `duration`: video length, depending on model support.
+- `size` / `resolution`: higher resolution is usually slower and more expensive.
+- `image` / `images`: some models support image-to-video and may require public image URLs or upload support.
+
+## Submit a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "wanx-2.7",
+    "prompt": "A product showcase video in natural light",
+    "duration": 5
+  }'
+```
+
+## Check a Task
+
+```bash
+curl https://opensand.ai/v1/video/generations/task_xxx \
+  -H "Authorization: Bearer sk-your-api-key"
+```
+
+## Notes
+
+- Available video models, durations, resolutions, and pricing depend on console configuration.
+- Check the returned `error` field when a task fails.
+- Download URLs are usually temporary. Save completed results promptly.
+- Beginners should test prompts with short duration and lower resolution before submitting high-quality jobs.
+
+---
+
+# App Integrations
+
+Source: https://opensand.ai/en/docs/apps
+
+---
+title: "App Integrations"
+source: "https://opensand.ai/en/docs/apps"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.128Z"
+---
+# App Integrations
+
+Any tool that supports OpenAI Compatible, Custom Endpoint, or custom Base URL can usually connect to OpenSand.
+
+## Common Settings
+
+| Field | Value |
+|---|---|
+| Base URL | `https://opensand.ai/v1` |
+| API Key | A key created in the OpenSand console |
+| Model | A model ID returned by the console or `/v1/models` |
+
+## Recommended Apps
+
+| App | Best For |
+|---|---|
+| [Cherry Studio](/en/docs/apps/cherry-studio) | Desktop chat and model comparison |
+| [Claude Code](/en/docs/apps/claude-code) | Terminal coding with Claude protocol tools |
+| [Codex CLI](/en/docs/apps/codex-cli) | Command-line development agent |
+| [OpenCode](/en/docs/apps/opencode) | Terminal coding agent |
+| [OpenClaw](/en/docs/apps/openclaw) | Self-hosted multi-channel agents |
+| [AionUi](/en/docs/apps/aionui) | Local AI workspace |
+
+## All Apps
+
+- [AionUi](/en/docs/apps/aionui)
+- [AstrBot](/en/docs/apps/astrbot)
+- [CC Switch](/en/docs/apps/cc-switch)
+- [Cherry Studio](/en/docs/apps/cherry-studio)
+- [Claude Code](/en/docs/apps/claude-code)
+- [CodeBuddy](/en/docs/apps/codebuddy)
+- [Codex CLI](/en/docs/apps/codex-cli)
+- [Copilot CLI](/en/docs/apps/copilot-cli)
+- [Crush](/en/docs/apps/crush)
+- [Factory Droid CLI](/en/docs/apps/factory-droid-cli)
+- [FluentRead](/en/docs/apps/fluent-read)
+- [Hermes Agent](/en/docs/apps/hermes-agent)
+- [LangBot](/en/docs/apps/langbot)
+- [LunaTranslator](/en/docs/apps/luna-translator)
+- [Memoh](/en/docs/apps/memoh)
+- [nanobot](/en/docs/apps/nanobot)
+- [Oh My Pi](/en/docs/apps/oh-my-pi)
+- [OpenClaw](/en/docs/apps/openclaw)
+- [OpenCode](/en/docs/apps/opencode)
+- [Pi](/en/docs/apps/pi-mono)
+
+---
+
+# AionUi
+
+Source: https://opensand.ai/en/docs/apps/aionui
+
+---
+title: "AionUi"
+source: "https://opensand.ai/en/docs/apps/aionui"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.132Z"
+---
+# AionUi
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+🚀 AionUi is a free, local, open-source Cowork that supports multiple AI agents such as Gemini CLI, Claude Code, Codex, OpenCode, Qwen Code, Goose CLI, Auggie, and more. It provides a complete GUI interface and WebUI remote access functionality, serving as an open-source alternative to Cowork.
+
+- Official Website: [https://www.aionui.com](https://www.aionui.com)
+- GitHub Repository: [https://github.com/iOfficeAI/AionUi](https://github.com/iOfficeAI/AionUi)
+- Download Address: [https://github.com/iOfficeAI/AionUi/releases](https://github.com/iOfficeAI/AionUi/releases)
+
+![AionUi Logo](../../../pictures/apps/aionui/aionui_logo.png)
+
+## Core Features
+
+### 💬 Multi-Session Chat
+- **Multi-Session + Independent Context** - Open multiple chat sessions simultaneously, each session has independent context memory
+- **Local Storage** - All conversation data is saved in a local SQLite database and will not be lost
+
+### 🤖 Multi-Model Support
+- **Multi-Platform Support** - Supports mainstream models like Gemini, OpenAI, Claude, Qwen, flexible switching
+- **Local Model Support** - Supports local model deployment like Ollama, LM Studio
+
+### 🤝 Multi-Agent Mode
+- **Run Multiple AI Agents Simultaneously** - Can run multiple AI agents simultaneously (such as Gemini CLI, Claude Code, Codex, OpenCode, Qwen Code, Goose CLI, Auggie, etc.)
+- **MCP Unified Management** - Unified management and configuration of all agents through Model Context Protocol (MCP), simplifying operations
+- **Skills Configuration** - Support configuring dedicated Skills for different agents to extend agent capabilities
+- **Assistant Customization** - Support custom assistant configuration to create personalized AI workflows
+- **Independent Configuration** - Each agent can be configured and used independently without interference
+- **Flexible Switching** - Flexibly switch between different agents to meet various scenario needs
+
+### 🗂️ File Management
+- **File Tree Browsing + Drag & Drop Upload** - Browse files like folders, support drag and drop files or folders for one-click import
+- **Smart Organization** - Let AI help organize folders with automatic classification
+
+### 📄 Preview Panel
+- **9+ Format Preview** - Supports PDF, Word, Excel, PPT, code, Markdown, images, and other formats
+- **Real-time Tracking + Editable** - Automatically tracks file changes, supports real-time editing and debugging of Markdown, code, HTML
+
+### 🎨 AI Image Generation & Editing
+- **Intelligent Image Generation** - Supports multiple image generation models like Gemini 2.5 Flash Image Preview, Nano, Banana
+- **Image Recognition & Editing** - AI-driven image analysis and editing features
+
+### 🌐 Multi-Channel Access
+- **WebUI Remote Access** - Access from any device on the network via browser, supports mobile devices
+- **Telegram Integration** - Support interaction through Telegram bot
+- **Feishu Integration** - Support access and interaction through Feishu
+- **Local Data Security** - All data stored in local SQLite database, suitable for server deployment
+
+## OpenSand Configuration Steps
+
+1. **Copy API key in OpenSand**
+   ![Copy API Key](../../../pictures/apps/aionui/copy_apikey.png)
+
+2. **Open AionUi Settings**
+   - Enter the settings page in AionUi
+   - Find the Model Configuration Tab
+   - Click "Add Model"
+   ![Open Settings](../../../pictures/apps/aionui/add-model-1.png)
+
+3. **Add New Provider**
+   - Click "Add Model"
+   - Select OpenSand
+   ![Add OpenSand Provider](../../../pictures/apps/aionui/newapi_provider.png)
+
+4. **Configure API Information**
+   - API Address: Fill in your OpenSand site address (format: `https://opensand.ai/v1`)
+   - API Key: Paste the API Key copied from OpenSand console
+
+5. **Add Models**
+   - Select the model to add from the dropdown
+   - Model name should match the model name configured in OpenSand
+   - Select the appropriate request protocol
+
+6. **Start Using**
+   - Return to the chat page
+   - Select the configured OpenSand model to start a conversation
+
+## Related Links
+
+- [GitHub Repository](https://github.com/iOfficeAI/AionUi)
+- [Complete Usage Guide](https://github.com/iOfficeAI/AionUi#-detailed-usage-guide)
+- [FAQ](https://github.com/iOfficeAI/AionUi#-support--help)
+
+---
+
+# AstrBot
+
+Source: https://opensand.ai/en/docs/apps/astrbot
+
+---
+title: "AstrBot"
+source: "https://opensand.ai/en/docs/apps/astrbot"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.132Z"
+---
+# AstrBot - Agent Chatbot
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+AstrBot is an open-source, all-in-one Agent chatbot platform that seamlessly
+integrates large model capabilities into mainstream instant messaging software
+such as QQ, Feishu, DingTalk, and WeChat Work, building reliable and scalable
+conversational AI infrastructure for individuals, developers, and teams.
+Whether it's a personal AI companion, smart customer service, automation
+assistant, or enterprise knowledge base, AstrBot can quickly build
+production-ready AI applications within your instant messaging software
+platform's workflow.
+
+- Official Website: [https://astrbot.app](https://astrbot.app)
+- Official Documentation: [https://docs.astrbot.app](https://docs.astrbot.app)
+- Project Homepage: [https://github.com/astrbotdevs/astrbot](https://github.com/astrbotdevs/astrbot)
+
+## OpenSand Integration Method
+
+AstrBot supports integrating OpenSand as a model provider, allowing users to access and use various AI model services through OpenSand.
+
+### Configuration Steps
+
+#### Obtain OpenSand API Key
+
+After registering and logging in to OpenSand, click 'Console' in the top navigation bar, click 'Token Management', then click the 'Add Token' button to create a new API Key, select appropriate permissions, and then click 'Create'.
+
+![create-api-key](../../../pictures/apps/astrbot/image.png)
+
+After successful creation, click the 'Copy Key' button to copy the generated API Key.
+
+![copy-api-key](../../../pictures/apps/astrbot/image-1.png)
+
+#### Configure OpenSand Service Provider in AstrBot
+
+Open the AstrBot management panel, go to the 'Model Providers' page, then click the 'Add Model Provider' button.
+
+OpenSand perfectly supports OpenAI Chat Completion and Responses interfaces. We click 'OpenAI' to enter the OpenAI provider's configuration page.
+
+In the pop-up dialog box, set the API Base URL to OpenSand's interface address. Use the OpenSand endpoint, for example `https://opensand.ai/v1`.
+
+Then, enter the API Key into the 'API Key' field and click the 'Save' button.
+
+![astrbot-provider-config](../../../pictures/apps/astrbot/image-2.png)
+
+Then click Save to complete the OpenSand provider configuration.
+
+#### Apply Service Provider
+
+Go to the 'Configuration File' page, find the 'Models' section, change 'Default Chat Model' to the OpenSand provider you just created, and click the 'Save' button.
+
+![apply](../../../pictures/apps/astrbot/image-3.png)
+
+At this point, you have successfully configured OpenSand as AstrBot's model provider. Now, you can access and use various AI model services provided by OpenSand through AstrBot.
+
+---
+
+# CC Switch
+
+Source: https://opensand.ai/en/docs/apps/cc-switch
+
+---
+title: "CC Switch"
+source: "https://opensand.ai/en/docs/apps/cc-switch"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.133Z"
+---
+# CC Switch
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Chat Settings Option**
+
+In the OpenSand console under System Settings -> Chat Settings, you can add the following shortcut to enable one-click fill for CC Switch from the token management page:
+
+    ```json
+    { "CC Switch": "ccswitch" }
+    ```
+
+🔀 CC Switch is an open-source, cross-platform all-in-one AI CLI management tool. It supports
+one-click provider switching for Claude Code, Codex and Gemini CLI, unified MCP server management,
+system prompts management, and Skills extension management — letting you freely switch between
+multiple AI coding assistants without manually editing config files.
+
+- GitHub Repository: [https://github.com/farion1231/cc-switch](https://github.com/farion1231/cc-switch)
+- Download: [GitHub Releases](https://github.com/farion1231/cc-switch/releases)
+
+## Key Features
+
+### 🔌 Provider Management
+- **One-click switching** — Switch between Claude Code, Codex, and Gemini API configs instantly, no manual env vars or config file editing
+- **Multi-endpoint support** — Configure multiple endpoints per provider with API key management and latency speed tests
+- **4-tier model config** — Granular model selection across Haiku / Sonnet / Opus / Custom tiers
+
+### 🛠️ MCP Server Management
+- **Unified cross-app management** — Manage MCP servers for Claude / Codex / Gemini from a single panel
+- **Three transport types** — Supports stdio, HTTP, and SSE (Server-Sent Events)
+- **Auto sync** — Unified import/export with bidirectional synchronization
+
+### 💬 Prompts Management
+- **Multi-preset system prompts** — Unlimited presets with quick switching
+- **Cross-app support** — Claude (`CLAUDE.md`), Codex (`AGENTS.md`), Gemini (`GEMINI.md`)
+- **Markdown editor** — CodeMirror 6 with live preview
+
+### 🌐 Multi-platform Support
+- **Desktop app** — Native installers for Windows, macOS, and Linux
+- **Web version** — Browser-accessible interface for headless servers / SSH environments
+- **CLI version** — Both interactive menu-driven and command-line modes
+
+## OpenSand Integration
+
+CC Switch supports the `ccswitch://` Deep Link protocol, allowing one-click provider config import from the OpenSand token management page.
+
+### Configuration Steps
+
+1. **On the OpenSand token management page, click the dropdown menu for the corresponding token**
+   Select the **CC Switch** option from the menu. The system will automatically launch CC Switch and open the configuration dialog.
+
+2. **Complete the configuration in the dialog**
+   ![CC Switch Configuration Dialog](../../../pictures/apps/cc_switch/fill_dialog.png)
+
+   Field descriptions:
+   - **Application**: Switch app type at the top — **Claude** / **Codex** / **Gemini**, select the target application as needed
+   - **Name**: Enter a name for this config (e.g. `My Claude`) to easily identify and switch in CC Switch later
+   - **Main Model** (required) — The primary model to use by default
+   - **Haiku Model** — Lightweight, fast model
+   - **Sonnet Model** — Balanced model
+   - **Opus Model** — Most capable model
+
+   All models are dropdown selections; unselected fields show "Please select model".
+
+3. **Finish**
+   Click **"Open CC Switch"** to import the config into CC Switch and start using it; click **"Cancel"** to discard.
+
+## Installation
+
+### macOS (Homebrew recommended)
+
+```shell
+brew tap farion1231/ccswitch
+brew install --cask cc-switch
+```
+
+### Windows
+
+Download the `.msi` installer or portable `.zip` from [Releases](https://github.com/farion1231/cc-switch/releases).
+
+### Linux
+
+Download the `.deb` package or `.AppImage` from [Releases](https://github.com/farion1231/cc-switch/releases).
+
+ArchLinux users:
+
+```shell
+paru -S cc-switch-bin
+```
+
+### Web Version (Headless / SSH Servers)
+
+```shell
+wget https://github.com/farion1231/cc-switch/releases/latest/download/cc-switch-web-linux-x64.tar.gz
+tar -xzf cc-switch-web-linux-x64.tar.gz
+cd cc-switch-web/
+./cc-switch-web
+```
+
+Default port `17666`, access via browser at `http://localhost:17666`.
+
+## Related Links
+
+- [GitHub Repository](https://github.com/farion1231/cc-switch)
+- [Changelog](https://github.com/farion1231/cc-switch/blob/main/CHANGELOG.md)
+- [Web Version Repository](https://github.com/cp-yu/cc-switch-web)
+- [CLI Version Repository](https://github.com/thomas-jack/cc-switch-cli)
+
+---
+
+# Cherry Studio
+
+Source: https://opensand.ai/en/docs/apps/cherry-studio
+
+---
+title: "Cherry Studio"
+source: "https://opensand.ai/en/docs/apps/cherry-studio"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.133Z"
+---
+# Cherry Studio
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Chat Settings Options**
+
+In the System Settings -> Chat Settings of the OpenSand console, the following
+shortcut options can be added to easily populate Cherry Studio with a single
+click on the token management page:
+
+    ```json
+    { "Cherry Studio": "cherrystudio://providers/api-keys?v=1&data={cherryConfig}" }
+    ```
+
+🍒 Cherry Studio is a powerful desktop AI client designed for professional
+users, integrating 30+ industry-specific intelligent assistants to meet the
+needs of various work scenarios and significantly improve work efficiency.
+
+- Official Website: [https://cherry-ai.com](https://cherry-ai.com/)
+- Download Address: [https://cherry-ai.com/download](https://cherry-ai.com/download)
+- Official Documentation: [https://docs.cherry-ai.com](https://docs.cherry-ai.com)
+
+## OpenSand Integration Method
+
+### Parameter Configuration
+
+Provider Type: OpenSand supported types
+API Key: Obtained from OpenSand
+API Address: OpenSand site address
+
+### Visual Guide
+
+1. Copy API key in OpenSand
+   ![Copy API Key](../../../pictures/apps/cherry_studio/copy_api_key.png)
+
+2. Add Provider
+   ![Add Provider](../../../pictures/apps/cherry_studio/add_provider.png)
+
+3. Add Models
+   ![Add Models](../../../pictures/apps/cherry_studio/add_models.png)
+
+4. Return to Chat Page
+   ![Switch to Chat Page](../../../pictures/apps/cherry_studio/back_to_chat.png)
+
+5. Switch OpenSand Model
+   ![Switch Model](../../../pictures/apps/cherry_studio/switch_model.png)
+
+---
+
+# Claude Code
+
+Source: https://opensand.ai/en/docs/apps/claude-code
+
+---
+title: "Claude Code"
+source: "https://opensand.ai/en/docs/apps/claude-code"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.134Z"
+---
+# Claude Code
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+Unleash Claude's raw power directly in your terminal. Search million-line codebases instantly. Turn hours-long workflows into a single command. Your tools. Your workflow. Your codebase, evolving at thought speed.
+
+- Official Homepage: [https://www.anthropic.com/claude-code](https://www.anthropic.com/claude-code)
+
+### Features
+
+| **Category**                       | **Feature**                                                                                                        |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Code Understanding**             | Deep codebase analysis, utilizing intelligent agents to search and understand project structure and dependencies |
+|                                    | Automatically generates high-level code overviews, quickly helping users understand the codebase                 |
+| **Code Editing**                   | Supports multi-file collaborative editing, suitable for complex code modifications                               |
+|                                    | Provides practical and usable code suggestions that align with project patterns and architecture                 |
+| **Integration Capabilities**       | Supports direct execution in the terminal, eliminating context switching                                         |
+|                                    | Seamless integration with VS Code and JetBrains IDEs, no copy-pasting required                                   |
+| **Code Generation & Optimization** | Automatically generates code, creates tests, fixes bugs, supporting the complete process from concept to commit  |
+|                                    | Optimized for code generation and understanding, combining advanced models like Claude Opus 4                    |
+| **Security & Flexibility**         | Changes require explicit user authorization, ensuring safer file and command operations                          |
+|                                    | Adapts to user code standards, supports custom configurations                                                    |
+| **Toolchain Integration**          | Supports integration with tools like GitHub and GitLab to achieve automated workflows                            |
+|                                    | Integrates with test suites and build systems, enhancing existing development tools                              |
+| **Cross-Platform & Extensibility** | Supports Windows, macOS, and Linux operating systems                                                             |
+|                                    | Configurable to run in SDKs or GitHub Actions, flexibly adapting to different needs                              |
+| **Key Application Scenarios**      | Codebase onboarding and understanding, quick ramp-up for new members                                             |
+|                                    | Code issue fixing and optimization processes, from problem analysis to PR submission                             |
+|                                    | Project code refactoring and new feature implementation                                                          |
+| **User Feedback Highlights**       | Improves daily development efficiency, saving time spent on routine tasks                                        |
+|                                    | Excellent performance in handling complex multi-step tasks, expanding development possibilities                  |
+
+## AI Model Configuration Method
+
+### Windows Graphical Guide
+
+#### 1. Install Node.js Environment
+
+Claude Code requires a Node.js environment to run.
+
+**Node.js Environment Installation Steps**
+
+- Open your browser and visit https://nodejs.org/
+- Click the "LTS" version to download (Long Term Support version recommended)
+- After downloading, double-click the .msi file
+- Follow the installation wizard to complete the installation, keeping default settings
+
+**Windows Notes**
+
+- It is recommended to use PowerShell instead of CMD
+- If you encounter permission issues, try running as administrator
+- Some antivirus software may report false positives; you may need to add an exception
+
+![windows-img-01.webp](../../../pictures/apps/claude_code/windows-img-01.webp)
+
+![windows-img-02.webp](../../../pictures/apps/claude_code/windows-img-02.webp)
+
+![windows-img-03.webp](../../../pictures/apps/claude_code/windows-img-03.webp)
+
+![windows-img-05.webp](../../../pictures/apps/claude_code/windows-img-05.webp)
+
+**Verify Installation Success**
+
+After installation, open PowerShell or CMD and enter the following commands:
+
+```bash
+node --version
+npm --version
+```
+
+If version numbers are displayed, the installation was successful.
+
+#### 2. Install Git Bash
+
+**Windows Notes**
+
+In a Windows environment, Git Bash is required to install Claude Code. After installation, environment variable setup and using Claude Code will still be done in regular PowerShell or CMD.
+
+**Download and Install Git for Windows**
+
+- Visit https://git-scm.com/downloads/win
+- Click "Download for Windows" to download the installer
+- Run the downloaded .exe installation file
+- Keep default settings during installation, and click "Next" to complete the installation
+
+![windows-img-08.webp](../../../pictures/apps/claude_code/windows-img-08.webp)
+
+**Verify Git Bash Installation**
+
+After installation, open Git Bash and enter the following command to verify:
+
+```bash
+git --version
+```
+
+If a version number is displayed, the installation was successful.
+
+#### 3. Install Claude Code
+
+**Install Claude Code**
+
+Open PowerShell and run the following command:
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+This command will download and install the latest version of Claude Code from the official npm repository.
+
+![windows-img-09.webp](../../../pictures/apps/claude_code/windows-img-09.webp)
+
+**Add ~/.local/bin to PATH (only if prompted)**
+
+```powershell
+[Environment]::SetEnvironmentVariable('Path', ([Environment]::GetEnvironmentVariable('Path','User') + ";$HOME\.local\bin"), 'User')
+```
+
+**Verify Claude Code Installation**
+
+After installation, enter the following command to check if it was successfully installed:
+
+```bash
+claude --version
+```
+
+If a version number is displayed, congratulations! Claude Code has been successfully installed.
+
+#### 4. Set Environment Variables
+
+**One-Click Setup Command (Windows System)**
+
+To allow Claude Code to connect to your relay service, you need to set multiple environment variables:
+
+```powershell
+iex (irm 'https://opensand.ai/scripts/claude-cli-setup.ps1')
+```
+
+![windows-configure](../../../pictures/apps/claude_code/windows_configure.png)
+
+#### 5. Start Using Claude Code
+
+You can now start using Claude Code!
+
+**Launch Claude Code**
+
+Open PowerShell and launch Claude Code directly:
+
+```bash
+claude
+```
+
+To use in a specific project:
+
+```bash
+# Navigate to your project directory
+cd C:\path\to\your\project
+
+# Launch Claude Code
+claude
+```
+
+![windows-img-11.webp](../../../pictures/apps/claude_code/windows-img-11.webp)
+
+![windows-img-12.webp](../../../pictures/apps/claude_code/windows-img-12.webp)
+
+![windows-img-13.webp](../../../pictures/apps/claude_code/windows-img-13.webp)
+
+![windows-img-14.webp](../../../pictures/apps/claude_code/windows-img-14.webp)
+
+![windows-img-15.webp](../../../pictures/apps/claude_code/windows-img-15.webp)
+
+**Select Model**
+
+Enter the command:
+
+```bash
+/model
+```
+
+Press Enter to select a model; usually, the default settings are sufficient.
+
+![windows-img-16.webp](../../../pictures/apps/claude_code/windows-img-16.webp)
+
+![windows-img-17.webp](../../../pictures/apps/claude_code/windows-img-17.webp)
+
+> Note: After modifying environment variables, all models (including officially preset models) will call the custom access point instead of using official account quotas.
+
+### macOS Graphical Guide
+
+#### 1. Install Claude Code CLI
+
+Open Terminal.app
+
+**Install Claude Code**
+
+Open Terminal and run the following command:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+Optional: Run the provided command when prompted
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+```
+
+![macos-img-02.webp](../../../pictures/apps/claude_code/macos-img-02.webp)
+
+#### 2. Set Environment Variables
+
+To allow Claude Code to connect to OpenSand, set these environment variables:
+
+**One-Click Setup for Claude Code Environment Variables**
+
+Enter the command:
+
+```bash
+curl -fsSL https://opensand.ai/scripts/claude-cli-setup.sh | bash
+```
+
+![macos-configure](../../../pictures/apps/claude_code/macos_configure.png)
+
+**Verify Claude Code Installation**
+
+After installation, enter the following command to check if it was successfully installed:
+
+```bash
+claude --version
+```
+
+If a version number is displayed, congratulations! Claude Code has been successfully installed.
+
+#### 3. Start Using Claude Code
+
+You can now start using Claude Code!
+
+**Launch Claude Code**
+
+Launch Claude Code directly:
+
+```bash
+claude
+```
+
+To use in a specific project:
+
+```bash
+# Navigate to your project directory
+cd /path/to/your/project
+
+# Launch Claude Code
+claude
+```
+
+![macos-img-04.webp](../../../pictures/apps/claude_code/macos-img-04.webp)
+
+![macos-img-05.webp](../../../pictures/apps/claude_code/macos-img-05.webp)
+
+![macos-img-08.webp](../../../pictures/apps/claude_code/macos-img-08.webp)
+
+**Select Model (Optional)**
+
+Enter the command:
+
+```bash
+/model
+```
+
+Press Enter to select an official model; usually, the default model is sufficient.
+
+> Note: After modifying the `ANTHROPIC_BASE_URL` environment variable, all models (including officially preset models) will call the custom access point instead of using official account quotas.
+
+#### 4. macOS Common Issues
+
+**macOS Security Settings Preventing Execution**
+
+If the system prevents Claude Code from running:
+
+- Open "System Preferences" → "Security & Privacy"
+- Click "Open Anyway" or "Allow"
+- Or run in Terminal: `sudo spctl --master-disable`
+
+### Linux Graphical Guide
+
+#### 1. Install Claude Code
+
+![linux-img-01.webp](../../../pictures/apps/claude_code/linux-img-01.webp)
+
+**Install Claude Code**
+
+Open Terminal and run the following command:
+
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+If you encounter permission issues, you can use sudo:
+
+```bash
+sudo curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Verify Claude Code Installation**
+
+After installation, enter the following command to check if it was successfully installed:
+
+```bash
+claude --version
+```
+
+If a version number is displayed, congratulations! Claude Code has been successfully installed.
+
+#### 2. Set Environment Variables
+
+To allow Claude Code to connect to your relay service, you need to set two environment variables:
+
+**One-Click Environment Variable Modification**
+
+Enter the command:
+
+```bash
+curl -fsSL https://opensand.ai/scripts/claude-cli-setup.sh | bash
+```
+
+![macos-configure](../../../pictures/apps/claude_code/macos_configure.png)
+
+#### 3. Start Using Claude Code
+
+You can now start using Claude Code!
+
+**Launch Claude Code**
+
+Launch Claude Code directly:
+
+```bash
+claude
+```
+
+To use in a specific project:
+
+```bash
+# Navigate to your project directory
+cd /path/to/your/project
+
+# Launch Claude Code
+claude
+```
+
+![linux-img-04.webp](../../../pictures/apps/claude_code/linux-img-04.webp)
+
+**Select Model**
+
+Enter the command:
+
+```bash
+/model
+```
+
+Press Enter to select an official model; usually, the default model is sufficient.
+
+> Note: After modifying the `ANTHROPIC_BASE_URL` environment variable, all models (including officially preset models) will call the custom access point instead of using official account quotas.
+
+#### 4. Linux Common Issues
+
+**Missing Dependency Libraries**
+
+Some Linux distributions require additional dependencies to be installed:
+
+```bash
+# Ubuntu/Debian
+sudo apt install build-essential
+
+# CentOS/RHEL
+sudo dnf groupinstall "Development Tools"
+```
+
+**Environment Variables Not Taking Effect**
+
+Check the following points:
+
+- Confirm that you modified the correct configuration file (`.bashrc` or `.zshrc`)
+- Restart the terminal or run `source ~/.bashrc`
+- Verify settings: `echo $ANTHROPIC_BASE_URL`
+
+---
+
+# CodeBuddy
+
+Source: https://opensand.ai/en/docs/apps/codebuddy
+
+---
+title: "CodeBuddy"
+source: "https://opensand.ai/en/docs/apps/codebuddy"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.134Z"
+---
+# CodeBuddy
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+**WorkBuddy / CodeBuddy** is an AI agent and coding assistant that manages available models via a local **JSON config file**. It talks to models through the standard OpenAI-compatible Chat Completions API, making it easy to point at OpenSand.
+
+## 📦 Prerequisites
+
+**What you'll need**
+
+- WorkBuddy / CodeBuddy installed
+- An OpenSand endpoint (must end with `/v1`)
+- An OpenSand API key (generated in the console)
+- A model ID exactly matching one exposed by your OpenSand console (e.g. `claude-sonnet-4-6`, `gemini-2.5-flash`)
+
+## 🚀 Step 1: Edit the model config file
+
+Find the local JSON model config (usually under your user directory). Add the OpenSand models:
+
+```json
+{
+  "models": [
+    {
+      "id": "claude-sonnet-4-6",
+      "name": "Claude Sonnet 4.6 (OpenSand)",
+      "vendor": "OpenSand",
+      "url": "https://opensand.ai/v1/chat/completions",
+      "apiKey": "${OPENSAND_API_KEY}",
+      "maxInputTokens": 200000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": true,
+      "supportsImages": true
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "name": "Gemini 2.5 Flash (OpenSand)",
+      "vendor": "OpenSand",
+      "url": "https://opensand.ai/v1/chat/completions",
+      "apiKey": "${OPENSAND_API_KEY}",
+      "maxInputTokens": 1000000,
+      "maxOutputTokens": 8192,
+      "supportsToolCall": true,
+      "supportsImages": false
+    }
+  ],
+  "availableModels": [
+    "claude-sonnet-4-6",
+    "gemini-2.5-flash"
+  ]
+}
+```
+
+**Field notes**
+
+- `url` must be the **full Chat Completions endpoint** (including `/v1/chat/completions`)
+- `id` must match the model ID exposed by your OpenSand console
+- Adjust `maxInputTokens` / `maxOutputTokens` to the real capability of each model
+- `availableModels` controls which models appear in the UI
+
+## 🔑 Step 2: Set the API key environment variable
+
+### Linux / macOS
+
+```bash
+```
+
+### Windows (PowerShell)
+
+```powershell
+$env:OPENSAND_API_KEY="your-opensand-api-key"
+```
+
+Persist it in your shell profile (`~/.bashrc` / `~/.zshrc` / PowerShell Profile) so you don't have to re-export every session.
+
+## ✅ Step 3: Verify
+
+Launch WorkBuddy / CodeBuddy, pick an OpenSand model (e.g. `claude-sonnet-4-6`) from the model switcher, and send a test message:
+
+```
+Write a quicksort implementation in TypeScript.
+```
+
+A normal response means you're set.
+
+## ❓ Troubleshooting
+
+| Issue | Fix |
+|------|----------|
+| New model doesn't show in the picker | Check `availableModels` contains the ID and restart the app |
+| 401 / Invalid API key | Confirm the env var is set and the process picked up the new value |
+| `url must end with /chat/completions` | Use the full endpoint, **not** just `/v1` |
+| Model not found | Make sure `id` exactly matches your OpenSand console |
+| Output truncated | Raise `maxOutputTokens` |
+
+---
+
+# Codex CLI
+
+Source: https://opensand.ai/en/docs/apps/codex-cli
+
+---
+title: "Codex CLI"
+source: "https://opensand.ai/en/docs/apps/codex-cli"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.135Z"
+---
+# Codex CLI
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+Codex CLI is a coding agent from OpenAI that runs locally on your computer.
+
+- Official Homepage: [https://chatgpt.com/codex](https://chatgpt.com/codex)
+- Project Homepage: [https://github.com/openai/codex](https://github.com/openai/codex)
+
+## Demo
+
+![introduce-01.webp](../../../pictures/apps/codex/introduce-01.webp)
+
+### Features
+
+| **Feature Category**            | **Feature**                                                                                                                                                                          |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Terminal-based Coding Assistant | Codex CLI is a terminal-based interactive coding assistant for editing code, generating patches, and running commands in the command line.                                           |
+| Tool-driven Architecture        | Provides tools such as `apply_patch`, `shell`, `update_plan`, and `multi_tool_use` for controlled modifications to repository files and operations.                                  |
+| Atomic Patch Editing            | Uses a dedicated patch format to atomically add/update/delete files via `apply_patch`, facilitating auditing and rollback.                                                           |
+| Sandboxing and Approval         | Supports sandboxing policies (e.g., `workspace-write`, `read-only`) and approval modes (`on-request`, `on-failure`, `never`) to control write and network access permissions.        |
+| Plan Tracking                   | `update_plan` is used to list steps and track status, requiring only one `in_progress` step at all times to maintain clear progress.                                                 |
+| Interaction Protocol            | Sends brief introductory explanations before important operations, maintaining a friendly, concise tone and providing progress updates.                                              |
+| Security Constraints            | Adheres to strict rules (no arbitrary changes to unrelated files, no adding copyright headers, no executing destructive commands), requiring user approval for sensitive operations. |
+| Testing and Formatting          | Recommends running relevant tests and formatting tools after modifications, but is not responsible for fixing issues unrelated to the current task.                                  |
+| Output and Style                | Final output follows CLI rendering specifications (e.g., `**` for headings, backticks for paths/commands), maintaining a scannable, concise structure.                               |
+| Parallel Execution              | Supports running multiple tools in parallel via `multi_tool_use.parallel` to improve efficiency.                                                                                     |
+
+## AI Model Configuration Method
+
+### Windows Graphical Guide
+
+#### 1. Open Terminal
+
+#### 2. Install WSL
+
+For optimal performance on Windows, install and use Windows Subsystem for Linux (WSL2).
+
+**Install WSL2, Restart Windows Computer**
+
+```powershell
+wsl --install
+```
+
+Restart your Windows computer after installation.
+
+**Windows Notes**
+
+- It is recommended to use PowerShell instead of CMD
+- If you encounter permission issues, try running as administrator
+- Some antivirus software may falsely flag it; you need to add it to the whitelist
+
+![windows-img-03.webp](../../../pictures/apps/codex/windows-img-03.webp)
+
+**Download Node Version Manager (NVM)**
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+```
+
+**NVM Installs Node.js 22**
+
+Open a new PowerShell window in the tab bar, then open WSL:
+
+```bash
+wsl
+```
+
+Install Node.js (version numbers are time-sensitive; please install the corresponding version according to [OpenAI's official website](https://developers.openai.com/codex/windows) requirements):
+
+```bash
+nvm install 22
+```
+
+#### 3. Install Codex CLI
+
+**Install Codex CLI**
+
+```bash
+npm i -g @openai/codex
+```
+
+This command downloads and installs the latest version of Codex CLI from the official npm repository.
+
+![windows-img-06.webp](../../../pictures/apps/codex/windows-img-06.webp)
+
+#### 4. Modify Configuration File
+
+**One-click Modification of Codex CLI Configuration File**
+
+```powershell
+iex (irm 'https://opensand.ai/scripts/codex-cli-setup.ps1')
+```
+
+![windows-configure](../../../pictures/apps/codex/windows_configure.png)
+
+#### 5. Start Using Codex CLI
+
+Now you can start using Codex CLI!
+
+**Launch Codex CLI**
+
+Launch WSL2:
+
+```bash
+wsl
+```
+
+Launch Codex CLI directly:
+
+```bash
+codex
+```
+
+Use in a specific project:
+
+```bash
+cd mnt/c/path/to/your/project
+codex
+```
+
+Press Enter to launch Codex CLI.
+
+![windows-img-10.webp](../../../pictures/apps/codex/windows-img-10.webp)
+
+> Set Codex CLI permissions: 1. Allow Codex to modify files directly; 2. Codex requires manual authorization to modify files
+
+**Select Model**
+
+```bash
+/model
+```
+
+![windows-img-11.webp](../../../pictures/apps/codex/windows-img-11.webp)
+
+![windows-img-12.webp](../../../pictures/apps/codex/windows-img-12.webp)
+
+![windows-img-13.webp](../../../pictures/apps/codex/windows-img-13.webp)
+
+![windows-img-14.webp](../../../pictures/apps/codex/windows-img-14.webp)
+
+> Note: After modifying the API address, all models (including officially preset models) will call the custom access point and will not use the official account quota.
+
+### macOS Graphical Guide
+
+#### 1. Install Homebrew (Skip if already installed)
+
+Homebrew is the missing package manager for macOS.
+
+Official Website: https://brew.sh
+
+**Install Homebrew**
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+![macos-img-02.webp](../../../pictures/apps/codex/macos-img-02.webp)
+
+![macos-img-03.webp](../../../pictures/apps/codex/macos-img-03.webp)
+
+![macos-img-04.webp](../../../pictures/apps/codex/macos-img-04.webp)
+
+#### 2. Install Node.js Environment
+
+**Node.js Environment Installation Steps**
+
+Update Homebrew:
+
+```bash
+brew update
+```
+
+Install Node.js:
+
+```bash
+brew install node
+```
+
+**macOS Notes**
+
+- If you encounter permission issues, you might need to use `sudo`
+- The first run might require permission in System Preferences
+- It is recommended to use Terminal or iTerm2
+
+![macos-img-05.webp](../../../pictures/apps/codex/macos-img-05.webp)
+
+![macos-img-06.webp](../../../pictures/apps/codex/macos-img-06.webp)
+
+**Verify Installation Success**
+
+After installation, open the terminal and enter the following commands:
+
+```bash
+node --version
+npm --version
+```
+
+If version numbers are displayed, the installation was successful.
+
+#### 3. Install Codex CLI
+
+**Install Codex CLI**
+
+Open the terminal and run the following commands:
+
+```bash
+# Install Codex CLI globally
+npm install -g @openai/codex
+```
+
+If you encounter permission issues, you can use sudo:
+
+```bash
+sudo npm install -g @openai/codex
+```
+
+![macos-img-07.webp](../../../pictures/apps/codex/macos-img-07.webp)
+
+**Verify Codex CLI Installation**
+
+After installation, enter the following command to check if the installation was successful:
+
+```bash
+codex --version
+```
+
+If a version number is displayed, congratulations! Codex CLI has been successfully installed.
+
+#### 4. Modify Configuration File
+
+**One-click Modification of Codex CLI Configuration File**
+
+```bash
+curl -fsSL https://opensand.ai/scripts/codex-cli-setup.sh | bash
+  ```
+
+![macos-configure](../../../pictures/apps/codex/macos_configure.png)
+
+#### 5. Start Using Codex CLI
+
+Now you can start using Codex CLI!
+
+**Launch Codex CLI**
+
+Launch Codex CLI directly:
+
+```bash
+codex
+```
+
+Use in a specific project:
+
+```bash
+cd /path/to/your/project
+codex
+```
+
+Press Enter to launch Codex CLI.
+
+![macos-img-09.webp](../../../pictures/apps/codex/macos-img-09.webp)
+
+![macos-img-10.webp](../../../pictures/apps/codex/macos-img-10.webp)
+
+> Set Codex CLI permissions: 1. Allow Codex to modify files directly; 2. Codex requires manual authorization to modify files
+
+![macos-img-11.webp](../../../pictures/apps/codex/macos-img-11.webp)
+
+![macos-img-12.webp](../../../pictures/apps/codex/macos-img-12.webp)
+
+![macos-img-13.webp](../../../pictures/apps/codex/macos-img-13.webp)
+
+![macos-img-14.webp](../../../pictures/apps/codex/macos-img-14.webp)
+
+> Note: After modifying the API address, all models (including officially preset models) will call the custom access point and will not use the official account quota.
+
+#### 6. macOS Common Issues Troubleshooting
+
+**Permission Error During Installation**
+
+Try the following solutions:
+
+- Install with `sudo`: `sudo npm install -g @openai/codex`
+- Or configure `npm` to use the user directory: `npm config set prefix ~/.npm-global`
+
+**macOS Security Settings Prevent Running**
+
+If the system prevents Codex CLI from running:
+
+- Open "System Preferences" → "Security & Privacy"
+- Click "Open Anyway" or "Allow"
+- Or run in Terminal: `sudo spctl --master-disable`
+
+### Linux Graphical Guide
+
+#### 1. Install Node.js Environment
+
+Codex CLI requires a Node.js environment to run.
+
+**Node.js Environment Installation Steps**
+
+Add NodeSource repository:
+
+```bash
+sudo curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+```
+
+Install Node.js:
+
+```bash
+sudo apt-get install -y nodejs
+```
+
+**Linux Notes**
+
+- Some distributions may require additional dependencies
+- If you encounter permission issues, use sudo
+- Ensure your user has write permissions in npm's global directory
+
+![linux-img-01.webp](../../../pictures/apps/codex/linux-img-01.webp)
+
+![linux-img-02.webp](../../../pictures/apps/codex/linux-img-02.webp)
+
+**Verify Installation Success**
+
+After installation, open the terminal and enter the following commands:
+
+```bash
+node --version
+npm --version
+```
+
+If version numbers are displayed, the installation was successful.
+
+#### 2. Install Codex CLI
+
+**Install Codex CLI**
+
+Open the terminal and run the following commands:
+
+```bash
+# Install Codex CLI globally
+npm install -g @openai/codex
+```
+
+If you encounter permission issues, you can use sudo:
+
+```bash
+sudo npm install -g @openai/codex
+```
+
+![linux-img-03.webp](../../../pictures/apps/codex/linux-img-03.webp)
+
+**Verify Codex CLI Installation**
+
+After installation, enter the following command to check if the installation was successful:
+
+```bash
+codex --version
+```
+
+If a version number is displayed, congratulations! Codex CLI has been successfully installed.
+
+#### 3. Modify Configuration File
+
+**One-click Modification of Codex CLI Configuration File**
+
+```bash
+curl -fsSL https://opensand.ai/scripts/codex-cli-setup.sh | bash
+```
+
+![macos-configure](../../../pictures/apps/codex/macos_configure.png)
+
+#### 4. Start Using Codex CLI
+
+Now you can start using Codex CLI!
+
+**Launch Codex CLI**
+
+Launch Codex CLI directly:
+
+```bash
+codex
+```
+
+Use in a specific project:
+
+```bash
+# Navigate to your project directory
+cd /path/to/your/project
+
+# Launch Codex CLI
+codex
+```
+
+Press Enter to launch Codex CLI.
+
+![linux-img-05.webp](../../../pictures/apps/codex/linux-img-05.webp)
+
+![linux-img-06.webp](../../../pictures/apps/codex/linux-img-06.webp)
+
+> Set Codex CLI permissions: 1. Allow Codex to modify files directly; 2. Codex requires manual authorization to modify files
+
+![linux-img-07.webp](../../../pictures/apps/codex/linux-img-07.webp)
+
+![linux-img-08.webp](../../../pictures/apps/codex/linux-img-08.webp)
+
+![linux-img-09.webp](../../../pictures/apps/codex/linux-img-09.webp)
+
+![linux-img-10.webp](../../../pictures/apps/codex/linux-img-10.webp)
+
+> Note: After modifying the API address, all models (including officially preset models) will call the custom access point and will not use the official account quota.
+
+#### 5. Linux Common Issues Troubleshooting
+
+**Permission Error During Installation**
+
+Try the following solutions:
+
+- Install with `sudo`: `sudo npm install -g @openai/codex`
+- Or configure `npm` to use the user directory: `npm config set prefix ~/.npm-global`
+- Then add to PATH: `export PATH=~/.npm-global/bin:$PATH`
+
+**Missing Dependency Libraries**
+
+Some Linux distributions require additional dependencies:
+
+```bash
+# Ubuntu/Debian
+sudo apt install build-essential
+
+# CentOS/RHEL
+sudo dnf groupinstall "Development Tools"
+```
+
+---
+
+# Copilot CLI
+
+Source: https://opensand.ai/en/docs/apps/copilot-cli
+
+---
+title: "Copilot CLI"
+source: "https://opensand.ai/en/docs/apps/copilot-cli"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.135Z"
+---
+# Copilot CLI
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+**GitHub Copilot CLI** is GitHub's official terminal AI coding assistant. It supports **BYOK (Bring Your Own Key)** mode for custom model endpoints, letting you point it at OpenSand via a few environment variables. Agent mode, tool calling, and MCP are all supported.
+
+- Official docs: [https://docs.github.com/copilot/how-tos/copilot-cli/cli-getting-started](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started)
+- Package: [https://www.npmjs.com/package/@github/copilot](https://www.npmjs.com/package/@github/copilot)
+
+This tutorial shows how to point Copilot CLI at OpenSand using BYOK mode.
+
+## 📦 Prerequisites
+
+**What you'll need**
+
+- **Node.js 22 or later**
+- An OpenSand endpoint (must end with `/v1`)
+- An OpenSand API key (generated in the console)
+- A model ID exactly matching one exposed by your OpenSand console (e.g. `claude-sonnet-4-6`, `gemini-2.5-flash`)
+
+## 🚀 Step 1: Install Copilot CLI
+
+```bash
+npm install -g @github/copilot
+```
+
+Verify the install:
+
+```bash
+copilot --version
+```
+
+Full setup steps are in GitHub's [getting started guide](https://docs.github.com/en/copilot/how-tos/copilot-cli/cli-getting-started).
+
+## 🔧 Step 2: Point it at OpenSand
+
+Copilot CLI reads provider config from environment variables. **Use `anthropic` as the provider type** for the best compatibility.
+
+### Linux / macOS
+
+```bash
+```
+
+### Windows (PowerShell)
+
+```powershell
+$env:COPILOT_PROVIDER_TYPE="anthropic"
+$env:COPILOT_PROVIDER_BASE_URL="https://opensand.ai/v1"
+$env:COPILOT_PROVIDER_API_KEY="your-opensand-api-key"
+$env:COPILOT_MODEL="claude-sonnet-4-6"
+```
+
+**Why anthropic type is recommended**
+
+Some models (especially reasoning models) require `reasoning_content` to be echoed back verbatim in the next turn. Copilot CLI's OpenAI integration doesn't support that mechanism, which can trigger `400` errors. Using the **Anthropic Messages API** compatible endpoint avoids this.
+
+If you only use non-reasoning models (e.g. `gemini-2.5-flash`), you may set `COPILOT_PROVIDER_TYPE=openai` instead.
+
+### Optional: context / output token limits
+
+```bash
+```
+
+## ✅ Step 3: Launch & verify
+
+```bash
+copilot
+```
+
+Ask any coding question (e.g. "Write a Python function that reads a JSON file"). A normal response means you're set.
+
+```bash
+copilot help providers
+```
+
+lists every provider-related environment variable.
+
+## 🔄 Switching models
+
+Change `COPILOT_MODEL` and restart:
+
+```bash
+copilot
+```
+
+The model name **must exactly match** the model ID exposed by your OpenSand console.
+
+## ❓ Troubleshooting
+
+| Issue | Fix |
+|------|----------|
+| `400 Bad Request` | Switch `COPILOT_PROVIDER_TYPE` to `anthropic` |
+| Model not found | Confirm `COPILOT_MODEL` exactly matches the OpenSand model ID |
+| Invalid API key | Regenerate a key in the OpenSand console and update the env var |
+| Variables don't take effect | New shell needed, or persist them in `~/.bashrc` / `~/.zshrc` / PowerShell profile |
+| Output truncated | Raise `COPILOT_PROVIDER_MAX_OUTPUT_TOKENS` |
+
+---
+
+# Crush
+
+Source: https://opensand.ai/en/docs/apps/crush
+
+---
+title: "Crush"
+source: "https://opensand.ai/en/docs/apps/crush"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.135Z"
+---
+# Crush
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+**Crush** is an open-source AI coding agent by [Charm](https://charm.sh), running inside your terminal. It supports multi-model switching, LSP integration, MCP servers and agentic coding workflows — and ships with a polished, responsive TUI.
+
+- GitHub: [https://github.com/charmbracelet/crush](https://github.com/charmbracelet/crush)
+
+## 📦 Prerequisites
+
+**What you'll need**
+
+- [Node.js](https://nodejs.org/en/download/) installed
+- An OpenSand endpoint (must end with `/v1`)
+- An OpenSand API key (generated in the console)
+- A model ID exactly matching one exposed by your OpenSand console (e.g. `claude-sonnet-4-6`, `gemini-2.5-flash`)
+
+## 🚀 Step 1: Install Crush
+
+```bash
+npm install -g @charmland/crush
+```
+
+macOS users can also install via Homebrew:
+
+```bash
+brew install charmbracelet/tap/crush
+```
+
+Verify:
+
+```bash
+crush --version
+```
+
+## 🔧 Step 2: Edit the config file
+
+Config file location:
+
+- **Linux / macOS**: `~/.config/crush/crush.json`
+- **Windows**: `%USERPROFILE%\.config\crush\crush.json`
+
+Create it if it doesn't exist, and paste in:
+
+```json
+{
+  "$schema": "https://charm.land/crush.json",
+  "providers": {
+    "opensand": {
+      "type": "openai-compat",
+      "base_url": "https://opensand.ai/v1",
+      "api_key": "$OPENSAND_API_KEY",
+      "models": [
+        {
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6",
+          "context_window": 200000,
+          "default_max_tokens": 32768,
+          "can_reason": true
+        },
+        {
+          "id": "gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "context_window": 1000000,
+          "default_max_tokens": 32768,
+          "can_reason": false
+        }
+      ]
+    }
+  }
+}
+```
+
+**Field notes**
+
+- `type` must be `openai-compat`
+- `base_url` must end with `/v1`
+- `api_key` uses the `$OPENSAND_API_KEY` variable reference so you don't commit the key
+- `models[].id` must exactly match your OpenSand console
+
+## 🔑 Step 3: Set the API key env var
+
+### Linux / macOS
+
+```bash
+```
+
+### Windows (PowerShell)
+
+```powershell
+$env:OPENSAND_API_KEY="your-opensand-api-key"
+```
+
+Persist it in your shell profile for convenience.
+
+## ✅ Step 4: Launch & pick a model
+
+```bash
+cd /path/to/my-project
+crush
+```
+
+Press `Ctrl+L` (or type `/model`) to open the model switcher. Choose the **opensand** provider, then pick your target model. Send a test message to verify.
+
+## ❓ Troubleshooting
+
+| Issue | Fix |
+|------|----------|
+| opensand doesn't appear in the model switcher | Check the path and JSON format of `crush.json` |
+| 401 Unauthorized | Make sure `OPENSAND_API_KEY` is exported in the current shell |
+| Model not found | Confirm `models[].id` matches your OpenSand console |
+| Config changes don't apply | Restart Crush |
+
+---
+
+# Factory Droid CLI
+
+Source: https://opensand.ai/en/docs/apps/factory-droid-cli
+
+---
+title: "Factory Droid CLI"
+source: "https://opensand.ai/en/docs/apps/factory-droid-cli"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.136Z"
+---
+# Factory Droid CLI
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+Droid CLI is a command-line tool developed by Factory AI, designed to run as an AI software engineering agent. It allows users to interact with various large language models through the terminal, build, debug, and refactor code, and even create complete applications.
+
+- Official Homepage: [https://factory.ai/product/cli](https://factory.ai/product/cli)
+- Official Documentation: [https://docs.factory.ai/cli/getting-started/quickstart](https://docs.factory.ai/cli/getting-started/quickstart)
+
+## Demo
+
+![droid.webp](../../../pictures/apps/factory_droid_cli/droid_example.webp)
+
+### Features
+
+| Category                       | Feature                                                                                                                     | Value/Capability                                               | Example/Notes                                                             |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Quick Start with CLI           | 30-second installation; launch droid interactive session in project directory; supports macOS/Linux and Windows             | Rapid integration into current projects, no new tools required | Windows Installation: `irm https://app.factory.ai/cli/windows \| iex`; Launch: `droid` |
+| End-to-End Feature Development | Full-process automation from planning to implementation to testing; transparent review process                              | Accelerate delivery, maintain human oversight                  | Native diff viewing and approval process (see "Transparency and Control") |
+| Deep Codebase Understanding    | Integrates organizational shared knowledge from codebases, documentation, issue tracking; context-aware, improves over time | More accurate suggestions and changes                          | Continuously leverages knowledge across repositories and documents        |
+| Engineering System Integration | Native integration with Jira, Notion, Slack, and other tools; development work stays synchronized with team processes       | Reduce tool switching and information silos                    | "etc." indicates more integrations                                        |
+| Production-Grade Automation    | Workflows reusable locally and in CI/CD; enterprise-grade security and compliance built-in                                  | Consistency and auditability                                   | Adapts to pipelines and enterprise environments                           |
+| Enterprise Capabilities        | Private deployment options, SOC-2 compliance, air-gapped environments                                                       | Meets security and compliance requirements                     | Prioritizes security and quality                                          |
+| Enhance Existing Tools         | Works in terminal, IDE, and existing development environments; no need to switch editors or learn new interfaces            | Maintain existing work habits, low migration cost              | Deep integration with familiar tools                                      |
+| Transparency and Control       | Every decision is visible and reviewable; complete oversight of code changes; native diff viewing and approval workflows    | Reduce risk, enhance controllability                           | Audit-friendly, traceable                                                 |
+| Model Flexibility              | Not locked to a single AI provider; choose the best model per task; consistent organizational behavior and memory           | Optimal choice between performance and cost                    | Supports multi-model routing                                              |
+| Next Steps & Resources         | Quickstart, Common Use Cases, IDE Integration, Configuration, AGENTS.md                                                     | Facilitates adoption and practice                              | See "Next steps/Additional resources" on the page                         |
+
+## AI Model Configuration Method
+
+### Windows Graphical Guide
+
+#### 1. Open Terminal && Install Factory Droid CLI
+
+Official one-click installation command:
+
+**One-click Installation Command**
+
+```powershell
+irm https://app.factory.ai/cli/windows | iex
+```
+
+![windows-install](../../../pictures/apps/factory_droid_cli/windows_install_droid.webp)
+
+#### 2. Modify Configuration File
+
+Droid CLI requires modifying the configuration file to use OpenSand.
+
+![windows-configure.webp](../../../pictures/apps/factory_droid_cli/factory_cli_setup_windows.png)
+
+**Modify Environment Variables**
+
+```powershell
+iex (irm 'https://opensand.ai/scripts/factory-droid-cli-setup.ps1')
+```
+
+#### 3. Start Using Droid CLI
+
+Now you can start using Droid CLI!
+
+**Launch Droid CLI**
+
+Launch Droid CLI directly:
+
+```bash
+droid
+```
+
+Use in a specific project:
+
+```bash
+# Navigate to your project directory
+cd C:\path\to\your\project
+
+# Launch Droid CLI
+droid
+```
+
+Press Enter to launch Droid CLI.
+
+Droid CLI requires users to log in to an official account (free) before use.
+
+#### 4. Windows Common Issues Solution
+
+This is usually a permission issue. Try the following solutions:
+
+- Run PowerShell as an administrator
+- Or configure `npm` to use the user directory: `npm config set prefix %APPDATA%\npm`
+
+**PowerShell Execution Policy Error**
+
+If you encounter an execution policy restriction, run:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### macOS/Linux Graphical Guide
+
+#### 1. Install Droid CLI
+
+**Install Droid CLI**
+
+Open your terminal and run the following command:
+
+```bash
+curl -fsSL https://app.factory.ai/cli | sh
+```
+
+![macos-img-02.webp](../../../pictures/apps/factory_droid_cli/macos_install_droid_2.webp)
+
+Follow the installation prompts to modify environment variables (copy the installation prompt code directly):
+
+For Linux, choose `~/.bashrc` or `~/.zshrc` as appropriate.
+
+**Droid CLI Environment Variables (Example Only)**
+
+```bash
+echo 'export PATH=/Users/modify_here/.local/bin:$PATH' >> ~/.zshrc
+source ~/.zshrc
+```
+
+#### 2. Modify Configuration File
+
+Droid CLI requires modifying the configuration file to use OpenSand.
+
+**One-click Configuration File Modification**
+
+```bash
+curl -fsSL https://opensand.ai/scripts/factory-droid-cli-setup.sh | bash
+```
+
+![macos-img-03.webp](../../../pictures/apps/factory_droid_cli/macos_configure.png)
+
+#### 3. Start Using Droid CLI
+
+Now you can start using Droid CLI!
+
+**Launch Droid CLI**
+
+Launch Droid CLI directly:
+
+```bash
+droid
+```
+
+Use in a specific project:
+
+```bash
+# Navigate to your project directory
+cd /path/to/your/project
+
+# Launch Droid CLI
+droid
+```
+
+Press Enter to launch Droid CLI.
+
+> Droid CLI requires users to log in to an official account (free) before use.
+
+---
+
+# FluentRead
+
+Source: https://opensand.ai/en/docs/apps/fluent-read
+
+---
+title: "FluentRead"
+source: "https://opensand.ai/en/docs/apps/fluent-read"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.136Z"
+---
+# FluentRead - Open Source Translation Plugin
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Chat Settings Options**
+
+In the System Settings -> Chat Settings of the OpenSand console, you can add
+the following shortcut options for easy one-click population to FluentRead on
+the Token Management page:
+
+    ```json
+    { "流畅阅读": "fluentread" }
+    ```
+
+🌊 FluentRead is an open-source browser translation plugin dedicated to
+providing a native-like reading experience.
+
+- Project Address: [https://github.com/Bistutu/FluentRead](https://github.com/Bistutu/FluentRead)
+
+## 🌟 Core Features
+
+### Smart Translation Engine
+
+- **Multi-Engine Support**: Supports 20+ translation engines
+- **Traditional Translation**: Microsoft Translate, Google Translate, DeepL Translate, etc.
+- **AI Large Models**: OpenAI, DeepSeek, Kimi, Ollama, etc.
+- **Custom Engine**: Supports custom translation service configuration
+
+### Immersive Reading Experience
+
+- **Bilingual Comparison**: Original and translated text displayed side-by-side for easier reading
+- **Selection Translation**: Select any text to get instant translation results
+- **One-Click Copy**: Quickly copy translated text to improve reading efficiency
+- **Full-Page Translation**: One-click translation of the entire webpage with a floating button, no page refresh required
+
+### Privacy and Customization
+
+- **Privacy Protection**: All data stored locally, open-source and transparent code
+- **High Customization**: Rich customization options to meet different scenario needs
+- **Completely Free**: Open-source and free, non-commercial project
+
+## 📦 Installation Methods
+
+| Browser     | Installation Method                                                                                                                                                                                                                                   |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Chrome**  | [Chrome Web Store](https://chromewebstore.google.com/detail/%E6%B5%81%E7%95%85%E9%98%85%E8%AF%BB/djnlaiohfaaifbibleebjggkghlmcpcj?hl=zh-CN&authuser=0) \| [Domestic Mirror](https://www.crxsoso.com/webstore/detail/djnlaiohfaaifbibleebjggkghlmcpcj) |
+| **Edge**    | [Edge Add-ons Store](https://microsoftedge.microsoft.com/addons/detail/%E6%B5%81%E7%95%85%E9%98%85%E8%AF%BB/kakgmllfpjldjhcnkghpplmlbnmcoflp?hl=zh-CN)                                                                                                |
+| **Firefox** | [Firefox Add-ons Store](https://addons.mozilla.org/zh-CN/firefox/addon/%E6%B5%81%E7%95%85%E9%98%85%E8%AF%BB/)                                                                                                                                         |
+
+## 🚀 Configuration Methods
+
+### Import Configuration from OpenSand Console (Recommended)
+
+After the FluentRead plugin is installed in your browser, opening the OpenSand console -> Token Management page will display a prompt to add FluentRead.
+
+![添加提示](../../../pictures/apps/fluentread/hint.png)
+
+After selecting a model, click 'One-click fill to FluentRead', and a confirmation window will pop up. Check if the corresponding information is correct.
+
+![确认](../../../pictures/apps/fluentread/confirm.png)
+
+After confirming the import, the OpenSand configuration in FluentRead will be enabled.
+
+![配置结果](../../../pictures/apps/fluentread/fluentread.png)
+
+### Manually Fill in Configuration in FluentRead
+
+![手动配置](../../../pictures/apps/fluentread/configuration.png)
+
+| Configuration Item  | Content                                 |
+| ------------------- | --------------------------------------- |
+| Translation Service | OpenSand                                  |
+| Access Token        | OpenSand Key                              |
+| OpenSand Endpoint     | OpenSand Deployment Address (without /v1) |
+| Model               | Select from list, or custom model       |
+| Custom Model        | Model Name                              |
+
+---
+
+# Hermes Agent
+
+Source: https://opensand.ai/en/docs/apps/hermes-agent
+
+---
+title: "Hermes Agent"
+source: "https://opensand.ai/en/docs/apps/hermes-agent"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.136Z"
+---
+# Hermes Agent
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+Hermes Agent is an open-source terminal AI agent developed by Nous Research. It provides powerful tool calling, file read/write, and code execution capabilities right in your terminal. With built-in Custom Endpoint support, Hermes can seamlessly connect to any OpenAI-compatible API — including OpenSand — **without writing any code or plugins**.
+
+- Official Homepage: [https://hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com)
+- Quickstart: [https://hermes-agent.nousresearch.com/docs/getting-started/quickstart](https://hermes-agent.nousresearch.com/docs/getting-started/quickstart)
+- GitHub: [https://github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+
+Hermes Agent is fully open source. You can browse the source code, submit issues, or contribute at the [Hermes Agent GitHub repository](https://github.com/NousResearch/hermes-agent). This tutorial covers the complete steps for installation, configuration, and integrating Hermes Agent with OpenSand.
+
+## 🌟 Core Features
+
+### Smart Agent Capabilities
+
+- **Tool Calling**: Native support for tool calling, file read/write, and code execution
+- **Persistent Memory**: Supports persistent background operation with long-term memory
+- **Skill System**: Search and install skill packages via the `hermes skills` command
+- **Multi-Interface Support**: Supports both CLI and TUI (terminal UI) modes
+
+### Multi-Channel Integration
+
+- **Message Gateway**: Unified management of all channels via `hermes gateway`
+- **Multi-Platform Support**: Connects to Telegram, Discord, Slack, WhatsApp, and more
+- **Always Online**: Runs persistently as a background service
+
+### Open Model Ecosystem
+
+- **Custom Provider**: Built-in Custom Endpoint support — connects to any OpenAI-compatible API
+- **Interactive Configuration**: Configure everything through an interactive menu with `hermes model` — no need to edit config files
+- **Flexible Switching**: Switch models on the fly during a conversation via the `/model` command
+
+## 📦 Pre-integration Preparation
+
+**Preparation Information**
+
+- Hermes Agent installed (see installation steps below)
+- An available OpenSand address (must end with `/v1`)
+- An available OpenSand API Key (generated in the console)
+- The model name you want to use (e.g., `claude-sonnet-4-6`, `gemini-2.5-flash`), which must match the model ID in the OpenSand console exactly
+
+**Model Context Requirement**
+
+Hermes Agent requires the model to support a context window of at least **64K tokens**. Make sure your chosen model meets this requirement, otherwise you may run into context-length errors.
+
+## 🚀 Step 1: Install Hermes Agent
+
+### Linux / macOS / WSL2
+
+Run the official one-line install script in your terminal:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
+```
+
+After installation, reload your terminal environment:
+
+```bash
+source ~/.bashrc
+```
+
+If you use zsh (default on macOS), run this instead:
+
+```bash
+source ~/.zshrc
+```
+
+### Windows
+
+**Note for Windows Users**
+
+Hermes Agent does not natively support Windows. You need to install **WSL2** (Windows Subsystem for Linux 2) first, then run the Linux/macOS install command above inside a WSL2 terminal.
+
+WSL2 installation guide: [https://learn.microsoft.com/windows/wsl/install](https://learn.microsoft.com/windows/wsl/install)
+
+### Verify Installation
+
+Run the following command to verify Hermes was installed successfully:
+
+```bash
+hermes --version
+```
+
+If a version number is displayed, the installation was successful 🎉.
+
+## 🔧 Step 2: Configure OpenSand (The Key Step)
+
+This is the most important step of the entire integration process. Hermes Agent provides an **interactive menu** so you don't need to write any code or manually edit config files — just follow the prompts and fill in your OpenSand URL, Key, and model name.
+
+Run the following command in your terminal:
+
+```bash
+hermes model
+```
+
+This opens an interactive menu. Use the arrow keys to navigate and press Enter to confirm.
+
+### Configuration Flow
+
+**Configuration Steps**
+
+**1. Select Provider**
+
+Use the arrow keys to scroll to **Custom Endpoint** (or a similarly named "custom endpoint" option) and press Enter.
+
+**2. Enter Base URL**
+
+Enter your OpenSand address, for example:
+
+```
+https://opensand.ai/v1
+```
+
+> ⚠️ The address **must end with `/v1`**. This is the most common configuration mistake.
+
+**3. Enter API Key**
+
+Enter the API Key you generated in the OpenSand console, for example:
+
+```
+sk-xxxxxxxxxxxxxxxx
+```
+
+**4. Enter Model Name**
+
+Enter the model you want to use, for example:
+
+```
+claude-sonnet-4-6
+```
+
+> The model name must match the model ID in the OpenSand console **exactly**, otherwise you will get a "model not found" error.
+
+**5. Confirm and Save**
+
+Follow the prompts to confirm. Configuration complete.
+
+### Key Configuration Explanation
+
+| Configuration Item | Description | Example |
+| --- | --- | --- |
+| Base URL | OpenSand address, **must end with `/v1`** | `https://opensand.ai/v1` |
+| API Key | Token generated in the OpenSand console | `sk-xxxxxxxxxxxxxxxx` |
+| Model | Model name, must match the model ID actually exposed by OpenSand | `claude-sonnet-4-6` |
+
+## ✅ Step 3: Verify Successful Integration
+
+Once configuration is complete, start Hermes directly:
+
+```bash
+hermes
+```
+
+Or use the modern TUI mode (terminal graphical interface):
+
+```bash
+hermes --tui
+```
+
+Send any test message, for example:
+
+```
+Hello, tell me what day of the week it is today
+```
+
+If the model responds normally, the integration is successful 🎉.
+
+### View and Switch Models
+
+Inside the conversation, type the following command to view and quickly switch the current model:
+
+```
+/model
+```
+
+You can also run `hermes model` again at any time to **overwrite the previous configuration** and enter a new URL, Key, or model name.
+
+## ❓ Common Issues
+
+| Issue | Solution |
+| --- | --- |
+| Empty response or error | Check that the Base URL ends with `/v1` |
+| "Model not found" error | Confirm the model name matches the model ID in the OpenSand console **exactly** |
+| "Invalid API Key" error | Regenerate a Key in the OpenSand console, then run `hermes model` again |
+| Don't know how to open the config menu | Run `hermes model` in your terminal |
+| Want to switch models | Run `hermes model` again, or type `/model` in the conversation |
+| "Context not enough" error | Hermes requires models with at least 64K tokens of context; switch to a model with a larger context window |
+| Want to modify previous configuration | Run `hermes model` again to overwrite previous settings |
+| Can't install on Windows | Hermes does not natively support Windows. Install WSL2 first and run the install command inside WSL2 |
+
+## 🎯 Next Steps (Optional)
+
+After successfully integrating OpenSand, you can explore more capabilities of Hermes Agent:
+
+### Launch the Message Gateway
+
+Connect Hermes to messaging apps like Telegram, Discord, or Slack:
+
+```bash
+hermes gateway setup
+```
+
+### Search and Install Skills
+
+Hermes has a built-in skill marketplace for extending capabilities with a single command:
+
+```bash
+hermes skills search <keyword>
+```
+
+### View All Available Commands
+
+```bash
+hermes --help
+```
+
+**Tip**
+
+Once OpenSand is integrated, all subsequent Hermes Agent capabilities (message gateway, skill execution, background persistence, etc.) will route through OpenSand to call your chosen model. There's no need to configure the model provider separately for each feature.
+
+---
+
+# LangBot
+
+Source: https://opensand.ai/en/docs/apps/langbot
+
+---
+title: "LangBot"
+source: "https://opensand.ai/en/docs/apps/langbot"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.137Z"
+---
+# LangBot - Instant Messaging Bot Development Platform
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+LangBot is an open-source instant messaging bot development platform that
+supports various instant messaging platforms such as Feishu, DingTalk, WeChat,
+QQ, Telegram, Discord, Slack, etc. It integrates with mainstream global AI
+models, supports various AI application capabilities like Knowledge Base,
+Agent, MCP, and is perfectly compatible with OpenSand.
+
+- Official Website: [https://langbot.app](https://langbot.app/)
+- Download Address: [https://github.com/langbot-app/LangBot/releases](https://github.com/langbot-app/LangBot/releases)
+- Official Documentation: [https://docs.langbot.app](https://docs.langbot.app/)
+- Open Source Address: [https://github.com/langbot-app/LangBot](https://github.com/langbot-app/LangBot)
+
+## Integrating OpenSand
+
+LangBot can connect to OpenSand through its OpenAI-compatible integration.
+
+### Usage
+
+1.  Obtain an API key from OpenSand
+    ![获取 API key](../../../pictures/apps/langbot/get_api_key.png)
+
+        For OpenSand, use `https://opensand.ai/v1`; the address should include `/v1`.
+
+2.  Add a model in LangBot, select OpenSand as the provider, and fill in the corresponding API key and API address
+    ![添加 OpenSand 模型](../../../pictures/apps/langbot/add_newapi_model.png)
+
+3.  Select the model to use in the pipeline
+
+    ![选择模型](../../../pictures/apps/langbot/select_model.png)
+
+4.  Use it by chatting in conversation debugging or by chatting with a bot bound to the pipeline
+
+    ![对话](../../../pictures/apps/langbot/debug_chat.png)
+
+    ![微信对话](../../../pictures/apps/langbot/wechat.png)
+
+    For deploying and configuring bots, please refer to [Deploying Bots](https://docs.langbot.app/en/deploy/platforms/readme.html).
+
+### Using LangBot Knowledge Base
+
+LangBot supports using OpenSand's embedding models and utilizing them as vector models for the knowledge base.
+
+1. Add an embedding model in LangBot, select OpenSand as the provider
+   ![添加嵌入模型](../../../pictures/apps/langbot/add_embedding_model.png)
+
+2. Select the embedding model when creating a new knowledge base
+   ![使用嵌入模型](../../../pictures/apps/langbot/use_embedding_model.png)
+
+For more usage instructions, please refer to the LangBot official documentation: [https://docs.langbot.app](https://docs.langbot.app/)
+
+---
+
+# LunaTranslator
+
+Source: https://opensand.ai/en/docs/apps/luna-translator
+
+---
+title: "LunaTranslator"
+source: "https://opensand.ai/en/docs/apps/luna-translator"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.137Z"
+---
+# LunaTranslator - Open-source GalGame Translator
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Chat Settings Options**
+
+In the OpenSand console's System Settings -> Chat Settings, you can add the
+following shortcut option for one-click population into LunaTranslator on the
+Token Management page:
+
+    ```json
+    { "LunaTranslator": "lunatranslator://llmapi/base64?data={cheryConfig}" }
+    ```
+
+LunaTranslator is an open-source and free visual novel (GalGame) translator,
+dedicated to providing a native-level visual novel gaming experience.
+
+- Project Address: [https://github.com/HIllya51/LunaTranslator](https://github.com/HIllya51/LunaTranslator)
+- Project Documentation: [https://docs.lunatranslator.org](https://docs.lunatranslator.org/en/README.html)
+
+## Feature Support
+
+- **HOOK** Primarily uses HOOK to extract game text, adapting to almost all common and niche visual novels.
+
+- **In-game Translation** Some games can also have translations directly embedded in-game for an immersive experience.
+
+- **HOOK Emulator** For most games on NS/PSP/PSV/PS2, HOOK emulator is supported to directly read game text.
+
+- **OCR** Built-in high-precision OCR models, and supports many other online & offline OCR engines for flexible reading of any text.
+
+- **Rich Translation Interfaces** Supports almost all translation engines, including large language model translation, offline translation, etc.
+
+- **Language Learning** Supports Japanese word segmentation and kana furigana, AnkiConnect, and Yomitan plugin.
+
+- **Speech Synthesis** Supports a large number of online & offline speech synthesis engines.
+
+- **Speech Recognition** On Windows 10 and Windows 11, Windows Speech Recognition can be used.
+
+## Installation
+
+Download and install from [LunaTranslator Documentation - Download & Launch & Update](https://docs.lunatranslator.org/en/README.html)
+
+## Integrating OpenSand into LunaTranslator
+
+LunaTranslator can connect to OpenSand through its custom LLM API settings.
+
+### One-Click Configuration
+
+1.  In the OpenSand console's `System Settings` -> `Chat Settings`, add the following shortcut option:
+
+    ```json
+    { "LunaTranslator": "lunatranslator://llmapi/base64?data={cheryConfig}" }
+    ```
+
+    ![add_config](../../../pictures/apps/luna_translator/add_config.png)
+
+2.  In the **`OpenSand`** -> `Console` -> `Token Management` tab, select the token to be used in LunaTranslator, click the dropdown option next to the chat button, select `LunaTranslator`, and it will jump to LunaTranslator and automatically configure the API address and API Key.
+
+    ![跳转到 LunaTranslator](../../../pictures/apps/luna_translator/jump_to_app.png)
+
+3.  In **`LunaTranslator`** -> `Settings` -> `Translation Settings` -> `Large Models`, a new large model interface configuration will appear; click Edit.
+
+    ![设置api](../../../pictures/apps/luna_translator/api_setting.png)
+
+4.  Click the refresh button next to the **model** dropdown box to get the OpenSand platform's model list, select or enter the model name, then click OK to save.
+
+    ![设置模型](../../../pictures/apps/luna_translator/setting_model.png)
+
+5.  Check if the toggle button next to the **new_api** large model interface configuration is open; if not enabled, enable the interface to start using it.
+
+    ![开启配置](../../../pictures/apps/luna_translator/open_config.png)
+
+### Manual Configuration
+
+1.  In the **`OpenSand`** -> `Console` -> `Token Management` tab, obtain the API Key.
+
+    ![获取 API Key](../../../pictures/apps/luna_translator/copy_api_key.png)
+
+2.  In **`LunaTranslator`** -> `Settings` - `Translation Settings` -> `Large Models`, select Add.
+
+    ![添加 API](../../../pictures/apps/luna_translator/add_api.png)
+
+3.  Copy the **Large Model General Interface** template and add a new interface.
+
+    ![添加 API2](../../../pictures/apps/luna_translator/add_api_2.png)
+
+4.  In the **newly added interface**, fill in the corresponding API address and API Key.
+
+    ![设置 API1](../../../pictures/apps/luna_translator/setting_api.png)
+
+    ![设置 API2](../../../pictures/apps/luna_translator/setting_api2.png)
+
+5.  Click the refresh button next to the **model** dropdown box to get the OpenSand platform's model list, select or enter the model name, then click OK to save.
+
+    ![设置 API3](../../../pictures/apps/luna_translator/setting_api3.png)
+
+6.  Click the toggle button next to **OpenSand** to enable the interface and start using it.
+
+    ![打开API](../../../pictures/apps/luna_translator/open_api.png)
+
+For more usage methods, please refer to the LunaTranslator official documentation: [LunaTranslator Documentation - Large Model Translation Interface](https://docs.lunatranslator.org/en/guochandamoxing.html)
+
+---
+
+# Memoh
+
+Source: https://opensand.ai/en/docs/apps/memoh
+
+---
+title: "Memoh"
+source: "https://opensand.ai/en/docs/apps/memoh"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.138Z"
+---
+# Memoh - Containerized AI Agent Platform
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+Memoh is an open-source, self-hosted AI agent platform where each bot runs in
+its own isolated container with persistent memory and a dedicated filesystem.
+It supports 9 channels including Telegram, Discord, Lark (Feishu), QQ, Matrix,
+WeCom, WeChat, Email, and a built-in Web UI, along with MCP tool calling,
+browser automation, scheduled tasks, and other rich agent capabilities.
+
+- Website: [https://memoh.sh](https://memoh.sh)
+- Documentation: [https://docs.memoh.ai](https://docs.memoh.ai)
+- GitHub: [https://github.com/memohai/Memoh](https://github.com/memohai/Memoh)
+
+## Key Features
+
+- **Containerized Isolation**: Each bot runs in its own containerd container with a dedicated filesystem and network, supporting snapshots and data import/export
+- **Memory Engine**: LLM-driven fact extraction, hybrid retrieval (dense + sparse + BM25), 24-hour context loading, memory compaction and rebuild
+- **Multi-Channel Support**: Telegram, Discord, Lark (Feishu), QQ, Matrix, WeCom, WeChat, Email, Web UI
+- **MCP Support**: Full MCP protocol support (HTTP / SSE / Stdio / OAuth), with independent MCP connection management per bot
+- **Browser Automation**: Built-in headless browser powered by Playwright, supporting web browsing, form filling, screenshots, and more
+- **Web Dashboard**: Modern management interface built with Vue 3 + Tailwind CSS, featuring streaming chat, tool call visualization, file management, and more
+
+## Quick Installation
+
+Memoh is deployed via Docker. One-click install (requires Docker):
+
+```bash
+curl -fsSL https://memoh.sh | sudo sh
+```
+
+Or install manually:
+
+```bash
+git clone --depth 1 https://github.com/memohai/Memoh.git
+cd Memoh
+cp conf/app.docker.toml config.toml
+# Edit the config.toml configuration file
+sudo docker compose up -d
+```
+
+After startup, visit `http://localhost:8082`. Default credentials: `admin` / `admin123`.
+
+## OpenSand Integration
+
+Memoh supports OpenAI-compatible model providers. In this guide, use Memoh's NewAPI/OpenAI-compatible provider type and point it to OpenSand.
+
+### Configuration Steps
+
+#### Obtain an OpenSand API Key
+
+Sign in to the OpenSand console, open token management, create a new API key, and store it safely.
+
+Once created, click the copy button to copy the generated API Key.
+
+![copy-api-key](../../../pictures/apps/memoh/copy_api_key.png)
+
+#### Add a Model Provider in Memoh
+
+Log in to the Memoh Web dashboard, go to provider management, and choose NewAPI or an OpenAI-compatible provider.
+
+![switch-to-newapi-provider](../../../pictures/apps/memoh/switch_to_newapi_provider.png)
+
+Fill in the following information on the configuration page:
+
+- **API Base URL**: Enter the OpenSand endpoint URL, e.g. `https://opensand.ai/v1` 
+- **API Key**: Paste the API key created in the OpenSand console
+
+Click Save to complete the provider configuration.
+
+#### Import Models
+
+After configuring the provider, go to the model management page and click auto-import or manually add the models you need.
+
+#### Configure a Model for Your Bot
+
+Go to the bot settings page, find the model configuration section, switch the default chat model to the one added via the NewAPI provider, and click Save.
+
+![set_chat_model](../../../pictures/apps/memoh/set_chat_model.png)
+
+You have now configured OpenSand as the model provider for Memoh. You can chat with AI bots through Memoh channels such as Telegram, Discord, and Lark, and requests will be routed through OpenSand.
+
+---
+
+# nanobot
+
+Source: https://opensand.ai/en/docs/apps/nanobot
+
+---
+title: "nanobot"
+source: "https://opensand.ai/en/docs/apps/nanobot"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.138Z"
+---
+# nanobot
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+**nanobot** is a lightweight AI agent that plugs into common chat tools. Configuration lives in a single `config.json`, so pointing it at OpenSand is a two-line change. It relies on [uv](https://github.com/astral-sh/uv) for Python environment management, keeping install and launch simple.
+
+## 📦 Prerequisites
+
+**What you'll need**
+
+- [uv](https://github.com/astral-sh/uv) installed
+- An OpenSand endpoint (must end with `/v1`)
+- An OpenSand API key (generated in the console)
+- A model ID exactly matching one exposed by your OpenSand console (e.g. `claude-sonnet-4-6`, `gemini-2.5-flash`)
+
+## 🚀 Step 1: Install nanobot
+
+```bash
+uv tool install nanobot-ai
+```
+
+### Extra step for Windows
+
+Add `.local/bin` to your PATH so the `nanobot` command is directly callable:
+
+```powershell
+$env:PATH = "$env:USERPROFILE\.local\bin;$env:PATH"
+```
+
+Consider persisting it in your PowerShell Profile.
+
+### Verify
+
+```bash
+nanobot --version
+```
+
+## 🔧 Step 2: Initialise & edit config
+
+### 1. Generate the default config
+
+```bash
+nanobot onboard
+```
+
+The config file is created at:
+
+- **Windows**: `%USERPROFILE%\.nanobot\config.json`
+- **Linux / macOS**: `~/.nanobot/config.json`
+
+### 2. Edit `config.json`
+
+Set `providers` and `agents.defaults` to point at OpenSand:
+
+```json
+{
+  "agents": {
+    "defaults": {
+      "model": "claude-sonnet-4-6",
+      "provider": "opensand"
+    }
+  },
+  "providers": {
+    "opensand": {
+      "apiKey": "your-opensand-api-key",
+      "apiBase": "https://opensand.ai/v1"
+    }
+  }
+}
+```
+
+**Field notes**
+
+- `apiBase` must end with `/v1`
+- `model` must be a real model ID exposed by your OpenSand console
+- You can declare multiple providers; `agents.defaults.provider` chooses which one is active
+
+## ✅ Step 3: Launch & verify
+
+```bash
+nanobot agent
+```
+
+Send any test message (e.g. "Hello, what day is today?"). A normal response means you're set.
+
+## 🔄 Switching models
+
+Edit `agents.defaults.model` in `config.json` and restart `nanobot agent`.
+
+## ❓ Troubleshooting
+
+| Issue | Fix |
+|------|----------|
+| `nanobot` command not found | Windows: add `.local/bin` to PATH |
+| 401 Unauthorized | Confirm `apiKey` is correctly set in `config.json` |
+| Model not found | Make sure `model` matches your OpenSand console exactly |
+| Config changes don't apply | Restart `nanobot agent` to reload |
+
+---
+
+# Oh My Pi
+
+Source: https://opensand.ai/en/docs/apps/oh-my-pi
+
+---
+title: "Oh My Pi"
+source: "https://opensand.ai/en/docs/apps/oh-my-pi"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.138Z"
+---
+# Oh My Pi
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+**Oh My Pi** is a terminal AI coding agent. Custom model providers are added through a `models.yml` config file, with full support for reasoning effort, tool calling, and context management.
+
+- GitHub: [https://github.com/can1357/oh-my-pi](https://github.com/can1357/oh-my-pi)
+- Install guide: [https://github.com/can1357/oh-my-pi#installation](https://github.com/can1357/oh-my-pi#installation)
+
+## 📦 Prerequisites
+
+**What you'll need**
+
+- Oh My Pi installed (the `omp` command is on your PATH)
+- An OpenSand endpoint (use `https://opensand.ai/v1` as usual)
+- An OpenSand API key (generated in the console)
+- A model ID exactly matching one exposed by your OpenSand console (e.g. `claude-sonnet-4-6`, `gemini-2.5-flash`)
+
+## 🔑 Step 1: Set the API key environment variable
+
+```bash
+```
+
+## 🔧 Step 2: Create the config file
+
+Create `~/.omp/agent/models.yml` and add OpenSand as a provider:
+
+```yaml
+providers:
+  opensand:
+    baseUrl: https://opensand.ai/v1
+    api: openai-completions
+    apiKey: OPENSAND_API_KEY
+    authHeader: true
+    models:
+      - id: claude-sonnet-4-6
+        name: Claude Sonnet 4.6
+        reasoning: true
+        thinking:
+          minLevel: high
+          maxLevel: xhigh
+          mode: effort
+        input: [text]
+        contextWindow: 200000
+        maxTokens: 128000
+        compat:
+          supportsDeveloperRole: false
+          supportsReasoningEffort: true
+          maxTokensField: max_tokens
+          reasoningEffortMap:
+            high: high
+            xhigh: max
+          supportsToolChoice: false
+          requiresReasoningContentForToolCalls: true
+          requiresAssistantContentForToolCalls: true
+        extraBody:
+          thinking:
+            type: enabled
+      - id: gemini-2.5-flash
+        name: Gemini 2.5 Flash
+        reasoning: false
+        input: [text]
+        contextWindow: 1000000
+        maxTokens: 65536
+        compat:
+          supportsDeveloperRole: false
+          maxTokensField: max_tokens
+```
+
+**Key configuration fields**
+
+| Field | Purpose |
+|--------|------|
+| `baseUrl` | OpenSand endpoint (keep the `/v1` suffix — Oh My Pi handles path joining) |
+| `authHeader: true` | Send `Authorization: Bearer $OPENSAND_API_KEY` |
+| `supportsDeveloperRole: false` | Send system prompts with the `system` role |
+| `maxTokensField: max_tokens` | Use `max_tokens` as the output limit field |
+| `supportsToolChoice: false` | `tool_choice` param not accepted in thinking mode |
+| `requiresReasoningContentForToolCalls: true` | History messages in tool-call chats must preserve `reasoning_content` |
+| `requiresAssistantContentForToolCalls: true` | Ensure the `content` field of tool-call messages is not empty |
+
+**Important**
+
+The `compat` field in `models.yml` is a **full replacement**, not a merge with built-in defaults. You must set every field you care about — anything omitted falls back to implicit defaults.
+
+## ✅ Step 3: Launch & verify
+
+From your project directory:
+
+```bash
+cd /path/to/your-project
+omp --model opensand/claude-sonnet-4-6
+```
+
+For faster, non-reasoning responses:
+
+```bash
+omp --model opensand/gemini-2.5-flash
+```
+
+Press `Ctrl+L` or type `/model` inside Oh My Pi to switch models at any time.
+
+## ❓ Troubleshooting
+
+| Issue | Fix |
+|------|----------|
+| "Provider not found" on launch | Confirm `~/.omp/agent/models.yml` exists and the YAML is valid |
+| 401 Unauthorized | Make sure `OPENSAND_API_KEY` is exported in the current shell |
+| Reasoning-model tool calls failing | Ensure `requiresReasoningContentForToolCalls: true` is set |
+| Weird behaviour after switching models | Non-reasoning models: drop `reasoning: true` and the `extraBody.thinking` block |
+
+---
+
+# OpenClaw
+
+Source: https://opensand.ai/en/docs/apps/openclaw
+
+---
+title: "OpenClaw"
+source: "https://opensand.ai/en/docs/apps/openclaw"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.138Z"
+---
+# OpenClaw
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+OpenClaw is an open-source, self-hosted personal AI
+assistant platform that connects messaging apps to AI
+agents running on your own hardware. Designed for developers and advanced users, it allows you to have an autonomous AI assistant without giving up control of your data.
+
+- Official Homepage: [https://openclaw.ai](https://openclaw.ai)
+- Project Documentation: [https://docs.openclaw.ai](https://docs.openclaw.ai)
+- GitHub: [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw)
+
+OpenClaw is completely open source. You can browse the source code, submit issues, or contribute at [OpenClaw's GitHub repository](https://github.com/openclaw/openclaw). This tutorial covers the complete steps for installation, configuration, and integrating OpenClaw with OpenSand.
+
+## 🌟 Core Features
+
+### Multi-Channel Integration
+
+- **Multi-channel integration**: Supports various messaging channels like Telegram, Discord, WhatsApp, iMessage, and can be extended to more platforms via plugins.
+- **Single Gateway**: Unified management of all channels through a single Gateway process.
+- **Voice Support**: Supports macOS/iOS/Android voice interaction.
+- **Canvas Interface**: Capable of rendering interactive Canvas interfaces.
+
+### Self-Hosting and Data Security
+
+- **Fully Self-Hosted**: Runs on your own machine or server.
+- **Open Source & Transparent**: MIT open-source license, fully transparent code.
+- **Data Localization**: Context and skills are stored on your local computer, not in the cloud.
+
+### Smart Agent Capabilities
+
+- **Continuous Operation**: Supports persistent background operation with long-term memory.
+- **Scheduled Tasks**: Supports cron-based scheduled tasks.
+- **Session Isolation**: Isolates sessions by agent/workspace/sender.
+- **Multi-Agent Routing**: Supports collaborative work among multiple agents.
+- **Tool Calling**: Native support for tool calling and code execution.
+
+## 📦 Pre-integration Preparation
+
+**Preparation Information**
+
+- Node.js 22 or higher
+- An available OpenSand address (usually ending with `/v1`)
+- An available OpenSand API Key
+
+Before integrating with OpenSand, it's recommended to first get the Gateway and Control UI running according to OpenClaw's currently recommended official process. This makes it easier to distinguish whether OpenClaw itself hasn't started or if the model provider configuration is incorrect when troubleshooting later.
+
+### 1. Install OpenClaw (macOS/Linux)
+
+```bash
+curl -fsSL https://openclaw.ai/install.sh | bash
+```
+
+For other installation methods, refer to the OpenClaw official documentation: [Getting Started](https://docs.openclaw.ai/start/getting-started).
+
+### 2. Run the Onboarding Wizard
+
+```bash
+openclaw onboard --install-daemon
+```
+
+This wizard completes basic authentication, Gateway setup, and optional channel initialization. The goal here is to get OpenClaw running first, then switch the default model to OpenSand later.
+
+### 3. Check Gateway and Control UI
+
+```bash
+openclaw gateway status
+```
+
+```bash
+openclaw dashboard
+```
+
+If your browser can open the Control UI, it means OpenClaw's basic operation is normal. At this stage, there's no need to configure messaging channels like Telegram, Discord, or Feishu yet.
+
+### 4. Locate the Configuration File
+
+OpenClaw's configuration file is usually located at `~/.openclaw/openclaw.json`. You can continue to modify it based on what the onboarding wizard generates.
+
+**Path-Related Environment Variables**
+
+If you run OpenClaw under a dedicated service account, or wish to customize the configuration/state directory, you can use:
+
+- `OPENCLAW_HOME`
+- `OPENCLAW_STATE_DIR`
+- `OPENCLAW_CONFIG_PATH`
+
+For detailed explanations, see the official environment variables documentation: [Environment Variables](https://docs.openclaw.ai/help/environment).
+
+## 🚀 Using OpenSand as a Model Provider
+
+OpenClaw supports integrating custom or OpenAI-compatible model gateways via `models.providers`. For OpenSand, the most common approach is to add it as a custom provider to the configuration, then point the default model to `newapi/MODEL_ID`.
+
+### Integration Approach
+
+1. Declare a `opensand` provider under `models.providers`.
+2. Point `baseUrl` to your OpenSand address, ensuring it includes `/v1`.
+3. Set `api` to `openai-completions`.
+4. List the model IDs you want OpenClaw to use in `models`.
+5. Switch the default model to `opensand/...` in `agents.defaults.model.primary`.
+
+### Recommended Practice: Store API Keys in Environment Variables
+
+First, provide your OpenSand key in the current shell, service environment, or a `.env` file readable by OpenClaw:
+
+```bash
+```
+
+Then, add or modify the following snippet in `openclaw.json`:
+
+```json5
+{
+  models: {
+    mode: "merge",
+    providers: {
+      opensand: {
+        baseUrl: "https://opensand.ai/v1",
+        apiKey: "${OPENSAND_API_KEY}",
+        api: "openai-completions",
+        models: [
+          { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
+          { id: "kimi-k2.5", name: "Kimi K2.5" },
+        ],
+      },
+    },
+  },
+
+  agents: {
+    defaults: {
+      model: {
+        primary: "opensand/gemini-2.5-flash",
+        fallbacks: ["opensand/kimi-k2.5"],
+      },
+      models: {
+        "opensand/gemini-2.5-flash": { alias: "flash" },
+        "opensand/kimi-k2.5": { alias: "kimi" },
+      },
+    },
+  },
+}
+```
+
+This is not a complete configuration to be copied verbatim, but rather the most critical part for integrating OpenSand. As long as the `provider`, model ID, and default model references are correctly matched, OpenClaw will be able to call the model resources you expose via OpenSand.
+
+### Key Configuration Explanation
+
+| Configuration Item | Description |
+| --- | --- |
+| `models.mode` | Recommended to set to `merge` to append `opensand` while retaining OpenClaw's built-in providers. |
+| `models.providers.opensand.baseUrl` | Your OpenSand address, usually needs to include `/v1`. |
+| `models.providers.opensand.apiKey` | OpenSand key, recommended to inject via `${OPENSAND_API_KEY}`. |
+| `models.providers.opensand.api` | For OpenAI-compatible gateways like OpenSand, use `openai-completions`. |
+| `models.providers.opensand.models` | The model IDs listed here must match the actual model names exposed by your OpenSand. |
+| `agents.defaults.model.primary` | Default primary model, format must be `provider/model-id`. |
+| `agents.defaults.model.fallbacks` | Fallback model list, automatically switches if the primary model fails. |
+| `agents.defaults.models` | Optional, used to create aliases for models, convenient for referencing in UI or conversations. |
+
+### Verify Successful Integration
+
+After completing the configuration, return to or reopen the Control UI:
+
+```bash
+openclaw dashboard
+```
+
+If you can initiate conversations normally in OpenClaw and the default model has become `opensand/...`, then the integration is successful. You can also use:
+
+```bash
+openclaw models list
+```
+
+to confirm that models with the `newapi/` prefix appear in the selectable list.
+
+### Common Issues
+
+- `baseUrl` without `/v1`: This is one of the most common integration errors.
+- Incorrect model ID: `primary` and `fallbacks` must correspond to the `id` in `models.providers.opensand.models`.
+- Key only effective in the current terminal: If Gateway runs as a background service, ensure the service process can also read `OPENSAND_API_KEY`.
+- For foreground troubleshooting: You can use the official foreground running method `openclaw gateway --port 18789` to observe logs and errors.
+
+---
+
+# OpenCode
+
+Source: https://opensand.ai/en/docs/apps/opencode
+
+---
+title: "OpenCode"
+source: "https://opensand.ai/en/docs/apps/opencode"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.139Z"
+---
+# OpenCode
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+**OpenCode** is an open-source terminal AI coding agent with both TUI and CLI modes. It's compatible with **75+ AI service providers** and, via its built-in `@ai-sdk/anthropic` and `@ai-sdk/openai-compatible` adapters, can seamlessly connect to both Anthropic-protocol models and OpenAI-compatible models served by OpenSand.
+
+- Website: [https://opencode.ai](https://opencode.ai)
+- GitHub: [https://github.com/opencode-ai/opencode](https://github.com/opencode-ai/opencode)
+
+## 📦 Prerequisites
+
+**What you'll need**
+
+- OpenCode installed
+- An OpenSand endpoint (must end with `/v1`)
+- An OpenSand API key (generated in the console)
+- A model ID exactly matching one exposed by your OpenSand console (e.g. `claude-sonnet-4-6`, `claude-haiku-4-5`, `deepseek-v4-pro`, `gpt-5.5`)
+
+## 🚀 Option 1: Interactive menu (recommended for new users)
+
+Add OpenSand directly from the OpenCode TUI:
+
+1. Launch the OpenCode TUI
+2. Type `/connect`
+3. In the provider list, choose **"Other"** (custom endpoint)
+4. Fill in:
+   - **Base URL**: `https://opensand.ai/v1`
+   - **API Key**: your OpenSand API key
+5. After saving, type `/models` and switch to the newly added model
+
+## 🔧 Option 2: Config file (recommended for regular use)
+
+Good for pinning multiple models and reusing across projects.
+
+### 1. Edit OpenCode config
+
+File location:
+
+- **Global**: `~/.config/opencode/opencode.json`
+- **Per-project** (takes precedence): `opencode.json` in your project root
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "opensand-anthropic": {
+      "npm": "@ai-sdk/anthropic",
+      "name": "OpenSand (Anthropic)",
+      "options": {
+        "baseURL": "https://opensand.ai/v1",
+        "apiKey": "sk-123"
+      },
+      "models": {
+        "claude-sonnet-4-6": {
+          "name": "Claude Sonnet 4.6",
+          "limit": { "context": 200000, "output": 8192 }
+        },
+        "haiku": {
+          "id": "claude-haiku-4-5",
+          "name": "Claude Haiku 4.5 (fast)",
+          "limit": { "context": 200000, "output": 8192 }
+        }
+      }
+    },
+    "opensand": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenSand",
+      "options": {
+        "baseURL": "https://opensand.ai/v1",
+        "apiKey": "sk-123"
+      },
+      "models": {
+        "deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "limit": { "context": 131072, "output": 16384 }
+        },
+        "deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro",
+          "limit": { "context": 131072, "output": 16384 }
+        },
+        "gpt-5.5": {
+          "name": "GPT-5.5",
+          "limit": { "context": 128000, "output": 32768 }
+        },
+        "gpt-5.4": {
+          "name": "GPT-5.4",
+          "limit": { "context": 128000, "output": 32768 }
+        },
+        "gpt-5.4-mini": {
+          "name": "GPT-5.4 Mini",
+          "limit": { "context": 128000, "output": 16384 }
+        }
+      }
+    }
+  },
+  "model": "opensand-anthropic/claude-sonnet-4-6",
+  "autoshare": false
+}
+```
+
+**Key fields**
+
+- The example declares two providers:
+  - `opensand-anthropic`: `npm` **must** be `@ai-sdk/anthropic` — use this for Claude and other Anthropic-protocol models
+  - `opensand`: `npm` **must** be `@ai-sdk/openai-compatible` — use this for DeepSeek, GPT, and other OpenAI-compatible models
+- Both providers share the same `baseURL`: `https://opensand.ai/v1`
+- `apiKey` is embedded directly in the config file — replace `sk-123` with your real OpenSand API key (the example value is a placeholder)
+- Model IDs under `models` must exactly match the model names exposed by your OpenSand console. You can use a custom alias by adding an `id` field pointing to the real model (see `haiku` → `claude-haiku-4-5` in the example)
+- The top-level `model` field sets the default model in the form `<provider>/<model>`
+- Per-project `opencode.json` takes precedence over the global config
+
+### 2. Configure the API key
+
+The example above already embeds the API key directly in `opencode.json` via `options.apiKey`. Just replace `sk-123` with your real OpenSand key — no extra step required.
+
+**Optional: manage keys via auth.json**
+
+If you'd rather not store the API key in `opencode.json`, remove the `apiKey` field from the config and edit `~/.local/share/opencode/auth.json` instead:
+
+```json
+{
+  "opensand-anthropic": {
+    "type": "api",
+    "key": "sk-your-opensand-key"
+  },
+  "opensand": {
+    "type": "api",
+    "key": "sk-your-opensand-key"
+  }
+}
+```
+
+Or use the CLI:
+
+```bash
+opencode auth login
+```
+
+Pick `opensand-anthropic` and/or `opensand` when prompted and paste your API key.
+
+## ✅ Step 3: Verify
+
+Launch OpenCode and type `/models`. You should see entries like `opensand-anthropic/claude-sonnet-4-6` and `opensand/deepseek-v4-pro`. Pick a model and send a test message — a normal response means you're set.
+
+## ❓ Troubleshooting
+
+| Issue | Fix |
+|------|----------|
+| OpenSand models don't show in `/models` | Check that `provider.opensand-anthropic.models` or `provider.opensand.models` is populated |
+| Model not found | Confirm the model ID matches your OpenSand console exactly |
+| Invalid API key | Verify `apiKey` in `opencode.json` or your `auth.json`; or re-run `opencode auth login` |
+| Claude models return protocol errors | Make sure you're calling the `opensand-anthropic` provider (`@ai-sdk/anthropic`), not `opensand` (`@ai-sdk/openai-compatible`) |
+| Config changes not picked up | Restart OpenCode; per-project config wins over global |
+
+---
+
+# Pi
+
+Source: https://opensand.ai/en/docs/apps/pi-mono
+
+---
+title: "Pi"
+source: "https://opensand.ai/en/docs/apps/pi-mono"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.139Z"
+---
+# Pi
+
+> This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
+
+
+**Project Introduction**
+
+**Pi** (pi-mono) is a minimal, highly extensible terminal coding framework. It ships with TypeScript extensions, skills, prompt templates, themes, a tree-structured session model, and **15+ built-in providers**. Adding OpenSand as a custom OpenAI-compatible provider is a single config edit away.
+
+- GitHub: [https://github.com/can1357/pi-mono](https://github.com/can1357/pi-mono)
+
+## 📦 Prerequisites
+
+**What you'll need**
+
+- Pi (pi-mono) installed
+- An OpenSand endpoint (use `https://opensand.ai/v1` as usual)
+- An OpenSand API key (generated in the console)
+- A model ID exactly matching one exposed by your OpenSand console (e.g. `claude-sonnet-4-6`, `gemini-2.5-flash`)
+
+## 🔑 Step 1: Set the API key env var
+
+```bash
+```
+
+## 🔧 Step 2: Edit the Pi config file
+
+Add OpenSand as a provider in Pi's config file:
+
+```json
+{
+  "providers": {
+    "opensand": {
+      "baseUrl": "https://opensand.ai/v1",
+      "api": "openai-completions",
+      "apiKey": "$OPENSAND_API_KEY",
+      "models": [
+        {
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6",
+          "contextWindow": 200000,
+          "maxTokens": 128000,
+          "input": ["text"],
+          "reasoning": true,
+          "compat": {
+            "requiresReasoningContentOnAssistantMessages": true,
+            "thinkingFormat": "anthropic",
+            "reasoningEffortMap": {
+              "minimal": "low",
+              "low": "low",
+              "medium": "medium",
+              "high": "high",
+              "xhigh": "max"
+            }
+          }
+        },
+        {
+          "id": "gemini-2.5-flash",
+          "name": "Gemini 2.5 Flash",
+          "contextWindow": 1000000,
+          "maxTokens": 65536,
+          "input": ["text"],
+          "reasoning": false
+        }
+      ]
+    }
+  }
+}
+```
+
+**Field notes**
+
+- `baseUrl` uses the standard OpenSand endpoint `https://opensand.ai/v1`
+- `api` is always `openai-completions`
+- `apiKey` uses the `$OPENSAND_API_KEY` variable reference
+- `compat.requiresReasoningContentOnAssistantMessages: true` keeps reasoning content on historical messages when thinking mode is active
+- `reasoningEffortMap` maps Pi's effort levels to the target model's supported levels; you can omit this block for non-reasoning models
+
+## ✅ Step 3: Launch & verify
+
+Launch Pi, pick **opensand** in the provider selector, then pick a model. Send a test message — a normal response means you're set.
+
+## ❓ Troubleshooting
+
+| Issue | Fix |
+|------|----------|
+| opensand not in the provider list | Check the config file path and JSON format |
+| 401 Unauthorized | Make sure `OPENSAND_API_KEY` is exported in the current shell |
+| Reasoning model acts weird | Verify `requiresReasoningContentOnAssistantMessages` and `thinkingFormat` match the model |
+| Model not found | Confirm `models[].id` matches your OpenSand console |
+
+---
+
+# API Tokens
+
+Source: https://opensand.ai/en/docs/guide/console/api-token
+
+---
+title: "API Tokens"
+source: "https://opensand.ai/en/docs/guide/console/api-token"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# API Tokens
+
+API tokens are used to call OpenSand APIs. Use separate tokens for different projects, tools, or team members.
+
+## Recommendations
+
+- Use a different API key for each project.
+- Do not commit API keys to public repositories.
+- Delete and recreate a key immediately if it is exposed.
+- Use a separate key for automation so usage is easy to track.
+
+## How To Use a Token
+
+Add this request header:
+
+```http
+Authorization: Bearer sk-your-api-key
+```
+
+Client tools should use the same value in their API Key field.
+
+## Common Beginner Questions
+
+| Question | Answer |
+|---|---|
+| Should I include quotes around the key? | Not in client fields. In code, quote it according to the programming language. |
+| Is Base URL part of the key? | No. Base URL is the endpoint; API key is the credential. |
+| Can one key be shared by multiple tools? | Yes, but separate keys make logs and cost easier to track. |
+| What if a key is exposed? | Delete it immediately and create a new one. |
+
+## Security Tips
+
+- Do not expose API keys in frontend code.
+- Do not commit `.env`, config files, or screenshots containing keys.
+- In production, use environment variables or secret management.
+
+---
+
+# Chat
+
+Source: https://opensand.ai/en/docs/guide/console/chat
+
+---
+title: "Chat"
+source: "https://opensand.ai/en/docs/guide/console/chat"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Chat
+
+Chat is a quick way to try enabled OpenSand models.
+
+## Tips
+
+- Start with a stable, cost-effective model.
+- Long conversations increase context cost.
+- If a response looks wrong, switch models or check whether the selected model supports the task.
+
+---
+
+# Dashboard
+
+Source: https://opensand.ai/en/docs/guide/console/dashboard
+
+---
+title: "Dashboard"
+source: "https://opensand.ai/en/docs/guide/console/dashboard"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Dashboard
+
+The dashboard helps you review account status, model availability, recent usage, and request health.
+
+## What You Can Do
+
+- Check balance or quota.
+- Review recent request trends.
+- Jump to tokens, logs, models, and Playground.
+- Determine whether an issue is caused by the key, model, quota, or request parameters.
+
+If you are new, create an API key first, then send a test message in Playground.
+
+## Recommended Beginner Flow
+
+1. Check whether balance or quota is available.
+2. Create an API key.
+3. Test a model in Playground.
+4. Copy the same model ID into your client after the test works.
+5. If the client fails, check usage logs for request records.
+
+---
+
+# Playground
+
+Source: https://opensand.ai/en/docs/guide/console/playground
+
+---
+title: "Playground"
+source: "https://opensand.ai/en/docs/guide/console/playground"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Playground
+
+Playground lets you test models in the console before writing code.
+
+## Use It To
+
+- Verify that an API key and model work.
+- Compare model quality.
+- Debug prompts and parameters.
+- Confirm a model ID before configuring a client.
+
+After a test succeeds, use the same model name in your client or API request.
+
+## Testing Tips
+
+- Start with one simple message so prompt issues and API issues are not mixed together.
+- Disable streaming, tools, browsing, and other advanced features first.
+- If one model fails, try a basic chat model to identify whether the issue is model-specific.
+- Copy the model ID that works in Playground directly into your client.
+
+---
+
+# Profile
+
+Source: https://opensand.ai/en/docs/guide/console/profile
+
+---
+title: "Profile"
+source: "https://opensand.ai/en/docs/guide/console/profile"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Profile
+
+The profile page manages basic account and security settings.
+
+## Recommendations
+
+- Confirm your email or login method works.
+- Do not share personal accounts or API keys.
+- For team workflows, create separate tokens for separate uses.
+
+---
+
+# Usage Logs
+
+Source: https://opensand.ai/en/docs/guide/console/usage-log
+
+---
+title: "Usage Logs"
+source: "https://opensand.ai/en/docs/guide/console/usage-log"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Usage Logs
+
+Usage logs help troubleshoot requests and analyze cost.
+
+## What To Check
+
+- Request time: locate when an issue happened.
+- Model: confirm the expected model was used.
+- Status code: identify success, auth failure, rate limit, or model errors.
+- Tokens and cost: understand where spending comes from.
+
+## Common Troubleshooting
+
+| Symptom | Check |
+|---|---|
+| 401 | API key correctness |
+| 429 | Rate limit or quota |
+| Model not found | Model ID spelling |
+| Unexpected cost | Long context or expensive model settings |
+
+## How To Read a Log Entry
+
+A log entry usually answers four questions:
+
+1. Who called it: API key or user information.
+2. What was called: model and endpoint path.
+3. Did it work: status code and error message.
+4. How much it cost: tokens, image/video parameters, and usage cost.
+
+When a user says a tool does not work, ask them to send one request from the tool, then refresh logs. If no log appears, the client likely did not reach OpenSand.
+
+---
+
+# Pricing and Usage
+
+Source: https://opensand.ai/en/docs/guide/pricing
+
+---
+title: "Pricing and Usage"
+source: "https://opensand.ai/en/docs/guide/pricing"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.128Z"
+---
+# Pricing and Usage
+
+OpenSand usage cost depends on the model, input and output tokens, image or video parameters, and the current site configuration. This page avoids hard-coded prices so users do not read stale numbers.
+
+## Where To Check Pricing
+
+- The console model or pricing page shows currently available models and rates.
+- Usage logs show per-request usage and cost.
+- If balance or quota is insufficient, reduce the model tier, shorten output, or add credits.
+
+## Text Model Usage
+
+Text models are usually billed by tokens:
+
+- Input tokens: user messages, system prompts, and conversation history.
+- Output tokens: model-generated content.
+- Long context and multi-turn chat increase input tokens.
+
+You can think of tokens as pieces of text that the model reads or writes. Longer conversations and more history increase input tokens.
+
+### Why the Same Question Can Cost Differently
+
+- Different model: stronger models usually cost more.
+- Different output length: long answers use more output tokens.
+- Different context: many previous messages increase input tokens.
+- Tool calling, reasoning, image, or video features may add cost.
+
+### Beginner Recommendation
+
+Start with a balanced or lower-cost model while building your workflow. Switch to stronger models after prompts and product behavior are stable.
+
+## Image and Video Usage
+
+Image and video models may also depend on size, duration, resolution, and audio settings. Test with small images or short videos before submitting expensive jobs.
+
+Video generation needs extra care. Duration, resolution, and audio generation can all increase cost and waiting time.
+
+## Cost Control Tips
+
+- Draft with a cheaper or faster model first.
+- Set a reasonable `max_tokens` or output length.
+- Test video prompts with short duration.
+- Review usage logs regularly to find abnormal consumption.
+
+## How To Investigate Unexpected Cost
+
+1. Open usage logs and find the abnormal request by time.
+2. Check the model to see whether a high-cost model was used.
+3. Check input and output tokens to see whether context was too long.
+4. Check whether a script or client is retrying in a loop.
+5. Use separate API keys for separate projects to identify the source quickly.
+
+---
+
+# Quick Start
+
+Source: https://opensand.ai/en/docs/guide/quick-start
+
+---
+title: "Quick Start"
+source: "https://opensand.ai/en/docs/guide/quick-start"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.128Z"
+---
+# Quick Start
+
+This guide helps you create an API key, make your first request, and configure common tools.
+
+## Understand Three Concepts First
+
+| Concept | Meaning | Common Field Names |
+|---|---|---|
+| API Key | Your credential, usually starting with `sk-` | API Key, Token, Secret |
+| Base URL | The OpenSand API entry point | Base URL, API Address, Endpoint |
+| Model | The model you want to call | Model, Model ID, Deployment |
+
+Most OpenAI-compatible tools only need these three values:
+
+```text
+Base URL: https://opensand.ai/v1
+API Key: sk-your-api-key
+Model: query the console or /v1/models
+```
+
+## 1. Create an API Key
+
+1. Open [https://opensand.ai](https://opensand.ai) and sign in.
+2. Go to API tokens in the console.
+3. Create a new token, copy it, and store it safely.
+
+API keys are usually shown only once. If a key is exposed, delete it and create a new one.
+
+Create separate keys for separate uses:
+
+- One key for desktop chat tools.
+- One key for coding tools.
+- One key for automation scripts.
+
+This makes logs and cost tracking much easier later.
+
+## 2. Make Your First Chat Request
+
+```bash
+curl https://opensand.ai/v1/chat/completions \
+  -H "Authorization: Bearer sk-your-api-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-4o",
+    "messages": [
+      {"role": "user", "content": "Introduce OpenSand in one sentence"}
+    ]
+  }'
+```
+
+## 3. Use the Python SDK
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://opensand.ai/v1",
+    api_key="sk-your-api-key",
+)
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+
+print(response.choices[0].message.content)
+```
+
+## 4. List Models
+
+```bash
+curl https://opensand.ai/v1/models \
+  -H "Authorization: Bearer sk-your-api-key"
+```
+
+Use the returned `id` as the model name in requests.
+
+If this step succeeds, your API key, Base URL, and account status are working. If a specific client still fails, the issue is usually in that client's settings.
+
+## 5. Configure Tools
+
+For tools that support OpenAI Compatible, Custom Endpoint, or custom Base URL:
+
+| Field | Value |
+|---|---|
+| Base URL | `https://opensand.ai/v1` |
+| API Key | Your OpenSand API key |
+| Model | A model ID returned by the console or `/v1/models` |
+
+Next, see [App Integrations](/en/docs/apps).
+
+## Common Errors
+
+| Error | Likely Cause | Fix |
+|---|---|---|
+| 401 Unauthorized | Wrong, expired, or missing API key | Copy the key again and check `Authorization: Bearer sk-...` |
+| 403 Forbidden | Account, quota, group, or model permission issue | Check balance, token status, and model access |
+| model not found | Wrong model name | Call `/v1/models` and copy the returned `id` |
+| connection error | Wrong Base URL | Most tools should use `https://opensand.ai/v1` |
+| empty response | Model error or client parser issue | Try another model and check request logs |
+
+## Next Steps
+
+- For code integration, see [API Docs](/en/docs/api).
+- For client setup, see [App Integrations](/en/docs/apps).
+- For usage cost, see [Pricing and Usage](/en/docs/guide/pricing).
+
+---
+
+# Project Introduction
+
+Source: https://opensand.ai/en/docs/guide/wiki/basic-concepts/project-introduction
+
+---
+title: "Project Introduction"
+source: "https://opensand.ai/en/docs/guide/wiki/basic-concepts/project-introduction"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# What Is OpenSand?
+
+OpenSand is a unified AI API gateway. It aggregates different models and providers behind one entry point, so developers maintain one API key, one Base URL, and one integration pattern.
+
+## Who It Is For
+
+- Developers who want to quickly integrate multiple model families.
+- Teams that need centralized API key, usage, and model access management.
+- Users who want Claude Code, Codex CLI, Cherry Studio, OpenClaw, and other tools connected to one platform.
+
+## Core Value
+
+- Unified interface: less provider-specific integration work.
+- Centralized management: keys, models, usage, and logs in one place.
+- Tool compatibility: works with OpenAI APIs and common AI tools.
+
+---
+
+# Technical Architecture
+
+Source: https://opensand.ai/en/docs/guide/wiki/basic-concepts/technical-architecture
+
+---
+title: "Technical Architecture"
+source: "https://opensand.ai/en/docs/guide/wiki/basic-concepts/technical-architecture"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Technical Architecture
+
+OpenSand accepts client requests through a unified API entry point, then routes them to the appropriate upstream model provider according to model, provider, and policy configuration.
+
+## Request Flow
+
+1. A client sends a request with an API key.
+2. OpenSand checks authentication, quota, model, and policy.
+3. The request is routed to an available provider.
+4. Usage and logs are recorded.
+5. The client receives a unified response.
+
+## What This Means for Users
+
+- Clients only need one Base URL.
+- Switching models usually means changing the `model` field.
+- Troubleshooting should start from request logs.
+
+---
+
+# Changelog
+
+Source: https://opensand.ai/en/docs/guide/wiki/changelog
+
+---
+title: "Changelog"
+source: "https://opensand.ai/en/docs/guide/wiki/changelog"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Changelog
+
+This page records user-facing OpenSand updates, model changes, and important fixes.
+
+## Suggested Format
+
+For each release, record:
+
+- Release date.
+- Added or removed models.
+- API compatibility changes.
+- Console changes.
+- Migration notes that affect users.
+
+This page is a template. Add real release notes before publishing.
+
+---
+
+# Project Records
+
+Source: https://opensand.ai/en/docs/guide/wiki/project-records/changelog
+
+---
+title: "Project Records"
+source: "https://opensand.ai/en/docs/guide/wiki/project-records/changelog"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Project Records
+
+Project records are maintenance notes for maintainers. Users care about the result; maintainers also need context and impact.
+
+## Suggested Notes
+
+- Why the change was made.
+- Which models, APIs, or console pages are affected.
+- Whether users need to migrate.
+- Whether screenshots or scripts need updates.
+
+---
+
+# Special Thanks
+
+Source: https://opensand.ai/en/docs/guide/wiki/project-records/special-thanks
+
+---
+title: "Special Thanks"
+source: "https://opensand.ai/en/docs/guide/wiki/project-records/special-thanks"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Special Thanks
+
+Use this page to record people, teams, and community resources that should be publicly acknowledged.
+
+Only include real, public, and confirmed names and links.
+
+---
+
+# Special Thanks
+
+Source: https://opensand.ai/en/docs/guide/wiki/special-thanks
+
+---
+title: "Special Thanks"
+source: "https://opensand.ai/en/docs/guide/wiki/special-thanks"
+adapted_for: "OpenSand"
+adapted_at: "2026-05-22T02:54:35.129Z"
+---
+# Special Thanks
+
+Thanks to everyone who tests, uses, gives feedback on, deploys, and promotes OpenSand.
+
+Before publishing, add real contributors, partners, and community resources here.

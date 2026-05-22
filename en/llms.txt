@@ -1,0 +1,60 @@
+# OpenSand Docs (en)
+
+> Human-curated Markdown index for OpenSand documentation.
+
+## Pages
+- [Quick Start](https://opensand.ai/en/docs): /
+- [API Docs](https://opensand.ai/en/docs/api): /api
+- [Claude Messages](https://opensand.ai/en/docs/api/ai-model/chat/createmessage): /api/ai-model/chat/createmessage
+- [Gemini Text Chat](https://opensand.ai/en/docs/api/ai-model/chat/gemini/geminirelayv1beta): /api/ai-model/chat/gemini/geminirelayv1beta
+- [Gemini Multimodal Chat](https://opensand.ai/en/docs/api/ai-model/chat/gemini/geminirelayv1beta-391536411): /api/ai-model/chat/gemini/geminirelayv1beta-391536411
+- [Chat Completions](https://opensand.ai/en/docs/api/ai-model/chat/openai/createchatcompletion): /api/ai-model/chat/openai/createchatcompletion
+- [Responses](https://opensand.ai/en/docs/api/ai-model/chat/openai/createresponse): /api/ai-model/chat/openai/createresponse
+- [Text Completions](https://opensand.ai/en/docs/api/ai-model/completions/createcompletion): /api/ai-model/completions/createcompletion
+- [Embeddings](https://opensand.ai/en/docs/api/ai-model/embeddings/openai/createembedding): /api/ai-model/embeddings/openai/createembedding
+- [Gemini Image Generation](https://opensand.ai/en/docs/api/ai-model/images/gemini/geminirelayv1beta-383837589): /api/ai-model/images/gemini/geminirelayv1beta-383837589
+- [Gemini Image Editing](https://opensand.ai/en/docs/api/ai-model/images/gemini/geminirelayv1beta-389846313): /api/ai-model/images/gemini/geminirelayv1beta-389846313
+- [Image Editing](https://opensand.ai/en/docs/api/ai-model/images/openai/post-v1-images-edits): /api/ai-model/images/openai/post-v1-images-edits
+- [Image Generation](https://opensand.ai/en/docs/api/ai-model/images/openai/post-v1-images-generations): /api/ai-model/images/openai/post-v1-images-generations
+- [Model List](https://opensand.ai/en/docs/api/ai-model/models/list/listmodels): /api/ai-model/models/list/listmodels
+- [Gemini Model List](https://opensand.ai/en/docs/api/ai-model/models/list/listmodelsgemini): /api/ai-model/models/list/listmodelsgemini
+- [HappyHorse Video Generation](https://opensand.ai/en/docs/api/ai-model/videos/happyhorse): /api/ai-model/videos/happyhorse
+- [PixVerse Video Generation](https://opensand.ai/en/docs/api/ai-model/videos/pixverse): /api/ai-model/videos/pixverse
+- [Seedance Video Generation](https://opensand.ai/en/docs/api/ai-model/videos/seedance): /api/ai-model/videos/seedance
+- [Veo 3.1 Video Generation](https://opensand.ai/en/docs/api/ai-model/videos/veo31): /api/ai-model/videos/veo31
+- [Wanx 2.7 Video Generation](https://opensand.ai/en/docs/api/ai-model/videos/wanx27): /api/ai-model/videos/wanx27
+- [App Integrations](https://opensand.ai/en/docs/apps): /apps
+- [AionUi](https://opensand.ai/en/docs/apps/aionui): /apps/aionui
+- [AstrBot](https://opensand.ai/en/docs/apps/astrbot): /apps/astrbot
+- [CC Switch](https://opensand.ai/en/docs/apps/cc-switch): /apps/cc-switch
+- [Cherry Studio](https://opensand.ai/en/docs/apps/cherry-studio): /apps/cherry-studio
+- [Claude Code](https://opensand.ai/en/docs/apps/claude-code): /apps/claude-code
+- [CodeBuddy](https://opensand.ai/en/docs/apps/codebuddy): /apps/codebuddy
+- [Codex CLI](https://opensand.ai/en/docs/apps/codex-cli): /apps/codex-cli
+- [Copilot CLI](https://opensand.ai/en/docs/apps/copilot-cli): /apps/copilot-cli
+- [Crush](https://opensand.ai/en/docs/apps/crush): /apps/crush
+- [Factory Droid CLI](https://opensand.ai/en/docs/apps/factory-droid-cli): /apps/factory-droid-cli
+- [FluentRead](https://opensand.ai/en/docs/apps/fluent-read): /apps/fluent-read
+- [Hermes Agent](https://opensand.ai/en/docs/apps/hermes-agent): /apps/hermes-agent
+- [LangBot](https://opensand.ai/en/docs/apps/langbot): /apps/langbot
+- [LunaTranslator](https://opensand.ai/en/docs/apps/luna-translator): /apps/luna-translator
+- [Memoh](https://opensand.ai/en/docs/apps/memoh): /apps/memoh
+- [nanobot](https://opensand.ai/en/docs/apps/nanobot): /apps/nanobot
+- [Oh My Pi](https://opensand.ai/en/docs/apps/oh-my-pi): /apps/oh-my-pi
+- [OpenClaw](https://opensand.ai/en/docs/apps/openclaw): /apps/openclaw
+- [OpenCode](https://opensand.ai/en/docs/apps/opencode): /apps/opencode
+- [Pi](https://opensand.ai/en/docs/apps/pi-mono): /apps/pi-mono
+- [API Tokens](https://opensand.ai/en/docs/guide/console/api-token): /guide/console/api-token
+- [Chat](https://opensand.ai/en/docs/guide/console/chat): /guide/console/chat
+- [Dashboard](https://opensand.ai/en/docs/guide/console/dashboard): /guide/console/dashboard
+- [Playground](https://opensand.ai/en/docs/guide/console/playground): /guide/console/playground
+- [Profile](https://opensand.ai/en/docs/guide/console/profile): /guide/console/profile
+- [Usage Logs](https://opensand.ai/en/docs/guide/console/usage-log): /guide/console/usage-log
+- [Pricing and Usage](https://opensand.ai/en/docs/guide/pricing): /guide/pricing
+- [Quick Start](https://opensand.ai/en/docs/guide/quick-start): /guide/quick-start
+- [Project Introduction](https://opensand.ai/en/docs/guide/wiki/basic-concepts/project-introduction): /guide/wiki/basic-concepts/project-introduction
+- [Technical Architecture](https://opensand.ai/en/docs/guide/wiki/basic-concepts/technical-architecture): /guide/wiki/basic-concepts/technical-architecture
+- [Changelog](https://opensand.ai/en/docs/guide/wiki/changelog): /guide/wiki/changelog
+- [Project Records](https://opensand.ai/en/docs/guide/wiki/project-records/changelog): /guide/wiki/project-records/changelog
+- [Special Thanks](https://opensand.ai/en/docs/guide/wiki/project-records/special-thanks): /guide/wiki/project-records/special-thanks
+- [Special Thanks](https://opensand.ai/en/docs/guide/wiki/special-thanks): /guide/wiki/special-thanks
