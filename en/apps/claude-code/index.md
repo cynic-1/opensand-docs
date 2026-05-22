@@ -290,6 +290,10 @@ If the system prevents Claude Code from running:
 - Click "Open Anyway" or "Allow"
 - Or run in Terminal: `sudo spctl --master-disable`
 
+You can also use CC Switch directly.
+
+![ccswitch](../../../pictures/apps/claude_code/ccswitch.png)
+
 ### Linux Graphical Guide
 
 #### 1. Install Claude Code
@@ -331,8 +335,6 @@ Enter the command:
 ```bash
 curl -fsSL https://opensand.ai/scripts/claude-cli-setup.sh | bash
 ```
-
-![macos-configure](../../../pictures/apps/claude_code/macos_configure.png)
 
 #### 3. Start Using Claude Code
 

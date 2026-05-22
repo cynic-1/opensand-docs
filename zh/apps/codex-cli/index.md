@@ -101,8 +101,6 @@ npm i -g @openai/codex
 iex (irm 'https://opensand.ai/scripts/codex-cli-setup.ps1')
 ```
 
-![windows-configure](../../../pictures/apps/codex/windows_configure.png)
-
 #### 5.开始使用 Codex CLI
 
 现在你可以开始使用 Codex CLI 了！
@@ -244,8 +242,6 @@ codex --version
 curl -fsSL https://opensand.ai/scripts/codex-cli-setup.sh | bash
 ```
 
-![macos-configure](../../../pictures/apps/codex/macos_configure.png)
-
 #### 5.开始使用 Codex CLI
 
 现在你可以开始使用 Codex CLI 了！
@@ -377,8 +373,6 @@ codex --version
 ```bash
 curl -fsSL https://opensand.ai/scripts/codex-cli-setup.sh | bash
 ```
-
-![macos-configure](../../../pictures/apps/codex/macos_configure.png)
 
 #### 4.开始使用 Codex CLI
 

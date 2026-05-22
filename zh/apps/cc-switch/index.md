@@ -8,15 +8,6 @@ adapted_at: "2026-05-22T02:54:35.092Z"
 
 > 本页以 OpenSand 的 API 地址、脚本地址和控制台字段为准；第三方客户端界面可能随版本变化，请以你当前安装版本为准。
 
-
-**聊天设置选项**
-
-在 OpenSand 控制台的系统设置->聊天设置中，可添加如下快捷选项，便于在令牌管理页一键填充到 CC Switch：
-
-    ```json
-    { "CC Switch": "ccswitch" }
-    ```
-
 🔀 CC Switch 是一款开源、跨平台的 AI CLI 统一管理工具，支持 Claude Code、Codex 和 Gemini CLI
 的 Provider 配置一键切换、MCP 服务器统一管理、系统提示词（Prompts）管理以及 Skills 扩展管理，
 让你在多个 AI 编程助手之间自由切换，无需手动编辑配置文件。
@@ -70,6 +61,12 @@ CC Switch 支持 `ccswitch://` Deep Link 协议，可从 OpenSand 令牌管理�
 
 3. **完成配置**
    点击 **「打开 CC Switch」** 即可将配置导入 CC Switch 并开始使用；点击 **「取消」** 放弃本次操作。
+
+![tanchuang](../../../pictures/apps/cc_switch/tanchuang.png)
+
+![import](../../../pictures/apps/cc_switch/import.png)
+
+![home](../../../pictures/apps/cc_switch/home.png)
 
 ## 安装方式
 

@@ -4,18 +4,10 @@ source: "https://opensand.ai/en/docs/apps/cc-switch"
 adapted_for: "OpenSand"
 adapted_at: "2026-05-22T02:54:35.133Z"
 ---
+
 # CC Switch
 
 > This page uses OpenSand API endpoints, setup scripts, and console field names. Third-party client interfaces may change by version, so use your installed version as the source of truth.
-
-
-**Chat Settings Option**
-
-In the OpenSand console under System Settings -> Chat Settings, you can add the following shortcut to enable one-click fill for CC Switch from the token management page:
-
-    ```json
-    { "CC Switch": "ccswitch" }
-    ```
 
 🔀 CC Switch is an open-source, cross-platform all-in-one AI CLI management tool. It supports
 one-click provider switching for Claude Code, Codex and Gemini CLI, unified MCP server management,
@@ -47,7 +39,7 @@ multiple AI coding assistants without manually editing config files.
 - **Web version** — Browser-accessible interface for headless servers / SSH environments
 - **CLI version** — Both interactive menu-driven and command-line modes
 
-## OpenSand Integration
+## OpenSand Integration Method
 
 CC Switch supports the `ccswitch://` Deep Link protocol, allowing one-click provider config import from the OpenSand token management page.
 
@@ -69,8 +61,14 @@ CC Switch supports the `ccswitch://` Deep Link protocol, allowing one-click prov
 
    All models are dropdown selections; unselected fields show "Please select model".
 
-3. **Finish**
+3. **Complete the configuration**
    Click **"Open CC Switch"** to import the config into CC Switch and start using it; click **"Cancel"** to discard.
+
+![tanchuang](../../../pictures/apps/cc_switch/tanchuang.png)
+
+![import](../../../pictures/apps/cc_switch/import.png)
+
+![home](../../../pictures/apps/cc_switch/home.png)
 
 ## Installation
 

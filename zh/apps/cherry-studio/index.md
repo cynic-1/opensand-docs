@@ -36,17 +36,24 @@ API 地址：OpenSand 站点地址
 
 ### 图文指引
 
-1. 在 OpenSand 中复制 API key
-   ![复制 API 密钥](../../../pictures/apps/cherry_studio/copy_api_key.png)
+1. 在令牌管理页面点击cherry studio一键设置
 
-2. 添加提供商
-   ![添加供应商](../../../pictures/apps/cherry_studio/add_provider.png)
+![setup](../../../pictures/apps/cherry_studio/setup.png)
 
-3. 添加模型
-   ![添加模型](../../../pictures/apps/cherry_studio/add_models.png)
+2. 点击弹窗
 
-4. 返回聊天页面
+![tanchuang](../../../pictures/apps/cherry_studio/tanchuang.png)
+
+3. 添加供应商
+
+![add](../../../pictures/apps/cherry_studio/add.png)
+
+4. 添加模型
+
+![add_model](../../../pictures/apps/cherry_studio/add_model.png)
+
+5. 返回聊天页面
    ![切换聊天页面](../../../pictures/apps/cherry_studio/back_to_chat.png)
 
-5. 切换 OpenSand 模型
-   ![切换模型](../../../pictures/apps/cherry_studio/switch_model.png)
+6. 切换 OpenSand 模型
+   ![select](../../../pictures/apps/cherry_studio/select.png)

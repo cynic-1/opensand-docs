@@ -145,8 +145,6 @@ claude --version
 iex (irm 'https://opensand.ai/scripts/claude-cli-setup.ps1')
 ```
 
-![windows-configure](../../../pictures/apps/claude_code/windows_configure.png)
-
 #### 5.开始使用 Claude Code
 
 现在你可以开始使用 Claude Code 了！
@@ -229,8 +227,6 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
 curl -fsSL https://opensand.ai/scripts/claude-cli-setup.sh | bash
 ```
 
-![macos-configure](../../../pictures/apps/claude_code/macos_configure.png)
-
 **验证 Claude Code 安装**
 
 安装完成后，输入以下命令检查是否安装成功：
@@ -291,6 +287,10 @@ claude
 - 点击"仍要打开"或"允许"
 - 或者在 Terminal 中运行：`sudo spctl --master-disable`
 
+也可以直接使用cc switch
+
+![ccswitch](../../../pictures/apps/claude_code/ccswitch.png)
+
 ### Linux 端图文指引
 
 #### 1.安装 Claude Code
@@ -332,8 +332,6 @@ claude --version
 ```bash
 curl -fsSL https://opensand.ai/scripts/claude-cli-setup.sh | bash
 ```
-
-![macos-configure](../../../pictures/apps/claude_code/macos_configure.png)
 
 #### 3.开始使用 Claude Code
 
